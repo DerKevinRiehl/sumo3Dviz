@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-06-04 09:09:10 by Eclipse SUMO netedit Version 1.19.0
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- Shapes -->
+    <poi id="poi_0" color="red" layer="202.00" x="19108.06" y="18139.40"/>
+    <poi id="poi_1" color="red" layer="202.00" x="19090.20" y="18139.21"/>
+    <poi id="poi_10" color="red" layer="202.00" x="19107.98" y="18007.15"/>
+    <poi id="poi_11" color="red" layer="202.00" x="19108.35" y="18027.30"/>
+    <poi id="poi_12" color="red" layer="202.00" x="19088.55" y="17917.36"/>
+    <poi id="poi_13" color="red" layer="202.00" x="19088.71" y="17931.70"/>
+    <poi id="poi_14" color="red" layer="202.00" x="19088.65" y="17949.86"/>
+    <poi id="poi_15" color="red" layer="202.00" x="19089.14" y="17966.94"/>
+    <poi id="poi_16" color="red" layer="202.00" x="19089.14" y="17988.02"/>
+    <poi id="poi_17" color="red" layer="202.00" x="19088.84" y="18007.35"/>
+    <poi id="poi_18" color="red" layer="202.00" x="19088.93" y="18027.62"/>
+    <poi id="poi_19" color="red" layer="202.00" x="19107.82" y="18158.98"/>
+    <poi id="poi_2" color="red" layer="202.00" x="19090.26" y="18158.95"/>
+    <poi id="poi_20" color="red" layer="202.00" x="19090.36" y="18178.60"/>
+    <poi id="poi_21" color="red" layer="202.00" x="19107.56" y="18178.05"/>
+    <poi id="poi_22" color="red" layer="202.00" x="19099.78" y="18195.02"/>
+    <poi id="poi_23" color="red" layer="202.00" x="19090.27" y="18195.69"/>
+    <poi id="poi_24" color="red" layer="202.00" x="19109.43" y="18195.15"/>
+    <poi id="poi_25" color="red" layer="202.00" x="19130.06" y="18088.34"/>
+    <poi id="poi_26" color="red" layer="202.00" x="19130.09" y="18110.61"/>
+    <poi id="poi_27" color="red" layer="202.00" x="19141.71" y="18088.45"/>
+    <poi id="poi_28" color="red" layer="202.00" x="19141.22" y="18110.74"/>
+    <poi id="poi_29" color="red" layer="202.00" x="19153.87" y="18088.11"/>
+    <poi id="poi_3" color="red" layer="202.00" x="19108.67" y="17901.70"/>
+    <poi id="poi_30" color="red" layer="202.00" x="19171.69" y="18087.91"/>
+    <poi id="poi_31" color="red" layer="202.00" x="19195.28" y="18087.49"/>
+    <poi id="poi_32" color="red" layer="202.00" x="19207.95" y="18087.55"/>
+    <poi id="poi_33" color="red" layer="202.00" x="19225.98" y="18087.57"/>
+    <poi id="poi_34" color="red" layer="202.00" x="19244.01" y="18087.81"/>
+    <poi id="poi_35" color="red" layer="202.00" x="19261.82" y="18087.06"/>
+    <poi id="poi_36" color="red" layer="202.00" x="19274.51" y="18086.97"/>
+    <poi id="poi_37" color="red" layer="202.00" x="20089.02" y="18399.79"/>
+    <poi id="poi_38" color="red" layer="202.00" x="20088.63" y="18415.88"/>
+    <poi id="poi_39" color="red" layer="202.00" x="20088.63" y="18434.33"/>
+    <poi id="poi_4" color="red" layer="202.00" x="19088.37" y="17901.80"/>
+    <poi id="poi_40" color="red" layer="202.00" x="20088.04" y="18452.18"/>
+    <poi id="poi_41" color="red" layer="202.00" x="20088.04" y="18468.47"/>
+    <poi id="poi_42" color="red" layer="202.00" x="20088.24" y="18484.36"/>
+    <poi id="poi_43" color="red" layer="202.00" x="20088.24" y="18498.88"/>
+    <poi id="poi_44" color="red" layer="202.00" x="20088.04" y="18515.56"/>
+    <poi id="poi_45" color="red" layer="202.00" x="20108.05" y="18515.56"/>
+    <poi id="poi_46" color="red" layer="202.00" x="20108.09" y="18498.05"/>
+    <poi id="poi_47" color="red" layer="202.00" x="20108.28" y="18483.50"/>
+    <poi id="poi_48" color="red" layer="202.00" x="20108.77" y="18468.47"/>
+    <poi id="poi_49" color="red" layer="202.00" x="20109.33" y="18452.07"/>
+    <poi id="poi_5" color="red" layer="202.00" x="19108.83" y="17931.73"/>
+    <poi id="poi_50" color="red" layer="202.00" x="20109.42" y="18434.65"/>
+    <poi id="poi_51" color="red" layer="202.00" x="20109.76" y="18415.34"/>
+    <poi id="poi_52" color="red" layer="202.00" x="20108.84" y="18398.62"/>
+    <poi id="poi_53" color="red" layer="202.00" x="20138.11" y="18611.01"/>
+    <poi id="poi_54" color="red" layer="202.00" x="20092.93" y="18640.79"/>
+    <poi id="poi_55" color="red" layer="202.00" x="20092.39" y="18655.80"/>
+    <poi id="poi_56" color="red" layer="202.00" x="20092.26" y="18669.20"/>
+    <poi id="poi_57" color="red" layer="202.00" x="20099.76" y="18669.33"/>
+    <poi id="poi_58" color="red" layer="202.00" x="20107.27" y="18669.33"/>
+    <poi id="poi_59" color="red" layer="202.00" x="20107.13" y="18655.40"/>
+    <poi id="poi_6" color="red" layer="202.00" x="19108.77" y="17917.29"/>
+    <poi id="poi_60" color="red" layer="202.00" x="20107.40" y="18640.79"/>
+    <poi id="poi_61" color="red" layer="202.00" x="20151.17" y="18611.25"/>
+    <poi id="poi_62" color="red" layer="202.00" x="20099.65" y="18684.37"/>
+    <poi id="poi_63" color="red" layer="202.00" x="20092.05" y="18684.61"/>
+    <poi id="poi_64" color="red" layer="202.00" x="20107.72" y="18683.90"/>
+    <poi id="poi_65" color="red" layer="202.00" x="20137.87" y="18587.03"/>
+    <poi id="poi_66" color="red" layer="202.00" x="20151.88" y="18587.03"/>
+    <poi id="poi_67" color="red" layer="202.00" x="20166.36" y="18586.80"/>
+    <poi id="poi_68" color="red" layer="202.00" x="20183.93" y="18586.80"/>
+    <poi id="poi_69" color="red" layer="202.00" x="20209.81" y="18586.56"/>
+    <poi id="poi_7" color="red" layer="202.00" x="19108.97" y="17949.88"/>
+    <poi id="poi_70" color="red" layer="202.00" x="20221.44" y="18586.56"/>
+    <poi id="poi_71" color="red" layer="202.00" x="20237.35" y="18586.80"/>
+    <poi id="poi_72" color="red" layer="202.00" x="20257.29" y="18586.80"/>
+    <poi id="poi_73" color="red" layer="202.00" x="20277.00" y="18587.51"/>
+    <poi id="poi_74" color="red" layer="202.00" x="20295.99" y="18586.56"/>
+    <poi id="poi_75" color="red" layer="202.00" x="20087.99" y="18535.20"/>
+    <poi id="poi_76" color="red" layer="202.00" x="20108.02" y="18535.84"/>
+    <poi id="poi_8" color="red" layer="202.00" x="19108.72" y="17966.77"/>
+    <poi id="poi_9" color="red" layer="202.00" x="19108.46" y="17987.57"/>
+</additional>

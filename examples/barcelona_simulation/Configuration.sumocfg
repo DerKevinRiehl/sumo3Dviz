@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+    <!-- SIMULATION SETTINGS -->
+    <time>
+        <begin value="0"/>
+        <end value="10800"/> <!-- 3 hours, from 06:00 - 09:00 morning peak -->
+    </time>
+    
+    <!-- PROCESSING OPTIONS -->
+    <processing>
+        <step-length value="1"/>
+        <time-to-teleport value="-1"/> <!-- Disable Teleportation -->
+			<device.emissions.period value="10" />
+			<summary-output.period value="300"/>
+    </processing>
+    
+    <!-- INPUT FILES -->
+    <input>
+        <net-file value="Network_2Sided.net.xml"/>
+        <route-files value="Demand_other_origin.rou.xml"/>
+		<additional-files value="Sensors.add.xml,Sensors_withlog.add.xml,edge_logging.xml"/>  <!-- ,edge_logging.xml -->
+    </input>
+	
+    <!-- OUTPUT FILES / LOGGING -->
+	<output>
+		<!-- <emission-output value="logs/Emissions.xml" /> -->
+		<tripinfo-output value="logs/TripInfos.xml" write-unfinished="true"/>
+		<summary-output value="logs/Log_summary.xml"/>
+	</output>
+	
+    <!-- REPORT OPTIONS -->
+    <report>
+        <verbose value="true"/>
+        <no-step-log value="true"/>
+    </report>
+</configuration>
