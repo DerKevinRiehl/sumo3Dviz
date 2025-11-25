@@ -1,0 +1,35 @@
+images
+	Puresky
+		https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
+	Grass
+		Self designed
+
+3D Models
+	buildings
+		residential buildings
+			https://free3d.com/3d-model/array-house-example-3033.html
+		shop
+			https://free3d.com/3d-model/cornergrocerystore--39622.html
+		small home
+			https://free3d.com/3d-model/small-home-v3--949902.html
+			
+	cars (dont know the source anymore to be honest)
+
+	trees
+		MapleTree
+			https://free3d.com/3d-model/maple-tree-262328.html
+		Hazelnut
+			https://free3d.com/3d-model/hazelnut-bush-290678.html
+
+	road_elements
+		Street Lamp
+			https://free3d.com/3d-model/street-lamp-419100.html
+		TrafficLight
+			https://free3d.com/3d-model/traffic-light-60477.html
+			
+TODO:
+other cars:
+	https://free3d.com/3d-model/cars-61713.html
+	https://free3d.com/3d-model/cartoon-low-poly-city-cars-pack-32084.html
+	https://sketchfab.com/3d-models/low-polygon-cartoon-transportation-collection-c829e9780fc74e8385f204ec1e7a151a
+	https://www.fab.com/listings/4086178a-444f-4b74-8f34-28cb22386d58?utm_campaign=pr*Fab_sp*Fab.com_an*Moonrock_ct*Bing_cn*Fab.com_ta*Generic_pl*LinkClicks_co*USBuyer&utm_content=555197693&utm_medium=PaidSearch&utm_source=bing&utm_term=download+3d+models
