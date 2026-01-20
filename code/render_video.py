@@ -11,13 +11,18 @@ Submitted to: SUMO User Conference 2026
 # #############################################################################
 # # IMPORTS
 # #############################################################################
-import numpy as np  
+import numpy as np
 import math
 import cv2
 import sys
+import os
+from pathlib import Path
 
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Filename, loadPrcFileData
+
+# Get current working directory (should be repository root)
+REPO_ROOT = Path(os.getcwd())
 
 from tools_rendering import create_light, create_sky, create_floor, create_trees, create_building_shops, create_building_homes, create_building_blocks
 from tools_rendering import create_road_network, draw_highway_fences, draw_traffic_light, draw_white_signal_line, update_traffic_light
@@ -38,7 +43,7 @@ video_parameters = {
 }
 
 trajectory_parameters = {
-    "input_file": "../examples/barcelona_simulation/vehicle_pos_log_collection/xx_vehicle_pos_log_file_60_ALINEA.zip",
+    "input_file": str(REPO_ROOT / "examples/barcelona_simulation/vehicle_pos_log_collection/xx_vehicle_pos_log_file_60_ALINEA.zip"),
     "ego_individual": "sample_flow_E2_A3.32",
     "render_from_simtime": 3119.178096,
     "render_to_simtime": 3379.616172,
@@ -136,16 +141,16 @@ def update_scene_world(task):
 # load trajectory
 df_ego_smoothed, smoothened_trajectory_data, VIDEO_CURRENT_POINT, VIDEO_FINAL_POINT = load_trajectory(trajectory_parameters["input_file"], trajectory_parameters, video_parameters, visualization_parameter["show_others"])
 # load traffic light signal
-df_simulation_log_light = load_traffic_light_signals("../examples/barcelona_simulation/vehicle_pos_log_collection/xx_vehicle_pos_log_file_"+SIMULATION+"_lights.csv", df_ego_smoothed)
+df_simulation_log_light = load_traffic_light_signals(str(REPO_ROOT / f"examples/barcelona_simulation/vehicle_pos_log_collection/xx_vehicle_pos_log_file_{SIMULATION}_lights.csv"), df_ego_smoothed)
 # convert list of tuples for easier access
 trajectory_points = df_ego_smoothed[["veh_id", 'pos_x', 'pos_y', 'computed_angle_deg', 'time']].values
 signal_points = df_simulation_log_light[["time", "state", "timer"]].values
 # load object positions
-tree_positions = load_tree_positions("../examples/barcelona_simulation/viz_object_positions/trees.add.xml")
-fence_lines = load_fence_lines("../examples/barcelona_simulation/viz_object_positions/fences.add.xml")
-shop_positions = load_shop_positions("../examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml")
-homes_positions = load_shop_positions("../examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml")
-block_positions = load_shop_positions("../examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml")
+tree_positions = load_tree_positions(str(REPO_ROOT / "examples/barcelona_simulation/viz_object_positions/trees.add.xml"))
+fence_lines = load_fence_lines(str(REPO_ROOT / "examples/barcelona_simulation/viz_object_positions/fences.add.xml"))
+shop_positions = load_shop_positions(str(REPO_ROOT / "examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"))
+homes_positions = load_shop_positions(str(REPO_ROOT / "examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml"))
+block_positions = load_shop_positions(str(REPO_ROOT / "examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"))
 traffic_light_positions = {
     "ramp_1": {
         "pos_x": 20217.08-0.0,
@@ -179,9 +184,12 @@ if visualization_parameter["record_video"]:
 
 
 ######## CREATE 3D CONTEXT OBJECT
+# Use offscreen rendering to avoid requiring a visible macOS window
+# and disable multisampling to prevent pixel format errors on some systems.
+# loadPrcFileData('', 'window-type offscreen') # TODO: re-introduce this for headless rendering
 loadPrcFileData('', 'win-size '+str(video_parameters["frame_width_px"])+' '+str(video_parameters["frame_heigth_px"]))
-loadPrcFileData('', 'framebuffer-multisample 1')
-loadPrcFileData('', 'multisamples 8')
+loadPrcFileData('', 'framebuffer-multisample 0') # TODO: fix that this can be 1 again even when using on MacOS
+loadPrcFileData('', 'multisamples 0') # TODO: fix that this can be 8 again even when using on MacOS
 # loadPrcFileData('', 'load-file-type p3assimp')
 context = ShowBase()
 # Settings
@@ -196,7 +204,7 @@ create_sky(context)
     # GrassFloor
 create_floor(context)
     # roads / sumo network
-create_road_network(context, '../examples/barcelona_simulation/Network_2Sided.net.xml')
+create_road_network(context, str(REPO_ROOT / 'examples/barcelona_simulation/Network_2Sided.net.xml')) # TODO: FIX ISSUE WHERE LOADING NETWORK CAUSES FAILURES IN SIMULATION RUN!
     # trees
 tree_instances = create_trees(context, tree_positions)
     # highways fences
@@ -209,7 +217,7 @@ create_building_blocks(context, block_positions)
 car_models = load_car_models(context)
 others_car_instances = {}
     # ego car
-ego_car = context.loader.loadModel('../data/3d_models/cars/Car.glb')
+ego_car = context.loader.loadModel(str(REPO_ROOT / 'data/3d_models/cars/Car.glb'))
 ego_car.reparentTo(context.render)
 ego_car.setPos(visualization_parameter["lane_width"]/2, 25, 0)
 ego_car.setHpr(180, 90, 0)

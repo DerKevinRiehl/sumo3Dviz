@@ -12,6 +12,11 @@ Submitted to: SUMO User Conference 2026
 import numpy as np
 import pandas as pd
 import sumolib
+import os
+from pathlib import Path
+
+# Get current working directory (should be repository root)
+REPO_ROOT = Path(os.getcwd())
 
 from tools_trajectory import getVehicleTrajectoryRaw, normalize_angle, interpolateTrajectory, load_smoothened_trajectories
 
@@ -20,7 +25,7 @@ from tools_trajectory import getVehicleTrajectoryRaw, normalize_angle, interpola
 # # LOADING METHODS
 # #############################################################################
 
-def load_car_models(context, path_car_models="../data/3d_models/cars/Low Poly Cars.glb"):
+def load_car_models(context, path_car_models=str(REPO_ROOT / 'data/3d_models/cars/Low Poly Cars.glb')):
     car_collection = context.loader.loadModel(path_car_models)
     car_models = [car_collection.find("**/"+str(n)) for n in range(1,10+1)]
     return car_models
