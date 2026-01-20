@@ -2,7 +2,7 @@
 sumo3Dviz - A three dimensional visualization of traffic simulations with SUMO
 ==============================================================================================
 Organization: Institute for Transport Planning and Systems (IVT), ETH Zürich
-Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlappbach <julius.schlapbach@ivt.baug.ethz.ch>
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <juliussc@ethz.ch>
 Submitted to: SUMO User Conference 2026
 """
 
