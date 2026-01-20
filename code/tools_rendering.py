@@ -14,8 +14,6 @@ import sumolib
 import os
 from pathlib import Path
 
-# Get current working directory (should be repository root)
-REPO_ROOT = Path(os.getcwd())
 
 from panda3d.core import Geom, GeomNode, GeomVertexData, GeomVertexFormat, GeomVertexWriter, GeomTriangles
 from panda3d.core import CardMaker, LColor, Filename, TextureStage
@@ -51,7 +49,7 @@ def create_light(context):
     dlnp.setHpr(-30, -45, 0)  # pointing downward and forward
     context.render.setLight(dlnp)
     
-def create_sky(context, path_sky_texture=str(REPO_ROOT / "data/images/puresky.jpg"), INFINITY = 50000):
+def create_sky(context, path_sky_texture=os.path.join(os.path.dirname(__file__), "../data/images/puresky.jpg"), INFINITY = 50000):
     # generate an inverted sphere model
     sky_sphere = context.loader.loadModel("models/smiley") 
     sky_sphere.reparentTo(context.render)
@@ -66,7 +64,7 @@ def create_sky(context, path_sky_texture=str(REPO_ROOT / "data/images/puresky.jp
     sky_sphere.setDepthWrite(False)
     sky_sphere.setLightOff() 
 
-def create_floor(context, path_floor_texture=str(REPO_ROOT / "data/images/grass.jpg"), INFINITY = 50000):
+def create_floor(context, path_floor_texture=os.path.join(os.path.dirname(__file__), "../data/images/grass.jpg"), INFINITY = 50000):
     # Grass Floor
     cm_ground = CardMaker("ground")
     cm_ground.setFrame(-INFINITY, INFINITY, -INFINITY, INFINITY)
@@ -82,8 +80,8 @@ def create_floor(context, path_floor_texture=str(REPO_ROOT / "data/images/grass.
     
 def create_trees(app, tree_positions):
     # Load tree models
-    tree1_model = app.loader.loadModel(str(REPO_ROOT / 'data/3d_models/trees/MapleTree.obj'))
-    tree2_model = app.loader.loadModel(str(REPO_ROOT / 'data/3d_models/trees/Hazelnut.obj'))
+    tree1_model = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/trees/MapleTree.obj'))
+    tree2_model = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/trees/Hazelnut.obj'))
     tree_scale_1 = 0.2
     tree_scale_2 = 0.5
     tree_size_variability = 1
@@ -112,7 +110,7 @@ def create_trees(app, tree_positions):
 
 def create_building_shops(app, shop_positions):
     # Load shop model
-    building1 = app.loader.loadModel(str(REPO_ROOT / 'data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj'))
+    building1 = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj'))
     # Get the original bounding box
     min_point, max_point = building1.getTightBounds()
     if min_point is None or max_point is None:
@@ -138,7 +136,7 @@ def create_building_shops(app, shop_positions):
     return shop_instances, scaled_depth
 
 def create_building_homes(app, home_positions):
-    building3 = app.loader.loadModel(str(REPO_ROOT / 'data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj'))
+    building3 = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj'))
     # generate trees
     tree_instances = []
     for position in home_positions:
@@ -156,7 +154,7 @@ def create_building_homes(app, home_positions):
         tree_instances.append(tree_instance)
         
 def create_building_blocks(app, home_positions):
-    building3 = app.loader.loadModel(str(REPO_ROOT / 'data/3d_models/buildings/Residential Buildings 002.obj'))
+    building3 = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/Residential Buildings 002.obj'))
     # generate trees
     tree_instances = []
     for position in home_positions:
