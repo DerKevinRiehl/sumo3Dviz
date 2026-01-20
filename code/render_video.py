@@ -67,7 +67,7 @@ SIMULATION = "NO_CONTROL" # SIMULATION TYPES: "NO_CONTROL", "45_ALINEA", "60_ALI
 
 def update_scene_world(task):
     global VIDEO_CURRENT_POINT
-    # global screenshot_counter
+    global screenshot_counter
     if VIDEO_CURRENT_POINT < len(trajectory_points):
         veh_id, x, y, angle, current_time = trajectory_points[VIDEO_CURRENT_POINT]
         _, signal, timer = signal_points[VIDEO_CURRENT_POINT]
@@ -118,12 +118,20 @@ def update_scene_world(task):
         VIDEO_CURRENT_POINT += 1
         VIDEO_CURRENT_POINT += 1 # double render speed
         if visualization_parameter["record_video"]:
-            # Screen Shot
-            filename = "screenshots/"+video_parameters["output_file"]+".png"
+            # Ensure screenshots directory exists and write uniquely named files
+            screenshots_dir = REPO_ROOT / 'code/screenshots'
+            screenshots_dir.mkdir(parents=True, exist_ok=True)
+            output_base = Path(video_parameters["output_file"]).stem
+            filename = str(screenshots_dir / f"{output_base}_{screenshot_counter:06d}.png")
             context.win.saveScreenshot(Filename(filename))
             # Write the frame to the video
+            context.graphicsEngine.renderFrame()
+
+            # Write the frame to the video (only if successfully read)
             img = cv2.imread(filename)
             video_writer.write(img)
+            screenshot_counter += 1
+
         if VIDEO_CURRENT_POINT > VIDEO_FINAL_POINT:
             video_writer.release()
             sys.exit(0)
@@ -169,6 +177,9 @@ traffic_light_positions = {
         "stop_line_d": 18261.15
     }
 }
+
+# screenshot counter for saved frames
+screenshot_counter = 0
 
 
 # #############################################################################

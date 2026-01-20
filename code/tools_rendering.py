@@ -194,6 +194,7 @@ def create_road_network(context, sumo_network_file):
             else:
                 lane_l = "i"
             _draw_road_edge_lane(context, lane_shape, lane_l)
+
     # Draw Junctions
     for junction in net.getNodes():
         junction_shape = junction.getShape()
@@ -276,31 +277,33 @@ def _draw_white_seperator_line_right(context, lane_shape, color, z=0.03):
         road.setHpr(angle_deg, -90, 0)
         road.setColor(LColor(*color))  
        
+# TODO - figure out why this function causes issues with rendering speed
 def _draw_white_separator_line_right_dashed(context, lane_shape, color, z=0.03, dash_length=1.0, gap_length=1.0):
-    for i in range(len(lane_shape) - 1):
-        pA = np.asarray(lane_shape[i])
-        pB = np.asarray(lane_shape[i + 1])
-        segment_vector = pB - pA
-        segment_length = np.linalg.norm(segment_vector)
-        if segment_length == 0:
-            continue
-        direction = segment_vector / segment_length
-        num_dashes = int(segment_length // (dash_length + gap_length))
-        angle_deg = np.degrees(np.arctan2(direction[1], direction[0])) - 90
-        for j in range(num_dashes):
-            start_offset = (dash_length + gap_length) * j
-            dash_center = pA + direction * (start_offset + dash_length / 2)
-            # Offset to the right side of the lane
-            normal = np.array([-direction[1], direction[0]])  # 90-degree rotation
-            offset = normal * (LANE_WIDTH / 2 - SEP_LINE_WIDTH / 2)
-            final_pos = dash_center + offset
-            # Create dashed card
-            cm_dash = CardMaker("dash")
-            cm_dash.setFrame(-SEP_LINE_WIDTH / 2, SEP_LINE_WIDTH / 2, 0, dash_length)
-            dash = context.render.attachNewNode(cm_dash.generate())
-            dash.setPos(final_pos[0], final_pos[1], z)
-            dash.setHpr(angle_deg, -90, 0)
-            dash.setColor(LColor(*color))
+    pass
+    # for i in range(len(lane_shape) - 1):
+    #     pA = np.asarray(lane_shape[i])
+    #     pB = np.asarray(lane_shape[i + 1])
+    #     segment_vector = pB - pA
+    #     segment_length = np.linalg.norm(segment_vector)
+    #     if segment_length == 0:
+    #         continue
+    #     direction = segment_vector / segment_length
+    #     num_dashes = int(segment_length // (dash_length + gap_length))
+    #     angle_deg = np.degrees(np.arctan2(direction[1], direction[0])) - 90
+    #     for j in range(num_dashes):
+    #         start_offset = (dash_length + gap_length) * j
+    #         dash_center = pA + direction * (start_offset + dash_length / 2)
+    #         # Offset to the right side of the lane
+    #         normal = np.array([-direction[1], direction[0]])  # 90-degree rotation
+    #         offset = normal * (LANE_WIDTH / 2 - SEP_LINE_WIDTH / 2)
+    #         final_pos = dash_center + offset
+    #         # Create dashed card
+    #         cm_dash = CardMaker("dash")
+    #         cm_dash.setFrame(-SEP_LINE_WIDTH / 2, SEP_LINE_WIDTH / 2, 0, dash_length)
+    #         dash = context.render.attachNewNode(cm_dash.generate())
+    #         dash.setPos(final_pos[0], final_pos[1], z)
+    #         dash.setHpr(angle_deg, -90, 0)
+    #         dash.setColor(LColor(*color))
 
 def _draw_polygon_fan(context, shape_points, z=0.01):
     if len(shape_points) < 3:
