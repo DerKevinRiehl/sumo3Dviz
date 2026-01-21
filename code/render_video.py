@@ -16,10 +16,8 @@ import math
 import cv2
 import sys
 import os
-import time
-from pathlib import Path
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import Filename, loadPrcFileData, AntialiasAttrib, FrameBufferProperties
+from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties
 # import gltf
 
 from tools_rendering import create_light, create_sky, create_floor, create_trees, create_building_shops, create_building_homes, create_building_blocks
@@ -40,10 +38,10 @@ video_parameters = {
 }
 
 trajectory_parameters = {
-    "input_file": os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/vehicle_pos_log_collection/xx_vehicle_pos_log_file_60_ALINEA.zip"),
-    "ego_individual": "sample_flow_E2_A3.32",
-    "render_from_simtime": 3119.178096,
-    "render_to_simtime": 3379.616172,
+    "input_file": os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/simulation_logs/vehicle_positions.xml"),
+    "ego_individual": "flow_0_car_aggr1_route_E3_AEnd_lane0.0",
+    "render_from_simtime": 39.00,
+    "render_to_simtime": 369.00,
 }
 
 visualization_parameter = {
@@ -140,10 +138,11 @@ def update_scene_world(task):
 # #############################################################################
 # # LOAD DATA
 # #############################################################################      
+
 # load trajectory
 df_ego_smoothed, smoothened_trajectory_data, VIDEO_CURRENT_POINT, VIDEO_FINAL_POINT = load_trajectory(trajectory_parameters["input_file"], trajectory_parameters, video_parameters, visualization_parameter["show_others"])
 # load traffic light signal
-df_simulation_log_light = load_traffic_light_signals(os.path.join(os.path.dirname(__file__), f"../examples/barcelona_simulation/vehicle_pos_log_collection/xx_vehicle_pos_log_file_{SIMULATION}_lights.csv"), df_ego_smoothed)
+df_simulation_log_light = load_traffic_light_signals(os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/simulation_logs/signal_states.xml"), df_ego_smoothed, tl_id="JE3")
 # convert list of tuples for easier access
 trajectory_points = df_ego_smoothed[["veh_id", 'pos_x', 'pos_y', 'computed_angle_deg', 'time']].values
 signal_points = df_simulation_log_light[["time", "state", "timer"]].values
@@ -212,7 +211,7 @@ create_sky(context)
     # GrassFloor
 create_floor(context)
     # roads / sumo network
-create_road_network(context, os.path.join(os.path.dirname(__file__), '../examples/barcelona_simulation/Network_2Sided.net.xml')) 
+create_road_network(context, os.path.join(os.path.dirname(__file__), '../examples/barcelona_simulation/Network.net.xml')) 
     # trees
 tree_instances = create_trees(context, tree_positions)
     # highways fences

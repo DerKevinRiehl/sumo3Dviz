@@ -14,6 +14,7 @@ import pandas as pd
 import sumolib
 import os
 from panda3d.core import Filename
+import xml.etree.ElementTree as ET
 
 from tools_trajectory import getVehicleTrajectoryRaw, normalize_angle, interpolateTrajectory, load_smoothened_trajectories
 
@@ -62,9 +63,24 @@ def load_shop_positions(xml_file):
     return tree_positions
 
 def load_trajectory(path_trajectory_file, trajectory_parameter, video_parameters, SHOW_OTHERS):
+    # Load Trajectory from SUMO LOG
+    tree = ET.parse(path_trajectory_file)
+    root = tree.getroot()    
+    rows = []
+    for ts in root.findall("timestep"):
+        t = float(ts.get("time"))
+        for veh in ts.findall("vehicle"):
+            rows.append({
+                "time": float(t),
+                "veh_id": veh.get("id"),
+                "pos_x": float(veh.get("x")),
+                "pos_y": float(veh.get("y")),
+                "angle": float(veh.get("angle")),
+            })
+    df_simulation_log_cars = pd.DataFrame(rows, columns=["time", "veh_id", "pos_x", "pos_y", "angle"])
+    df_simulation_log_cars = df_simulation_log_cars.astype({"time": float, "pos_x": float, "pos_y": float, "angle": float})
     # Determine trajectory
-    df_simulation_log_cars = pd.read_csv(path_trajectory_file)
-    # df_simulation_log_cars = pd.read_csv("../examples/barcelona_simulation/vehicle_pos_log_collection/xx_vehicle_pos_log_file_"+SIMULATION+".csv")
+    # df_simulation_log_cars = pd.read_csv(path_trajectory_file)
     df_ego_trajectory, simulation_from_time, simulation_to_time = getVehicleTrajectoryRaw(df_simulation_log_cars, trajectory_parameter["ego_individual"])
     df_ego_trajectory["angle"] = [normalize_angle(angle) for angle in df_ego_trajectory["angle"]]
     df_ego_smoothed = interpolateTrajectory(df_ego_trajectory, video_parameters["fps_rate"])
@@ -81,8 +97,19 @@ def load_trajectory(path_trajectory_file, trajectory_parameter, video_parameters
         smoothened_trajectory_data = None
     return df_ego_smoothed, smoothened_trajectory_data, VIDEO_CURRENT_POINT, VIDEO_FINAL_POINT
 
-def load_traffic_light_signals(path_signal_file, df_ego_smoothed):
-    df_simulation_log_light = pd.read_csv(path_signal_file)
+def load_traffic_light_signals(path_signal_file, df_ego_smoothed, tl_id): # TODO: better dont hand over df_ego_smoothed but trajectory paramter for time limits
+    # load from SUMO XML File and convert
+    tree = ET.parse(path_signal_file)
+    root = tree.getroot()
+    records = []
+    for ts in root.findall("tlsState"):
+        if ts.get("id") == tl_id:
+            time = float(ts.get("time"))
+            state = ts.get("state")
+            records.append({"time": time, "state": state})
+    df_simulation_log_light = pd.DataFrame(records, columns=["time", "state"])
+    df_simulation_log_light = df_simulation_log_light.astype({"time": float})
+    # df_simulation_log_light = pd.read_csv(path_signal_file)
     df_simulation_log_light = _convert_to_25Hz(df_simulation_log_light)
     df_simulation_log_light = df_simulation_log_light[df_simulation_log_light["time"]<=df_ego_smoothed["time"].iloc[-1]+0.001]
     df_simulation_log_light = df_simulation_log_light[df_simulation_log_light["time"]>=df_ego_smoothed["time"].iloc[0]-0.001]
