@@ -13,8 +13,7 @@ import numpy as np
 import pandas as pd
 import sumolib
 import os
-from pathlib import Path
-
+from panda3d.core import Filename
 
 from tools_trajectory import getVehicleTrajectoryRaw, normalize_angle, interpolateTrajectory, load_smoothened_trajectories
 
@@ -23,10 +22,14 @@ from tools_trajectory import getVehicleTrajectoryRaw, normalize_angle, interpola
 # # LOADING METHODS
 # #############################################################################
 
-def load_car_models(context, path_car_models=os.path.join(os.path.dirname(__file__), '../data/3d_models/cars/Low Poly Cars.glb')):
+def load_car_models(context, path_car_models=Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/cars/Low Poly Cars.glb'))):
     car_collection = context.loader.loadModel(path_car_models)
     car_models = [car_collection.find("**/"+str(n)) for n in range(1,10+1)]
     return car_models
+
+def load_ego_car_model(context, path_car_model=Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/cars/Car.glb'))):
+    ego_car = context.loader.loadModel(path_car_model)
+    return ego_car
 
 def load_tree_positions(xml_file):
     tree_pois = sumolib.xml.parse(xml_file, 'poi')

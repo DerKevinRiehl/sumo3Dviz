@@ -12,8 +12,6 @@ Submitted to: SUMO User Conference 2026
 import numpy as np  
 import sumolib
 import os
-from pathlib import Path
-
 
 from panda3d.core import Geom, GeomNode, GeomVertexData, GeomVertexFormat, GeomVertexWriter, GeomTriangles
 from panda3d.core import CardMaker, LColor, Filename, TextureStage
@@ -57,14 +55,14 @@ def create_sky(context, path_sky_texture=os.path.join(os.path.dirname(__file__),
     sky_sphere.setTwoSided(True) 
     # Load the texture
     sky_texture = Texture()
-    sky_texture.read(Filename(path_sky_texture))
+    sky_texture.read(Filename(Filename.fromOsSpecific(path_sky_texture).get_fullpath()))   
     sky_sphere.setTexture(sky_texture, 1)
     # Set rendering properties
     sky_sphere.setBin('background', 0)
     sky_sphere.setDepthWrite(False)
     sky_sphere.setLightOff() 
 
-def create_floor(context, path_floor_texture=os.path.join(os.path.dirname(__file__), "../data/images/grass.jpg"), INFINITY = 50000):
+def create_floor(context, path_floor_texture=os.path.join(os.path.dirname(__file__), "../data/images/grass.jpg", ), INFINITY = 50000):
     # Grass Floor
     cm_ground = CardMaker("ground")
     cm_ground.setFrame(-INFINITY, INFINITY, -INFINITY, INFINITY)
@@ -72,7 +70,7 @@ def create_floor(context, path_floor_texture=os.path.join(os.path.dirname(__file
     ground.setPos(0, 0, -0.05)
     ground.setHpr(25, -90, 0)
     # Load the texture
-    ground_tex = context.loader.loadTexture(path_floor_texture)
+    ground_tex = context.loader.loadTexture(Filename.fromOsSpecific(path_floor_texture).get_fullpath())
     ground_tex.setWrapU(Texture.WM_repeat)
     ground_tex.setWrapV(Texture.WM_repeat)
     ground.setTexture(ground_tex)
@@ -80,8 +78,8 @@ def create_floor(context, path_floor_texture=os.path.join(os.path.dirname(__file
     
 def create_trees(app, tree_positions):
     # Load tree models
-    tree1_model = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/trees/MapleTree.obj'))
-    tree2_model = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/trees/Hazelnut.obj'))
+    tree1_model = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/trees/MapleTree.obj')).get_fullpath())
+    tree2_model = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/trees/Hazelnut.obj')).get_fullpath())
     tree_scale_1 = 0.2
     tree_scale_2 = 0.5
     tree_size_variability = 1
@@ -110,7 +108,7 @@ def create_trees(app, tree_positions):
 
 def create_building_shops(app, shop_positions):
     # Load shop model
-    building1 = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj'))
+    building1 = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj')).get_fullpath())
     # Get the original bounding box
     min_point, max_point = building1.getTightBounds()
     if min_point is None or max_point is None:
@@ -136,7 +134,7 @@ def create_building_shops(app, shop_positions):
     return shop_instances, scaled_depth
 
 def create_building_homes(app, home_positions):
-    building3 = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj'))
+    building3 = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj')))
     # generate trees
     tree_instances = []
     for position in home_positions:
@@ -154,7 +152,7 @@ def create_building_homes(app, home_positions):
         tree_instances.append(tree_instance)
         
 def create_building_blocks(app, home_positions):
-    building3 = app.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/Residential Buildings 002.obj'))
+    building3 = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/Residential Buildings 002.obj')))
     # generate trees
     tree_instances = []
     for position in home_positions:

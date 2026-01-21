@@ -16,16 +16,17 @@ import math
 import cv2
 import sys
 import os
+import time
 from pathlib import Path
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Filename, loadPrcFileData, AntialiasAttrib, FrameBufferProperties
+# import gltf
 
 from tools_rendering import create_light, create_sky, create_floor, create_trees, create_building_shops, create_building_homes, create_building_blocks
 from tools_rendering import create_road_network, draw_highway_fences, draw_traffic_light, draw_white_signal_line, update_traffic_light
 from tools_interactive import addCameraControlKeyboard
 from tools_trajectory import get_closest_vehicles
-from tools_loader import load_car_models, load_tree_positions, load_fence_lines, load_shop_positions, load_trajectory, load_traffic_light_signals
-
+from tools_loader import load_car_models, load_ego_car_model, load_tree_positions, load_fence_lines, load_shop_positions, load_trajectory, load_traffic_light_signals
 
 # #############################################################################
 # # PARAMETERS
@@ -114,18 +115,15 @@ def update_scene_world(task):
         VIDEO_CURRENT_POINT += 1
         VIDEO_CURRENT_POINT += 1 # double render speed
         if visualization_parameter["record_video"]:
-            # Ensure screenshots directory exists and write uniquely named files
-            screenshots_dir = os.path.join(os.path.dirname(__file__), 'screenshots')
-            os.makedirs(screenshots_dir, exist_ok=True)
-            output_base = Path(video_parameters["output_file"]).stem
-            filename = os.path.join(screenshots_dir, f"{output_base}_{screenshot_counter:06d}.png")
-            context.win.saveScreenshot(Filename(filename))
-            # Write the frame to the video
             context.graphicsEngine.renderFrame()
-
-            # Write the frame to the video (only if successfully read)
-            img = cv2.imread(filename)
-            video_writer.write(img)
+            tex = context.win.getScreenshot()
+            data = tex.getRamImageAs("BGRA")
+            img_array = np.frombuffer(data, np.uint8)  
+            img_array = img_array.reshape((video_parameters["frame_heigth_px"], video_parameters["frame_width_px"], 4))
+            img_array = cv2.rotate(img_array, cv2.ROTATE_180)  
+            img_array = cv2.flip(img_array, 1)             
+            img = img_array[:, :, :3]
+            video_writer.write(img)          
             screenshot_counter += 1
 
         if VIDEO_CURRENT_POINT > VIDEO_FINAL_POINT:
@@ -227,8 +225,7 @@ create_building_blocks(context, block_positions)
 car_models = load_car_models(context)
 others_car_instances = {}
     # ego car
-ego_car = context.loader.loadModel(os.path.join(os.path.dirname(__file__), '../data/3d_models/cars/Car.glb'))
-ego_car.reparentTo(context.render)
+ego_car = load_ego_car_model(context)
 ego_car.setPos(visualization_parameter["lane_width"]/2, 25, 0)
 ego_car.setHpr(180, 90, 0)
     # traffic light
