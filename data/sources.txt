@@ -4,7 +4,14 @@
 images
 	Puresky
 		https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
-
+		https://polyhaven.com/a/qwantani_dusk_2_puresky
+		https://polyhaven.com/a/overcast_soil_puresky
+		https://polyhaven.com/a/belfast_sunset_puresky
+		https://polyhaven.com/a/qwantani_night_puresky
+		https://polyhaven.com/a/qwantani_moon_noon_puresky
+		https://polyhaven.com/a/moonless_golf
+		https://polyhaven.com/a/rogland_clear_night
+		
 3D Models
 	buildings
 		residential buildings
