@@ -30,6 +30,7 @@ def load_car_models(context, path_car_models=Filename.fromOsSpecific(os.path.joi
 
 def load_ego_car_model(context, path_car_model=Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/cars/Car.glb'))):
     ego_car = context.loader.loadModel(path_car_model)
+    ego_car.reparentTo(context.render)
     return ego_car
 
 def load_tree_positions(xml_file):
