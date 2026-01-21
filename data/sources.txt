@@ -1,8 +1,9 @@
+==========================================================================
+======= USED IN THIS REPOSITORY ==========================================
+==========================================================================
 images
 	Puresky
 		https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
-	Grass
-		Self designed
 
 3D Models
 	buildings
@@ -13,23 +14,133 @@ images
 		small home
 			https://free3d.com/3d-model/small-home-v3--949902.html
 			
-	cars (dont know the source anymore to be honest)
-
+	cars
+		Low Poly Cars
+			https://www.cgtrader.com/items/5446210/download-page
+		Car (ego Car)
+			https://free3d.com/3d-model/low-poly-car-40967.html
+			
 	trees
 		MapleTree
 			https://free3d.com/3d-model/maple-tree-262328.html
 		Hazelnut
 			https://free3d.com/3d-model/hazelnut-bush-290678.html
+		Tree1
+			https://free3d.com/3d-model/tree-67970.html
 
 	road_elements
 		Street Lamp
 			https://free3d.com/3d-model/street-lamp-419100.html
 		TrafficLight
 			https://free3d.com/3d-model/traffic-light-60477.html
-			
+
+
+==========================================================================
+======= TODO: TO BE INTEGRATED ===========================================
+==========================================================================
 TODO:
 other cars:
 	https://free3d.com/3d-model/cars-61713.html
 	https://free3d.com/3d-model/cartoon-low-poly-city-cars-pack-32084.html
 	https://sketchfab.com/3d-models/low-polygon-cartoon-transportation-collection-c829e9780fc74e8385f204ec1e7a151a
 	https://www.fab.com/listings/4086178a-444f-4b74-8f34-28cb22386d58?utm_campaign=pr*Fab_sp*Fab.com_an*Moonrock_ct*Bing_cn*Fab.com_ta*Generic_pl*LinkClicks_co*USBuyer&utm_content=555197693&utm_medium=PaidSearch&utm_source=bing&utm_term=download+3d+models
+
+
+
+==========================================================================
+======= FURTHER RECOMMENDED SOURCES ======================================
+==========================================================================
+Buildings
+	Building A
+	https://free3d.com/3d-model/cornergrocerystore--39622.html
+
+	Building B 
+	https://free3d.com/3d-model/building-54495.html
+	
+	Building C
+	https://free3d.com/3d-model/array-house-example-3033.html
+	
+	Building D
+	https://free3d.com/3d-model/building-80759.html
+	
+	Building E
+	https://free3d.com/3d-model/building-810185.html
+	
+	Building F
+	https://free3d.com/3d-model/building-248482.html
+	
+	Building G
+	https://free3d.com/3d-model/small-home-v3--949902.html
+	
+Cars
+	MIX OF Cars
+	https://www.cgtrader.com/items/5446210/download-page
+
+	Car A
+	https://free3d.com/3d-model/low-poly-car-40967.html
+	
+	Car B
+	https://free3d.com/3d-model/ultracompact-car-v1--571349.html
+	
+	Car C
+	https://free3d.com/3d-model/car-v2--192448.html
+	
+	Car D
+	https://free3d.com/3d-model/mercedes-benz-gls-580-2020-83444.html
+	
+	Car E 
+	https://free3d.com/3d-model/bugatti-chiron-2017-model-31847.html
+	
+	Car F 
+	https://free3d.com/3d-model/ford-mustang---blender---sports-car-654747.html
+	
+	Car G
+	https://free3d.com/3d-model/transportation-3d-model-164657.html
+	
+	Car H
+	https://free3d.com/3d-model/audi-r8-car-65522.html
+	
+	Car I
+	https://free3d.com/3d-model/chevrolet-camaro-ss-coupe-373476.html
+	
+	Car J
+	https://free3d.com/3d-model/jeep-893478.html
+	
+	Car K
+	https://free3d.com/3d-model/low-poly-car-92833.html
+	
+	Bus A
+	https://free3d.com/3d-model/bus-setia-negara-low-poly-557005.html
+	
+Trees 
+	Tree A
+	https://free3d.com/3d-model/maple-tree-262328.html
+	
+	Tree B
+	https://free3d.com/3d-model/sugar-maple-tree-75844.html
+	
+	Tree C 
+	https://free3d.com/3d-model/tree-oak-v9-29481.html
+	
+	Tree D 
+	https://free3d.com/3d-model/tree-67970.html
+	
+	Tree E
+	https://free3d.com/3d-model/hazelnut-bush-290678.html
+	
+Bareers
+	BareerA
+	https://free3d.com/3d-model/concrete-barrier-301778.html
+	
+	BareerB
+	https://free3d.com/3d-model/concrete-barrier-301778.html
+	
+TrafficLight
+	https://free3d.com/3d-model/traffic-light-535115.html
+	
+StreetLamp
+	https://free3d.com/dl-files.php?p=5c98b0ee26be8bfb118b4567&f=0
+	
+Background HDRI
+	https://polyhaven.com/a/lilienstein
+	https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
