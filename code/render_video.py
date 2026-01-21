@@ -54,6 +54,7 @@ visualization_parameter = {
 DESIGN = 0 # DESIGN TYPES: 0 = SIMPLE, 1 = 3-head, 2 = COUNTDOWN_TIMER, 3 = SIMPLE 
 RAMP_METERING = False
 SIMULATION = "NO_CONTROL" # SIMULATION TYPES: "NO_CONTROL", "45_ALINEA", "60_ALINEA"
+HEADLESS = False
 
 
 # #############################################################################
@@ -190,7 +191,9 @@ if visualization_parameter["record_video"]:
 ######## CREATE 3D CONTEXT OBJECT
 # Use offscreen rendering to avoid requiring a visible macOS window
 # and disable multisampling to prevent pixel format errors on some systems.
-# loadPrcFileData('', 'window-type offscreen') # TODO: re-introduce this for headless rendering
+if HEADLESS:
+    loadPrcFileData('', 'window-type offscreen') # headless rendering -> make user-selectable with flag
+    
 loadPrcFileData('', 'win-size '+str(video_parameters["frame_width_px"])+' '+str(video_parameters["frame_heigth_px"]))
 loadPrcFileData('', 'framebuffer-multisample 1')
 

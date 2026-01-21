@@ -208,3 +208,6 @@ __marimo__/
 
 # Mac stuff
 .DS_Store
+
+# Example simulation extracted position file
+examples/barcelona_simulation/simulation_logs/vehicle_positions.xml
