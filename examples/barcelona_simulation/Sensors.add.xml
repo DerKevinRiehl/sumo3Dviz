@@ -45,5 +45,4 @@
     <laneAreaDetector id="e2_E5_5" lane="34211572#1.713_0" pos="15.00" length="65.00" period="5.00" file="NUL"/>
     <laneAreaDetector id="e2_E5_6" lane="34211572#1.713_1" pos="15.00" length="65.00" period="5.00" file="NUL"/>
     <laneAreaDetector id="e2_E5_7" lane="34211572#1.713_2" pos="15.00" length="65.00" period="5.00" file="NUL"/>
-	<edgeData id="edge_data" file="log_edges.xml" freq="300" begin="0" end="86400" />
 </additional>

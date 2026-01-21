@@ -2,7 +2,7 @@
 sumo3Dviz - A three dimensional visualization of traffic simulations with SUMO
 ==============================================================================================
 Organization: Institute for Transport Planning and Systems (IVT), ETH Zürich
-Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlappbach <julius.schlapbach@ivt.baug.ethz.ch>
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <juliussc@ethz.ch>
 Submitted to: SUMO User Conference 2026
 """
 
@@ -11,6 +11,7 @@ Submitted to: SUMO User Conference 2026
 # #############################################################################
 import numpy as np  
 import sumolib
+import os
 
 from panda3d.core import Geom, GeomNode, GeomVertexData, GeomVertexFormat, GeomVertexWriter, GeomTriangles
 from panda3d.core import CardMaker, LColor, Filename, TextureStage
@@ -46,7 +47,7 @@ def create_light(context):
     dlnp.setHpr(-30, -45, 0)  # pointing downward and forward
     context.render.setLight(dlnp)
     
-def create_sky(context, path_sky_texture="../data/images/puresky.jpg", INFINITY = 50000):
+def create_sky(context, path_sky_texture=os.path.join(os.path.dirname(__file__), "../data/images/puresky.jpg"), INFINITY = 50000):
     # generate an inverted sphere model
     sky_sphere = context.loader.loadModel("models/smiley") 
     sky_sphere.reparentTo(context.render)
@@ -54,14 +55,14 @@ def create_sky(context, path_sky_texture="../data/images/puresky.jpg", INFINITY 
     sky_sphere.setTwoSided(True) 
     # Load the texture
     sky_texture = Texture()
-    sky_texture.read(Filename(path_sky_texture))
+    sky_texture.read(Filename(Filename.fromOsSpecific(path_sky_texture).get_fullpath()))   
     sky_sphere.setTexture(sky_texture, 1)
     # Set rendering properties
     sky_sphere.setBin('background', 0)
     sky_sphere.setDepthWrite(False)
     sky_sphere.setLightOff() 
 
-def create_floor(context, path_floor_texture="../data/images/grass.jpg", INFINITY = 50000):
+def create_floor(context, path_floor_texture=os.path.join(os.path.dirname(__file__), "../data/images/grass.jpg", ), INFINITY = 50000):
     # Grass Floor
     cm_ground = CardMaker("ground")
     cm_ground.setFrame(-INFINITY, INFINITY, -INFINITY, INFINITY)
@@ -69,7 +70,7 @@ def create_floor(context, path_floor_texture="../data/images/grass.jpg", INFINIT
     ground.setPos(0, 0, -0.05)
     ground.setHpr(25, -90, 0)
     # Load the texture
-    ground_tex = context.loader.loadTexture(path_floor_texture)
+    ground_tex = context.loader.loadTexture(Filename.fromOsSpecific(path_floor_texture).get_fullpath())
     ground_tex.setWrapU(Texture.WM_repeat)
     ground_tex.setWrapV(Texture.WM_repeat)
     ground.setTexture(ground_tex)
@@ -77,8 +78,8 @@ def create_floor(context, path_floor_texture="../data/images/grass.jpg", INFINIT
     
 def create_trees(app, tree_positions):
     # Load tree models
-    tree1_model = app.loader.loadModel('../data/3d_models/trees/MapleTree.obj')
-    tree2_model = app.loader.loadModel('../data/3d_models/trees/Hazelnut.obj')
+    tree1_model = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/trees/MapleTree.obj')).get_fullpath())
+    tree2_model = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/trees/Hazelnut.obj')).get_fullpath())
     tree_scale_1 = 0.2
     tree_scale_2 = 0.5
     tree_size_variability = 1
@@ -107,7 +108,7 @@ def create_trees(app, tree_positions):
 
 def create_building_shops(app, shop_positions):
     # Load shop model
-    building1 = app.loader.loadModel('../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj')
+    building1 = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj')).get_fullpath())
     # Get the original bounding box
     min_point, max_point = building1.getTightBounds()
     if min_point is None or max_point is None:
@@ -133,7 +134,7 @@ def create_building_shops(app, shop_positions):
     return shop_instances, scaled_depth
 
 def create_building_homes(app, home_positions):
-    building3 = app.loader.loadModel('../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj')
+    building3 = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj')))
     # generate trees
     tree_instances = []
     for position in home_positions:
@@ -151,7 +152,7 @@ def create_building_homes(app, home_positions):
         tree_instances.append(tree_instance)
         
 def create_building_blocks(app, home_positions):
-    building3 = app.loader.loadModel('../data/3d_models/buildings/Residential Buildings 002.obj')
+    building3 = app.loader.loadModel(Filename.fromOsSpecific(os.path.join(os.path.dirname(__file__), '../data/3d_models/buildings/Residential Buildings 002.obj')))
     # generate trees
     tree_instances = []
     for position in home_positions:
@@ -175,6 +176,7 @@ def create_building_blocks(app, home_positions):
 def create_road_network(context, sumo_network_file):
     # Draw Roads
     net = sumolib.net.readNet(sumo_network_file)
+
     for edge in net.getEdges():
         for lane in edge.getLanes():
             lane_shape = lane.getShape()
@@ -188,6 +190,7 @@ def create_road_network(context, sumo_network_file):
             else:
                 lane_l = "i"
             _draw_road_edge_lane(context, lane_shape, lane_l)
+
     # Draw Junctions
     for junction in net.getNodes():
         junction_shape = junction.getShape()
@@ -270,31 +273,33 @@ def _draw_white_seperator_line_right(context, lane_shape, color, z=0.03):
         road.setHpr(angle_deg, -90, 0)
         road.setColor(LColor(*color))  
        
+# TODO - figure out why this function causes issues with rendering speed
 def _draw_white_separator_line_right_dashed(context, lane_shape, color, z=0.03, dash_length=1.0, gap_length=1.0):
-    for i in range(len(lane_shape) - 1):
-        pA = np.asarray(lane_shape[i])
-        pB = np.asarray(lane_shape[i + 1])
-        segment_vector = pB - pA
-        segment_length = np.linalg.norm(segment_vector)
-        if segment_length == 0:
-            continue
-        direction = segment_vector / segment_length
-        num_dashes = int(segment_length // (dash_length + gap_length))
-        angle_deg = np.degrees(np.arctan2(direction[1], direction[0])) - 90
-        for j in range(num_dashes):
-            start_offset = (dash_length + gap_length) * j
-            dash_center = pA + direction * (start_offset + dash_length / 2)
-            # Offset to the right side of the lane
-            normal = np.array([-direction[1], direction[0]])  # 90-degree rotation
-            offset = normal * (LANE_WIDTH / 2 - SEP_LINE_WIDTH / 2)
-            final_pos = dash_center + offset
-            # Create dashed card
-            cm_dash = CardMaker("dash")
-            cm_dash.setFrame(-SEP_LINE_WIDTH / 2, SEP_LINE_WIDTH / 2, 0, dash_length)
-            dash = context.render.attachNewNode(cm_dash.generate())
-            dash.setPos(final_pos[0], final_pos[1], z)
-            dash.setHpr(angle_deg, -90, 0)
-            dash.setColor(LColor(*color))
+    pass
+    # for i in range(len(lane_shape) - 1):
+    #     pA = np.asarray(lane_shape[i])
+    #     pB = np.asarray(lane_shape[i + 1])
+    #     segment_vector = pB - pA
+    #     segment_length = np.linalg.norm(segment_vector)
+    #     if segment_length == 0:
+    #         continue
+    #     direction = segment_vector / segment_length
+    #     num_dashes = int(segment_length // (dash_length + gap_length))
+    #     angle_deg = np.degrees(np.arctan2(direction[1], direction[0])) - 90
+    #     for j in range(num_dashes):
+    #         start_offset = (dash_length + gap_length) * j
+    #         dash_center = pA + direction * (start_offset + dash_length / 2)
+    #         # Offset to the right side of the lane
+    #         normal = np.array([-direction[1], direction[0]])  # 90-degree rotation
+    #         offset = normal * (LANE_WIDTH / 2 - SEP_LINE_WIDTH / 2)
+    #         final_pos = dash_center + offset
+    #         # Create dashed card
+    #         cm_dash = CardMaker("dash")
+    #         cm_dash.setFrame(-SEP_LINE_WIDTH / 2, SEP_LINE_WIDTH / 2, 0, dash_length)
+    #         dash = context.render.attachNewNode(cm_dash.generate())
+    #         dash.setPos(final_pos[0], final_pos[1], z)
+    #         dash.setHpr(angle_deg, -90, 0)
+    #         dash.setColor(LColor(*color))
 
 def _draw_polygon_fan(context, shape_points, z=0.01):
     if len(shape_points) < 3:
