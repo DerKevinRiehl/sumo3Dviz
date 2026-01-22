@@ -1,0 +1,11 @@
+trajectory_parameters:
+  trajectory_file: "examples/barcelona_simulation/simulation_logs/vehicle_positions.xml" # paths should be defined relative to the current working directory
+  ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
+  simtime_start: 39.0
+  simtime_end: 369.0
+
+video_parameters:
+  video_fps: 25.0
+
+visualization_parameters:
+  show_other_vehicles: true

@@ -3,3 +3,5 @@ opencv-python==4.9.0.80
 pandas==2.0.3
 panda3d==1.10.15
 sumolib==1.19.0
+PyYAML==6.0.3
+pandera==0.26.1

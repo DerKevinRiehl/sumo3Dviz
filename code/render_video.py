@@ -18,13 +18,36 @@ import sys
 import os
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties
+
 # import gltf
 
-from tools_rendering import create_light, create_sky, create_floor, create_trees, create_building_shops, create_building_homes, create_building_blocks
-from tools_rendering import create_road_network, draw_highway_fences, draw_traffic_light, draw_white_signal_line, update_traffic_light
+from tools_rendering import (
+    create_light,
+    create_sky,
+    create_floor,
+    create_trees,
+    create_building_shops,
+    create_building_homes,
+    create_building_blocks,
+)
+from tools_rendering import (
+    create_road_network,
+    draw_highway_fences,
+    draw_traffic_light,
+    draw_white_signal_line,
+    update_traffic_light,
+)
 from tools_interactive import addCameraControlKeyboard
 from tools_trajectory import get_closest_vehicles
-from tools_loader import load_car_models, load_ego_car_model, load_tree_positions, load_fence_lines, load_shop_positions, load_trajectory, load_traffic_light_signals
+from tools_loader import (
+    load_car_models,
+    load_ego_car_model,
+    load_tree_positions,
+    load_fence_lines,
+    load_shop_positions,
+    load_trajectory,
+    load_traffic_light_signals,
+)
 
 # #############################################################################
 # # PARAMETERS
@@ -38,7 +61,10 @@ video_parameters = {
 }
 
 trajectory_parameters = {
-    "input_file": os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/simulation_logs/vehicle_positions.xml"),
+    "input_file": os.path.join(
+        os.path.dirname(__file__),
+        "../examples/barcelona_simulation/simulation_logs/vehicle_positions.xml",
+    ),
     "ego_individual": "flow_0_car_aggr1_route_E3_AEnd_lane0.0",
     "render_from_simtime": 39.00,
     "render_to_simtime": 369.00,
@@ -48,18 +74,19 @@ visualization_parameter = {
     "lane_width": 3.2,
     "viewer_height": 1.5,
     "record_video": True,
-    "show_others": True
+    "show_others": True,
 }
 
-DESIGN = 0 # DESIGN TYPES: 0 = SIMPLE, 1 = 3-head, 2 = COUNTDOWN_TIMER, 3 = SIMPLE 
+DESIGN = 0  # DESIGN TYPES: 0 = SIMPLE, 1 = 3-head, 2 = COUNTDOWN_TIMER, 3 = SIMPLE
 RAMP_METERING = False
-SIMULATION = "NO_CONTROL" # SIMULATION TYPES: "NO_CONTROL", "45_ALINEA", "60_ALINEA"
+SIMULATION = "NO_CONTROL"  # SIMULATION TYPES: "NO_CONTROL", "45_ALINEA", "60_ALINEA"
 HEADLESS = False
 
 
 # #############################################################################
 # # METHODS
 # #############################################################################
+
 
 def update_scene_world(task):
     global VIDEO_CURRENT_POINT
@@ -68,25 +95,31 @@ def update_scene_world(task):
         veh_id, x, y, angle, current_time = trajectory_points[VIDEO_CURRENT_POINT]
         _, signal, timer = signal_points[VIDEO_CURRENT_POINT]
         # Set camera position and heading
-        context.camera.setPos(x, y, visualization_parameter["viewer_height"])  # Z=2 is your previous camera height
+        context.camera.setPos(
+            x, y, visualization_parameter["viewer_height"]
+        )  # Z=2 is your previous camera height
         context.camera.setHpr(-angle, 0, 0)  # Adjust pitch and roll as needed
         # Set ego car
         distance = 1.6  # How far in front you want the car to be
-        car_x = x + distance * math.cos(math.radians(90-angle))
-        car_y = y + distance * math.sin(math.radians(90-angle))
+        car_x = x + distance * math.cos(math.radians(90 - angle))
+        car_y = y + distance * math.sin(math.radians(90 - angle))
         car_z = -0.5
         ego_car.setPos(car_x, car_y, car_z)
         ego_car.setHpr(-angle, 90, 0)
         # Set traffic light
         if RAMP_METERING:
-            update_traffic_light(signal, DESIGN, timer, box_node1, box_node2, box_node3, text_node)
+            update_traffic_light(
+                signal, DESIGN, timer, box_node1, box_node2, box_node3, text_node
+            )
         print(current_time, signal, timer, VIDEO_CURRENT_POINT, VIDEO_FINAL_POINT)
         # Set Other Cars position
         if visualization_parameter["show_others"]:
             # position all cars on the road
-                # determine list of 100 closest cars
-            current_pos=[x,y]
-            neighborhood_vehicles = get_closest_vehicles(smoothened_trajectory_data, current_pos, current_time)  
+            # determine list of 100 closest cars
+            current_pos = [x, y]
+            neighborhood_vehicles = get_closest_vehicles(
+                smoothened_trajectory_data, current_pos, current_time
+            )
             # create new instance
             current_vehicle_ids = []
             for vehicle in neighborhood_vehicles:
@@ -95,7 +128,9 @@ def update_scene_world(task):
                 if vehicle_id not in others_car_instances:
                     available_choices = [i for i in range(1, 11) if i != 2]
                     selected_model = np.random.choice(available_choices)
-                    new_vehicle_instance = car_models[selected_model-1].copyTo(context.render)
+                    new_vehicle_instance = car_models[selected_model - 1].copyTo(
+                        context.render
+                    )
                     new_vehicle_instance.setScale(5.0)
                     others_car_instances[vehicle_id] = new_vehicle_instance
             # delete unused instances
@@ -104,25 +139,31 @@ def update_scene_world(task):
                 if vehicle not in current_vehicle_ids:
                     ids_to_delete.append(vehicle)
             for ids in ids_to_delete:
-                others_car_instances[ids].removeNode() # remove from app
+                others_car_instances[ids].removeNode()  # remove from app
                 del others_car_instances[ids]
             # move instances
             for vehicle in neighborhood_vehicles:
                 car_instance = others_car_instances[vehicle[-1]]
                 car_instance.setPos(vehicle[0], vehicle[1], 0)
-                car_instance.setHpr(180-vehicle[2], 90, 0)            
+                car_instance.setHpr(180 - vehicle[2], 90, 0)
         VIDEO_CURRENT_POINT += 1
-        VIDEO_CURRENT_POINT += 1 # double render speed
+        VIDEO_CURRENT_POINT += 1  # double render speed
         if visualization_parameter["record_video"]:
             context.graphicsEngine.renderFrame()
             tex = context.win.getScreenshot()
             data = tex.getRamImageAs("BGRA")
-            img_array = np.frombuffer(data, np.uint8)  
-            img_array = img_array.reshape((video_parameters["frame_heigth_px"], video_parameters["frame_width_px"], 4))
-            img_array = cv2.rotate(img_array, cv2.ROTATE_180)  
-            img_array = cv2.flip(img_array, 1)             
+            img_array = np.frombuffer(data, np.uint8)
+            img_array = img_array.reshape(
+                (
+                    video_parameters["frame_heigth_px"],
+                    video_parameters["frame_width_px"],
+                    4,
+                )
+            )
+            img_array = cv2.rotate(img_array, cv2.ROTATE_180)
+            img_array = cv2.flip(img_array, 1)
             img = img_array[:, :, :3]
-            video_writer.write(img)          
+            video_writer.write(img)
             screenshot_counter += 1
 
         if VIDEO_CURRENT_POINT > VIDEO_FINAL_POINT:
@@ -138,38 +179,80 @@ def update_scene_world(task):
 
 # #############################################################################
 # # LOAD DATA
-# #############################################################################      
+# #############################################################################
 
+# TODO: CONTINUE MIGRATING BELOW THIS LINE
 # load trajectory
-df_ego_smoothed, smoothened_trajectory_data, VIDEO_CURRENT_POINT, VIDEO_FINAL_POINT = load_trajectory(trajectory_parameters["input_file"], trajectory_parameters, video_parameters, visualization_parameter["show_others"])
+df_ego_smoothed, smoothened_trajectory_data, VIDEO_CURRENT_POINT, VIDEO_FINAL_POINT = (
+    load_trajectory(
+        trajectory_parameters["input_file"],
+        trajectory_parameters,
+        video_parameters,
+        visualization_parameter["show_others"],
+    )
+)
 # load traffic light signal
-df_simulation_log_light = load_traffic_light_signals(os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/simulation_logs/signal_states.xml"), df_ego_smoothed, tl_id="JE3")
+df_simulation_log_light = load_traffic_light_signals(
+    os.path.join(
+        os.path.dirname(__file__),
+        "../examples/barcelona_simulation/simulation_logs/signal_states.xml",
+    ),
+    df_ego_smoothed,
+    tl_id="JE3",
+)
 # convert list of tuples for easier access
-trajectory_points = df_ego_smoothed[["veh_id", 'pos_x', 'pos_y', 'computed_angle_deg', 'time']].values
+trajectory_points = df_ego_smoothed[
+    ["veh_id", "pos_x", "pos_y", "computed_angle_deg", "time"]
+].values
 signal_points = df_simulation_log_light[["time", "state", "timer"]].values
 # load object positions
-tree_positions = load_tree_positions(os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/viz_object_positions/trees.add.xml"))
-fence_lines = load_fence_lines(os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/viz_object_positions/fences.add.xml"))
-shop_positions = load_shop_positions(os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"))
-homes_positions = load_shop_positions(os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml"))
-block_positions = load_shop_positions(os.path.join(os.path.dirname(__file__), "../examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"))
+tree_positions = load_tree_positions(
+    os.path.join(
+        os.path.dirname(__file__),
+        "../examples/barcelona_simulation/viz_object_positions/trees.add.xml",
+    )
+)
+fence_lines = load_fence_lines(
+    os.path.join(
+        os.path.dirname(__file__),
+        "../examples/barcelona_simulation/viz_object_positions/fences.add.xml",
+    )
+)
+shop_positions = load_shop_positions(
+    os.path.join(
+        os.path.dirname(__file__),
+        "../examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml",
+    )
+)
+homes_positions = load_shop_positions(
+    os.path.join(
+        os.path.dirname(__file__),
+        "../examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml",
+    )
+)
+block_positions = load_shop_positions(
+    os.path.join(
+        os.path.dirname(__file__),
+        "../examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
+    )
+)
 traffic_light_positions = {
     "ramp_1": {
-        "pos_x": 20217.08-0.0,
-        "pos_y": 18261.92+0.0,
+        "pos_x": 20217.08 - 0.0,
+        "pos_y": 18261.92 + 0.0,
         "stop_line_a": 20224.71,
         "stop_line_b": 18264.87,
         "stop_line_c": 20226.77,
-        "stop_line_d": 18261.15
+        "stop_line_d": 18261.15,
     },
     "ramp_2": {
-        "pos_x": 19315.13-0.0,
-        "pos_y": 17822.42+4.5,
+        "pos_x": 19315.13 - 0.0,
+        "pos_y": 17822.42 + 4.5,
         "stop_line_a": 20224.71,
         "stop_line_b": 18264.87,
         "stop_line_c": 20226.77,
-        "stop_line_d": 18261.15
-    }
+        "stop_line_d": 18261.15,
+    },
 }
 
 # screenshot counter for saved frames
@@ -182,20 +265,31 @@ screenshot_counter = 0
 
 ######## CREATE VIDEO WRITER
 if visualization_parameter["record_video"]:
-    video_writer = cv2.VideoWriter(video_parameters["output_file"],
-                                   cv2.VideoWriter_fourcc(*'MJPG'),
-                                   video_parameters["fps_rate"],
-                                   (video_parameters["frame_width_px"], video_parameters["frame_heigth_px"]), True)
+    video_writer = cv2.VideoWriter(
+        video_parameters["output_file"],
+        cv2.VideoWriter_fourcc(*"MJPG"),
+        video_parameters["fps_rate"],
+        (video_parameters["frame_width_px"], video_parameters["frame_heigth_px"]),
+        True,
+    )
 
 
 ######## CREATE 3D CONTEXT OBJECT
 # Use offscreen rendering to avoid requiring a visible macOS window
 # and disable multisampling to prevent pixel format errors on some systems.
 if HEADLESS:
-    loadPrcFileData('', 'window-type offscreen') # headless rendering -> make user-selectable with flag
-    
-loadPrcFileData('', 'win-size '+str(video_parameters["frame_width_px"])+' '+str(video_parameters["frame_heigth_px"]))
-loadPrcFileData('', 'framebuffer-multisample 1')
+    loadPrcFileData(
+        "", "window-type offscreen"
+    )  # headless rendering -> make user-selectable with flag
+
+loadPrcFileData(
+    "",
+    "win-size "
+    + str(video_parameters["frame_width_px"])
+    + " "
+    + str(video_parameters["frame_heigth_px"]),
+)
+loadPrcFileData("", "framebuffer-multisample 1")
 
 context = ShowBase()
 context.render.setAntialias(AntialiasAttrib.MAuto)
@@ -207,40 +301,61 @@ addCameraControlKeyboard(context)
 
 ######## CREATE ELEMENTS
 # Draw World
-    # Light source (otherwise all will be dark)
+# Light source (otherwise all will be dark)
 create_light(context)
-    # SkyBox
+# SkyBox
 create_sky(context)
-    # GrassFloor
+# GrassFloor
 create_floor(context)
-    # roads / sumo network
-create_road_network(context, os.path.join(os.path.dirname(__file__), '../examples/barcelona_simulation/Network.net.xml')) 
-    # trees
+# roads / sumo network
+create_road_network(
+    context,
+    os.path.join(
+        os.path.dirname(__file__), "../examples/barcelona_simulation/Network.net.xml"
+    ),
+)
+# trees
 tree_instances = create_trees(context, tree_positions)
-    # highways fences
+# highways fences
 draw_highway_fences(context, fence_lines)
-    # buildings
+# buildings
 create_building_shops(context, shop_positions)
 create_building_homes(context, homes_positions)
 create_building_blocks(context, block_positions)
-    # other cars collection
+# other cars collection
 car_models = load_car_models(context)
 others_car_instances = {}
-    # ego car
+# ego car
 ego_car = load_ego_car_model(context)
-ego_car.setPos(visualization_parameter["lane_width"]/2, 25, 0)
+ego_car.setPos(visualization_parameter["lane_width"] / 2, 25, 0)
 ego_car.setHpr(180, 90, 0)
-    # traffic light
+# traffic light
 if RAMP_METERING:
-    box_node1, box_node2, box_node3, text_node = draw_traffic_light(context, DESIGN, traffic_light_positions["ramp_1"]["pos_x"], traffic_light_positions["ramp_1"]["pos_y"], 0)
-    draw_white_signal_line(context, traffic_light_positions["ramp_1"]["stop_line_a"], traffic_light_positions["ramp_1"]["stop_line_b"], traffic_light_positions["ramp_1"]["stop_line_c"], traffic_light_positions["ramp_1"]["stop_line_d"])
+    box_node1, box_node2, box_node3, text_node = draw_traffic_light(
+        context,
+        DESIGN,
+        traffic_light_positions["ramp_1"]["pos_x"],
+        traffic_light_positions["ramp_1"]["pos_y"],
+        0,
+    )
+    draw_white_signal_line(
+        context,
+        traffic_light_positions["ramp_1"]["stop_line_a"],
+        traffic_light_positions["ramp_1"]["stop_line_b"],
+        traffic_light_positions["ramp_1"]["stop_line_c"],
+        traffic_light_positions["ramp_1"]["stop_line_d"],
+    )
 
 ######## POSITION CAMERA (INITIALLY)
-context.camera.setPos(df_ego_smoothed["pos_x"].iloc[VIDEO_CURRENT_POINT], df_ego_smoothed["pos_y"].iloc[VIDEO_CURRENT_POINT], visualization_parameter["viewer_height"])
+context.camera.setPos(
+    df_ego_smoothed["pos_x"].iloc[VIDEO_CURRENT_POINT],
+    df_ego_smoothed["pos_y"].iloc[VIDEO_CURRENT_POINT],
+    visualization_parameter["viewer_height"],
+)
 context.camera.setHpr(120, 0, 0)
 
 ######## RUN SCHEDULE / GO THROUGH TRAJECTORY
-context.taskMgr.doMethodLater(0.0, update_scene_world, 'update_scene_world')
+context.taskMgr.doMethodLater(0.0, update_scene_world, "update_scene_world")
 context.run()
 
 ######## CLOSE VIDEO WRITER
