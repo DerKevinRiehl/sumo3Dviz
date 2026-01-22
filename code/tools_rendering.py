@@ -47,7 +47,7 @@ def create_light(context):
     dlnp.setHpr(-30, -45, 0)  # pointing downward and forward
     context.render.setLight(dlnp)
     
-def create_sky(context, path_sky_texture=os.path.join(os.path.dirname(__file__), "../data/images/puresky.jpg"), INFINITY = 50000):
+def create_sky(context, path_sky_texture=os.path.join(os.path.dirname(__file__), "../data/images/texture_sky_blue.jpg"), INFINITY = 50000):
     # generate an inverted sphere model
     sky_sphere = context.loader.loadModel("models/smiley") 
     sky_sphere.reparentTo(context.render)
@@ -62,7 +62,7 @@ def create_sky(context, path_sky_texture=os.path.join(os.path.dirname(__file__),
     sky_sphere.setDepthWrite(False)
     sky_sphere.setLightOff() 
 
-def create_floor(context, path_floor_texture=os.path.join(os.path.dirname(__file__), "../data/images/grass.jpg", ), INFINITY = 50000):
+def create_floor(context, path_floor_texture=os.path.join(os.path.dirname(__file__), "../data/images/texture_ground_grass.jpg", ), INFINITY = 50000):
     # Grass Floor
     cm_ground = CardMaker("ground")
     cm_ground.setFrame(-INFINITY, INFINITY, -INFINITY, INFINITY)

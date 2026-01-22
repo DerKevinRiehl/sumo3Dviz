@@ -1,11 +1,38 @@
 trajectory_parameters:
-  trajectory_file: "examples/barcelona_simulation/simulation_logs/vehicle_positions.xml" # paths should be defined relative to the current working directory
+  trajectory_file: "examples/barcelona_simulation/simulation_logs/vehicle_positions.xml" # all paths should be defined relative to the current working directory
   ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
+  sumo_network_file: "examples/barcelona_simulation/Network.net.xml"
+  lane_width: 3.2
+  sep_line_width: 0.2
   simtime_start: 39.0
   simtime_end: 369.0
 
 video_parameters:
+  record_video: true
+  output_file: "results/barcelona_simulation.avi"
   video_fps: 25.0
+  video_width_px: 1140
+  video_heigth_px: 900
+
+traffic_signals:
+  traffic_signal_states_file: "examples/barcelona_simulation/simulation_logs/signal_states.xml"
+  traffic_light_id: "JE3"
 
 visualization_parameters:
   show_other_vehicles: true
+  tree_positions_file: "examples/barcelona_simulation/viz_object_positions/trees.add.xml"
+  fence_lines_file: "examples/barcelona_simulation/viz_object_positions/fences.add.xml"
+  shops_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"
+  homes_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml"
+  blocks_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"
+  sky_texture_file: "data/images/texture_sky_blue.jpg"
+  floor_texture_file: "data/images/texture_ground_grass.jpg"
+  store_model_file: "data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
+  home_model_file: "data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
+  block_model_file: "data/3d_models/buildings/Residential Buildings 002.obj"
+  tree_model_file_1: "data/3d_models/trees/MapleTree.obj"
+  tree_model_file_2: "data/3d_models/trees/Hazelnut.obj"
+  tree_scale_1: 0.2
+  tree_scale_2: 0.5
+  tree_size_variability: 1
+  tree_color_variability: 0.1

@@ -7,10 +7,16 @@
 # python src/examples/render_barcelona_cli.py --config src/examples/config_barcelona.yaml
 
 import os
+import cv2
 import argparse
 import yaml
+from direct.showbase.ShowBase import ShowBase
+from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties
 
 from src.tools.loader_tools import LoaderTools
+from src.tools.interaction_tools import InteractionTools
+from src.tools.rendering_tools import RenderingTools
+
 
 if __name__ == "__main__":
     # ! Get configuration parameters from specified file
@@ -22,8 +28,14 @@ if __name__ == "__main__":
         required=True,
         help="Path to the configuration file containing all necessary parameters to run the video generation pipeline.",
     )
+    parser.add_argument(
+        "--headless",
+        action="store_true",
+        help="If set, the rendering will be done in headless mode without opening a window.",
+    )
     args = parser.parse_args()
     config_path = args.config
+    headless = args.headless
 
     if not config_path:
         raise ValueError(
@@ -46,13 +58,15 @@ if __name__ == "__main__":
     # ! LOADER FUNCTIONS
     # region
     loader = LoaderTools()
+    interaction_tools = InteractionTools()
+    rendering_tools = RenderingTools()
 
     # load the trajectories from the SUMO log and apply trajectory smoothing to them
     (
         df_ego_smoothed,
         smoothened_trajectory_data,
-        VIDEO_CURRENT_POINT,
-        VIDEO_FINAL_POINT,
+        video_start_idx,
+        video_end_idx,
     ) = loader.load_trajectory(
         trajectory_file=os.path.join(
             os.getcwd(), config["trajectory_parameters"]["trajectory_file"]
@@ -63,6 +77,141 @@ if __name__ == "__main__":
         video_fps=config["video_parameters"]["video_fps"],
         show_other_vehicles=config["visualization_parameters"]["show_other_vehicles"],
     )
+
+    # load traffic light signal
+    df_simulation_log_light = loader.load_traffic_light_signals(
+        traffic_signal_states_file=config["traffic_signals"][
+            "traffic_signal_states_file"
+        ],
+        start_time=df_ego_smoothed["time"].iloc[0] - 0.001,
+        end_time=df_ego_smoothed["time"].iloc[-1] + 0.001,
+        traffic_light_id=config["traffic_signals"]["traffic_light_id"],
+        video_fps=config["video_parameters"]["video_fps"],
+    )
+
+    # load the tree positions
+    tree_positions = loader.load_tree_positions(
+        xml_file=config["visualization_parameters"]["tree_positions_file"]
+    )
+
+    # load the fence lines
+    fence_lines = loader.load_fence_lines(
+        xml_file=config["visualization_parameters"]["fence_lines_file"]
+    )
+
+    # load shop, home, block positions
+    # (using the same function as for shops for simplicity)
+    shop_positions = loader.load_shop_positions(
+        xml_file=config["visualization_parameters"]["shops_positions_file"]
+    )
+    homes_positions = loader.load_shop_positions(
+        xml_file=config["visualization_parameters"]["homes_positions_file"]
+    )
+    block_positions = loader.load_shop_positions(
+        xml_file=config["visualization_parameters"]["blocks_positions_file"]
+    )
     # endregion
 
-    pass
+    # ! RENDERING CALLS
+    # region
+    # if the video should be stored, initialize the video writer
+    if config["video_parameters"]["record_video"]:
+        video_writer = cv2.VideoWriter(
+            filename=config["video_parameters"]["output_file"],
+            fourcc=cv2.VideoWriter.fourcc(*"MJPG"),
+            fps=config["video_parameters"]["video_fps"],
+            frameSize=(
+                config["video_parameters"]["video_width_px"],
+                config["video_parameters"]["video_heigth_px"],
+            ),
+            isColor=True,
+        )
+
+    # create 3D rendering context
+    if headless:
+        loadPrcFileData("", "window-type offscreen")
+    loadPrcFileData(
+        "",
+        "win-size "
+        + str(config["video_parameters"]["video_width_px"])
+        + " "
+        + str(config["video_parameters"]["video_heigth_px"]),
+    )
+    loadPrcFileData("", "framebuffer-multisample 1")
+    context = ShowBase()
+    context.render.setAntialias(AntialiasAttrib.MAuto)
+    fbprobs = FrameBufferProperties()
+    fbprobs.setMultisamples(8)
+
+    # add camera control
+    interaction_tools.addCameraControlKeyboard(context)
+
+    # add the road network
+    rendering_tools.create_road_network(
+        context=context,
+        sumo_network_file=os.path.join(
+            os.getcwd(), config["trajectory_parameters"]["sumo_network_file"]
+        ),
+        lane_width=config["trajectory_parameters"]["lane_width"],
+        sep_line_width=config["trajectory_parameters"]["sep_line_width"],
+    )  # roads / sumo network
+
+    # add scenery elements
+    rendering_tools.create_light(
+        context=context
+    )  # light source (otherwise all will be dark)
+    rendering_tools.create_sky(
+        context=context,
+        sky_texture_file=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["sky_texture_file"]
+        ),
+    )  # skybox / skydome
+    rendering_tools.create_floor(
+        context=context,
+        path_floor_texture=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["floor_texture_file"]
+        ),
+    )  # grass floor
+    rendering_tools.create_trees(
+        context=context,
+        tree_positions=tree_positions,
+        tree_model_file_1=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["tree_model_file_1"]
+        ),
+        tree_model_file_2=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["tree_model_file_2"]
+        ),
+        tree_scale_1=config["visualization_parameters"]["tree_scale_1"],
+        tree_scale_2=config["visualization_parameters"]["tree_scale_2"],
+        tree_size_variability=config["visualization_parameters"][
+            "tree_size_variability"
+        ],
+        tree_color_variability=config["visualization_parameters"][
+            "tree_color_variability"
+        ],
+    )  # trees
+    rendering_tools.create_highway_fences(
+        context=context, fence_lines=fence_lines
+    )  # highways fences
+    rendering_tools.create_building_shops(
+        context=context,
+        shop_positions=shop_positions,
+        store_model_file=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["store_model_file"]
+        ),
+    )  # shops
+    rendering_tools.create_building_homes(
+        context=context,
+        homes_positions=homes_positions,
+        home_model_file=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["home_model_file"]
+        ),
+    )  # homes
+    rendering_tools.create_building_blocks(
+        context=context,
+        block_positions=block_positions,
+        block_model_file=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["block_model_file"]
+        ),
+    )  # blocks
+    # endregion

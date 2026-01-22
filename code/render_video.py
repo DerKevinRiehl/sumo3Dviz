@@ -181,7 +181,6 @@ def update_scene_world(task):
 # # LOAD DATA
 # #############################################################################
 
-# TODO: CONTINUE MIGRATING BELOW THIS LINE
 # load trajectory
 df_ego_smoothed, smoothened_trajectory_data, VIDEO_CURRENT_POINT, VIDEO_FINAL_POINT = (
     load_trajectory(
@@ -191,6 +190,7 @@ df_ego_smoothed, smoothened_trajectory_data, VIDEO_CURRENT_POINT, VIDEO_FINAL_PO
         visualization_parameter["show_others"],
     )
 )
+
 # load traffic light signal
 df_simulation_log_light = load_traffic_light_signals(
     os.path.join(
@@ -200,11 +200,7 @@ df_simulation_log_light = load_traffic_light_signals(
     df_ego_smoothed,
     tl_id="JE3",
 )
-# convert list of tuples for easier access
-trajectory_points = df_ego_smoothed[
-    ["veh_id", "pos_x", "pos_y", "computed_angle_deg", "time"]
-].values
-signal_points = df_simulation_log_light[["time", "state", "timer"]].values
+
 # load object positions
 tree_positions = load_tree_positions(
     os.path.join(
@@ -236,24 +232,7 @@ block_positions = load_shop_positions(
         "../examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
     )
 )
-traffic_light_positions = {
-    "ramp_1": {
-        "pos_x": 20217.08 - 0.0,
-        "pos_y": 18261.92 + 0.0,
-        "stop_line_a": 20224.71,
-        "stop_line_b": 18264.87,
-        "stop_line_c": 20226.77,
-        "stop_line_d": 18261.15,
-    },
-    "ramp_2": {
-        "pos_x": 19315.13 - 0.0,
-        "pos_y": 17822.42 + 4.5,
-        "stop_line_a": 20224.71,
-        "stop_line_b": 18264.87,
-        "stop_line_c": 20226.77,
-        "stop_line_d": 18261.15,
-    },
-}
+
 
 # screenshot counter for saved frames
 screenshot_counter = 0
@@ -296,6 +275,7 @@ context.render.setAntialias(AntialiasAttrib.MAuto)
 fbprobs = FrameBufferProperties()
 fbprobs.setMultisamples(8)
 
+
 # Settings
 addCameraControlKeyboard(context)
 
@@ -322,6 +302,8 @@ draw_highway_fences(context, fence_lines)
 create_building_shops(context, shop_positions)
 create_building_homes(context, homes_positions)
 create_building_blocks(context, block_positions)
+
+# TODO: CONTINUE MIGRATING BELOW THIS LINE
 # other cars collection
 car_models = load_car_models(context)
 others_car_instances = {}
@@ -331,6 +313,24 @@ ego_car.setPos(visualization_parameter["lane_width"] / 2, 25, 0)
 ego_car.setHpr(180, 90, 0)
 # traffic light
 if RAMP_METERING:
+    traffic_light_positions = {
+        "ramp_1": {
+            "pos_x": 20217.08 - 0.0,
+            "pos_y": 18261.92 + 0.0,
+            "stop_line_a": 20224.71,
+            "stop_line_b": 18264.87,
+            "stop_line_c": 20226.77,
+            "stop_line_d": 18261.15,
+        },
+        "ramp_2": {
+            "pos_x": 19315.13 - 0.0,
+            "pos_y": 17822.42 + 4.5,
+            "stop_line_a": 20224.71,
+            "stop_line_b": 18264.87,
+            "stop_line_c": 20226.77,
+            "stop_line_d": 18261.15,
+        },
+    }
     box_node1, box_node2, box_node3, text_node = draw_traffic_light(
         context,
         DESIGN,
@@ -355,6 +355,12 @@ context.camera.setPos(
 context.camera.setHpr(120, 0, 0)
 
 ######## RUN SCHEDULE / GO THROUGH TRAJECTORY
+# convert list of tuples for easier access
+trajectory_points = df_ego_smoothed[
+    ["veh_id", "pos_x", "pos_y", "computed_angle_deg", "time"]
+].values
+signal_points = df_simulation_log_light[["time", "state", "timer"]].values
+
 context.taskMgr.doMethodLater(0.0, update_scene_world, "update_scene_world")
 context.run()
 
