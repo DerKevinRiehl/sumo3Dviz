@@ -360,6 +360,304 @@ class RenderingTools:
 
         print("Building blocks rendered ✓")
 
+    def create_traffic_light(
+        self,
+        context: ShowBase,
+        design: int,
+        x: float,
+        y: float,
+        z: float = 0,
+        pole_height: float = 2.0,
+        signal: str = "yellow",
+        timer: float = 5,
+    ):
+        """
+        # TODO: add docstring
+        """
+
+        print("Drawing traffic light...")
+        if design == 0 or design == 3:  # ## RAMP METERING SIMPLE
+            THREE_HEAD = False
+            COUNTDOWN_TIMER = False
+        elif design == 1:  # ############# THREE HEADED
+            THREE_HEAD = True
+            COUNTDOWN_TIMER = False
+        elif design == 2:  # ############# COUNTDONW_TIMER
+            THREE_HEAD = False
+            COUNTDOWN_TIMER = True
+        else:
+            THREE_HEAD = False
+            COUNTDOWN_TIMER = False
+
+        # 1. Draw a vertical line as a pole
+        pole_thickness = 10
+        lines = LineSegs()
+        lines.setColor(LColor(0.1, 0.1, 0.1, 1))  # Dark gray for pole
+        lines.setThickness(pole_thickness)
+        lines.moveTo(x, y, z)
+        lines.drawTo(x, y, z + pole_height)
+        context.render.attachNewNode(lines.create())
+
+        # 2. Draw a black box (housing) for the traffic light
+        box_width = 0.5
+        box_height = 0.5
+        box_depth = 1.5
+        box_z = z + pole_height  # place box on top of pole
+        box_node = context.render.attachNewNode(
+            self._make_box(
+                box_width, box_height, box_depth, "black_box", color=(0, 0, 0, 0)
+            )
+        )
+        box_node.setPos(x, y, box_z + box_depth / 2)
+
+        # 3. Draw three colored circles (lights) inside the box
+        full_color = 1.0
+        dark_color = 0.2
+        if signal == "green":
+            color_green = full_color
+            color_red = dark_color
+            color_yellow = dark_color
+        elif signal == "red":
+            color_green = dark_color
+            color_red = full_color
+            color_yellow = dark_color
+        elif signal == "yellow":
+            if THREE_HEAD:
+                color_green = dark_color
+                color_red = full_color
+                color_yellow = full_color
+            else:
+                color_green = dark_color
+                color_red = full_color
+                color_yellow = dark_color
+        elif signal == "yellow2":
+            if THREE_HEAD:
+                color_green = dark_color
+                color_red = dark_color
+                color_yellow = full_color
+            else:
+                color_green = dark_color
+                color_red = full_color
+                color_yellow = dark_color
+        color_green = full_color
+        color_red = full_color
+        color_yellow = full_color
+
+        if THREE_HEAD:
+            box_node1 = context.render.attachNewNode(
+                self._make_box(0.3, 0.3, 0.3, "red_box", color=(color_red, 0, 0, 1))
+            )
+            box_node1.setPos(x, y, z + pole_height + box_depth / 2 + 0.05 + 0.3 + 0.2)
+            box_node2 = context.render.attachNewNode(
+                self._make_box(
+                    0.3,
+                    0.3,
+                    0.3,
+                    "yellow_box",
+                    color=(color_yellow, color_yellow, 0, 1),
+                )
+            )
+            box_node2.setPos(x, y, z + pole_height + box_depth / 2 + 0.05)
+            box_node3 = context.render.attachNewNode(
+                self._make_box(0.3, 0.3, 0.3, "green_box", color=(0, color_green, 0, 1))
+            )
+            box_node3.setPos(x, y, z + pole_height + box_depth / 2 + 0.05 - 0.3 - 0.2)
+        else:
+            box_node1 = context.render.attachNewNode(
+                self._make_box(0.3, 0.3, 0.3, "red_box", color=(color_red, 0, 0, 1))
+            )
+            box_node1.setPos(x, y, z + pole_height + box_depth / 2 + 0.05 + 0.25)
+            box_node2 = context.render.attachNewNode(
+                self._make_box(0.3, 0.3, 0.3, "green_box", color=(0, color_green, 0, 1))
+            )
+            box_node2.setPos(x, y, z + pole_height + box_depth / 2 + 0.05 - 0.25)
+            box_node3 = None
+
+        if COUNTDOWN_TIMER and timer != 0:
+            # draw black rectangle
+            self._make_billboarded_rectangle(
+                context,
+                x + box_width / 2 + 1.4,
+                y,
+                z + pole_height + box_depth / 2,
+                0.8,
+                0.8,
+            )
+            # Draw white text (timer)
+            _, text_node = self._make_billboarded_text(
+                context,
+                x + box_width / 2 + 2.2,
+                y,
+                z + pole_height + box_depth / 2 - 0.15,
+                "{:02d}".format(timer),
+            )
+        else:
+            text_node = None
+
+        print("Traffic light drawn ✓")
+        return box_node1, box_node2, box_node3, text_node
+
+    def _make_box(
+        self,
+        width: float,
+        height: float,
+        depth: float,
+        lbl: str,
+        color: Tuple[float, float, float, float],
+    ):
+        """
+        # TODO: add docstring
+        """
+        frm = GeomVertexFormat.getV3n3c4()
+        vdata = GeomVertexData(lbl, frm, Geom.UHStatic)
+        vertex = GeomVertexWriter(vdata, "vertex")
+        normal = GeomVertexWriter(vdata, "normal")
+        color_writer = GeomVertexWriter(vdata, "color")
+
+        # define the 8 corners of the box
+        w2, h2, d2 = width / 2, height / 2, depth / 2
+        vertices = [
+            (-w2, -h2, -d2),
+            (w2, -h2, -d2),
+            (w2, h2, -d2),
+            (-w2, h2, -d2),  # Front face corners
+            (-w2, -h2, d2),
+            (w2, -h2, d2),
+            (w2, h2, d2),
+            (-w2, h2, d2),  # Back face corners
+        ]
+
+        # add vertices and normals (simplified here)
+        for pos in vertices:
+            vertex.addData3f(pos[0], pos[1], pos[2])
+            normal.addData3f(
+                0, 0, 1
+            )  # all normals same for simplicity (not correct, but fast)
+
+        for _ in range(8):
+            color_writer.addData4f(*color)
+
+        # indices for 6 faces (each face has 2 triangles)
+        tris = GeomTriangles(Geom.UHStatic)
+
+        # front face
+        tris.addVertices(0, 1, 2)
+        tris.addVertices(0, 2, 3)
+
+        # back face
+        tris.addVertices(4, 7, 6)
+        tris.addVertices(4, 6, 5)
+
+        # right face
+        tris.addVertices(1, 5, 6)
+        tris.addVertices(1, 6, 2)
+
+        # left face
+        tris.addVertices(0, 3, 7)
+        tris.addVertices(0, 7, 4)
+
+        # top face
+        tris.addVertices(3, 2, 6)
+        tris.addVertices(3, 6, 7)
+
+        # bottom face
+        tris.addVertices(0, 4, 5)
+        tris.addVertices(0, 5, 1)
+
+        geom = Geom(vdata)
+        geom.addPrimitive(tris)
+        node = GeomNode(lbl)
+        node.addGeom(geom)
+        return node
+
+    def _make_billboarded_rectangle(
+        self,
+        context: ShowBase,
+        x: float,
+        y: float,
+        z: float,
+        width: float,
+        height: float,
+        color: Tuple[float, float, float, float] = (0, 0, 0, 1),
+    ):
+        """
+        # TODO: add docstring
+        """
+        cm = CardMaker("billboarded_rect")
+        cm.setFrame(-width / 2, width / 2, -height / 2, height / 2)
+        rect = context.render.attachNewNode(cm.generate())
+        rect.setPos(x, y, z)
+        rect.setColor(*color)
+        rect.setBillboardPointEye()  # always faces camera
+
+    def _make_billboarded_text(
+        self,
+        context: ShowBase,
+        x: float,
+        y: float,
+        z: float,
+        text: str,
+        color: Tuple[float, float, float, float] = (1, 1, 1, 1),
+    ):
+        """
+        # TODO: add docstring
+        """
+        # create a TextNode
+        text_node = TextNode("billboarded_text")
+        text_node.setText(text)
+        text_node.setTextColor(*color)
+        consolas_font = FontPool.load_font("consola.ttf")
+        text_node.setFont(consolas_font)
+
+        # attach to a node
+        node = context.render.attachNewNode(text_node)
+        node.setPos(x, y, z)
+        node.setBillboardPointEye()  # Always faces camera
+        node.setScale(0.6)  # Adjust scale as needed
+        return node, text_node
+
+    def create_white_signal_line(
+        self,
+        context: ShowBase,
+        p1: float,
+        p2: float,
+        p3: float,
+        p4: float,
+        sep_line_width: float,
+        color: Tuple[float, float, float, float] = (1, 1, 1, 1),
+        z=0.03,
+    ):
+        """
+        # TODO: add docstring
+        """
+        # convert to numpy arrays
+        print("Drawing white signal line...")
+        pA = np.asarray([p1, p2])
+        pB = np.asarray([p3, p4])
+
+        # compute lane length
+        lane_length = np.linalg.norm(pA - pB)
+
+        # compute angle in degrees
+        dx = pB[0] - pA[0]
+        dy = pB[1] - pA[1]
+        angle_deg = np.degrees(np.arctan2(dy, dx)) - 90
+
+        # compute center
+        center_x = (pA[0] + pB[0]) / 2
+        center_y = (pA[1] + pB[1]) / 2
+
+        # create road (card)
+        cm_road = CardMaker("card")
+        cm_road.setFrame(
+            -sep_line_width / 2, sep_line_width / 2, -lane_length / 2, lane_length / 2
+        )
+        road = context.render.attachNewNode(cm_road.generate())
+        road.setPos(center_x, center_y, z)
+        road.setHpr(angle_deg, -90, 0)
+        road.setColor(LColor(*color))
+        print("White signal line drawn ✓")
+
     def create_road_network(
         self,
         context: ShowBase,
@@ -389,7 +687,7 @@ class RenderingTools:
                     lane_l = "e"
                 else:
                     lane_l = "i"
-                self._draw_road_edge_lane(
+                self._create_road_edge_lane(
                     context=context,
                     lane_shape=lane_shape,
                     lane_width=lane_width,
@@ -403,7 +701,7 @@ class RenderingTools:
         for junction in net.getNodes():
             junction_shape = junction.getShape()
             if junction_shape:
-                self._draw_polygon_fan(
+                self._create_polygon_fan(
                     context=context,
                     shape_points=junction_shape,
                     concrete_color=concrete_color,
@@ -411,7 +709,7 @@ class RenderingTools:
 
         print("Road network rendered ✓")
 
-    def _draw_road_edge_lane(
+    def _create_road_edge_lane(
         self,
         context: ShowBase,
         lane_shape,
@@ -424,21 +722,21 @@ class RenderingTools:
         """
         # TODO: add docstring
         """
-        self._draw_concrete(
+        self._create_concrete(
             context=context,
             lane_shape=lane_shape,
             lane_width=lane_width,
             color=concrete_color,
         )
         if lane_id == "b":
-            self._draw_white_seperator_line_left(
+            self._create_white_seperator_line_left(
                 context=context,
                 lane_shape=lane_shape,
                 lane_width=lane_width,
                 sep_line_width=sep_line_width,
                 color=separator_color,
             )
-            self._draw_white_seperator_line_right(
+            self._create_white_seperator_line_right(
                 context=context,
                 lane_shape=lane_shape,
                 lane_width=lane_width,
@@ -446,14 +744,14 @@ class RenderingTools:
                 color=separator_color,
             )
         if lane_id == "a":
-            self._draw_white_seperator_line_right(
+            self._create_white_seperator_line_right(
                 context=context,
                 lane_shape=lane_shape,
                 lane_width=lane_width,
                 sep_line_width=sep_line_width,
                 color=separator_color,
             )
-            self._draw_white_separator_line_right_dashed(
+            self._create_white_separator_line_right_dashed(
                 context=context,
                 lane_shape=lane_shape,
                 lane_width=lane_width,
@@ -464,7 +762,7 @@ class RenderingTools:
                 gap_length=1.0,
             )
         elif lane_id == "e":
-            self._draw_white_seperator_line_left(
+            self._create_white_seperator_line_left(
                 context=context,
                 lane_shape=lane_shape,
                 lane_width=lane_width,
@@ -472,7 +770,7 @@ class RenderingTools:
                 color=separator_color,
             )
         elif lane_id == "i":
-            self._draw_white_separator_line_right_dashed(
+            self._create_white_separator_line_right_dashed(
                 context=context,
                 lane_shape=lane_shape,
                 lane_width=lane_width,
@@ -483,7 +781,7 @@ class RenderingTools:
                 gap_length=1.0,
             )
 
-    def _draw_concrete(
+    def _create_concrete(
         self,
         context: ShowBase,
         lane_shape,
@@ -519,7 +817,7 @@ class RenderingTools:
             road.setHpr(angle_deg, -90, 0)
             road.setColor(LColor(*color))
 
-    def _draw_white_seperator_line_left(
+    def _create_white_seperator_line_left(
         self,
         context: ShowBase,
         lane_shape,
@@ -561,7 +859,7 @@ class RenderingTools:
             road.setHpr(angle_deg, -90, 0)
             road.setColor(LColor(*color))
 
-    def _draw_white_seperator_line_right(
+    def _create_white_seperator_line_right(
         self,
         context: ShowBase,
         lane_shape,
@@ -604,7 +902,7 @@ class RenderingTools:
             road.setColor(LColor(*color))
 
     # TODO - figure out why this function causes issues with rendering speed
-    def _draw_white_separator_line_right_dashed(
+    def _create_white_separator_line_right_dashed(
         self,
         context: ShowBase,
         lane_shape,
@@ -645,7 +943,7 @@ class RenderingTools:
         #         dash.setHpr(angle_deg, -90, 0)
         #         dash.setColor(LColor(*color))
 
-    def _draw_polygon_fan(
+    def _create_polygon_fan(
         self,
         context: ShowBase,
         shape_points,

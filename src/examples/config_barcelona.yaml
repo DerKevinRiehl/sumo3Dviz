@@ -15,11 +15,21 @@ video_parameters:
   video_heigth_px: 900
 
 traffic_signals:
+  ramp_metering: true
+  design: 0 # DESIGN TYPES: 0 = SIMPLE, 1 = 3-head, 2 = COUNTDOWN_TIMER, 3 = SIMPLE
+  ramp:
+    pos_x: 20217.08
+    pos_y: 18261.92
+    stop_line_a: 20224.71
+    stop_line_b: 18264.87
+    stop_line_c: 20226.77
+    stop_line_d: 18261.15
   traffic_signal_states_file: "examples/barcelona_simulation/simulation_logs/signal_states.xml"
   traffic_light_id: "JE3"
 
 visualization_parameters:
   show_other_vehicles: true
+  viewer_height: 1.5
   low_poly_cars_file: "data/3d_models/cars/Low Poly Cars.glb"
   car_file: "data/3d_models/cars/Car.glb"
   tree_positions_file: "examples/barcelona_simulation/viz_object_positions/trees.add.xml"

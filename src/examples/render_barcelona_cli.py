@@ -10,8 +10,9 @@ import os
 import cv2
 import argparse
 import yaml
+from typing import cast
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties
+from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties, Camera
 
 from src.tools.loader_tools import LoaderTools
 from src.tools.interaction_tools import InteractionTools
@@ -230,4 +231,33 @@ if __name__ == "__main__":
     )
     ego_car.setPos(config["trajectory_parameters"]["lane_width"] / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)
+
+    # traffic light and ramp metering
+    if config["traffic_signals"]["ramp_metering"]:
+        box_node1, box_node2, box_node3, text_node = (
+            rendering_tools.create_traffic_light(
+                context=context,
+                design=config["traffic_signals"]["design"],
+                x=config["traffic_signals"]["ramp"]["pos_x"],
+                y=config["traffic_signals"]["ramp"]["pos_y"],
+                z=0,
+            )
+        )
+
+        rendering_tools.create_white_signal_line(
+            context=context,
+            p1=config["traffic_signals"]["ramp"]["stop_line_a"],
+            p2=config["traffic_signals"]["ramp"]["stop_line_b"],
+            p3=config["traffic_signals"]["ramp"]["stop_line_c"],
+            p4=config["traffic_signals"]["ramp"]["stop_line_d"],
+            sep_line_width=config["trajectory_parameters"]["sep_line_width"],
+        )
+
+    # set the initial camera position
+    cast(Camera, context.camera).setPos(
+        df_ego_smoothed["pos_x"].iloc[video_start_idx],
+        df_ego_smoothed["pos_y"].iloc[video_start_idx],
+        config["visualization_parameters"]["viewer_height"],
+    )
+    cast(Camera, context.camera).setHpr(120, 0, 0)
     # endregion

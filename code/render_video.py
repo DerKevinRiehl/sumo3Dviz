@@ -311,7 +311,6 @@ ego_car = load_ego_car_model(context)
 ego_car.setPos(visualization_parameter["lane_width"] / 2, 25, 0)
 ego_car.setHpr(180, 90, 0)
 
-# TODO: CONTINUE MIGRATING BELOW THIS LINE
 # traffic light
 if RAMP_METERING:
     traffic_light_positions = {
@@ -355,6 +354,7 @@ context.camera.setPos(
 )
 context.camera.setHpr(120, 0, 0)
 
+# TODO: CONTINUE MIGRATING BELOW THIS LINE
 ######## RUN SCHEDULE / GO THROUGH TRAJECTORY
 # convert list of tuples for easier access
 trajectory_points = df_ego_smoothed[

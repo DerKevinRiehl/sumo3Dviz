@@ -5,8 +5,9 @@
 # configuration file / command line arguments described there.
 import os
 import cv2
+from typing import cast
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties
+from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties, Camera
 
 from src.tools.loader_tools import LoaderTools
 from src.tools.interaction_tools import InteractionTools
@@ -44,6 +45,27 @@ if __name__ == "__main__":
     )
 
     # traffic signals
+    ramp_metering = False
+    design = 0  # DESIGN TYPES: 0 = SIMPLE, 1 = 3-head, 2 = COUNTDOWN_TIMER, 3 = SIMPLE
+    traffic_light_positions = {
+        "ramp_1": {
+            "pos_x": 20217.08 - 0.0,
+            "pos_y": 18261.92 + 0.0,
+            "stop_line_a": 20224.71,
+            "stop_line_b": 18264.87,
+            "stop_line_c": 20226.77,
+            "stop_line_d": 18261.15,
+        },
+        "ramp_2": {
+            "pos_x": 19315.13 - 0.0,
+            "pos_y": 17822.42 + 4.5,
+            "stop_line_a": 20224.71,
+            "stop_line_b": 18264.87,
+            "stop_line_c": 20226.77,
+            "stop_line_d": 18261.15,
+        },
+    }
+
     traffic_light_id = "JE3"
     tree_positions_file = os.path.join(
         os.path.dirname(__file__),
@@ -52,6 +74,7 @@ if __name__ == "__main__":
 
     # visualization parameters
     show_other_vehicles = True
+    viewer_height = 1.5
     low_poly_cars_file = os.path.join(
         os.path.dirname(__file__), "../../data/3d_models/cars/Low Poly Cars.glb"
     )
@@ -234,6 +257,35 @@ if __name__ == "__main__":
     ego_car = loader.load_ego_car_model(context=context, car_file=car_file)
     ego_car.setPos(lane_width / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)
+
+    # traffic light and ramp metering
+    if ramp_metering:
+        box_node1, box_node2, box_node3, text_node = (
+            rendering_tools.create_traffic_light(
+                context=context,
+                design=design,
+                x=traffic_light_positions["ramp_1"]["pos_x"],
+                y=traffic_light_positions["ramp_1"]["pos_y"],
+                z=0,
+            )
+        )
+
+        rendering_tools.create_white_signal_line(
+            context=context,
+            p1=traffic_light_positions["ramp_1"]["stop_line_a"],
+            p2=traffic_light_positions["ramp_1"]["stop_line_b"],
+            p3=traffic_light_positions["ramp_1"]["stop_line_c"],
+            p4=traffic_light_positions["ramp_1"]["stop_line_d"],
+            sep_line_width=sep_line_width,
+        )
+
+    # set the initial camera position
+    cast(Camera, context.camera).setPos(
+        df_ego_smoothed["pos_x"].iloc[video_start_idx],
+        df_ego_smoothed["pos_y"].iloc[video_start_idx],
+        viewer_height,
+    )
+    cast(Camera, context.camera).setHpr(120, 0, 0)
     # endregion
 
     # TODO: MAKE SURE TO MAKE ALL THE SAME CHANGES ALSO IN THE CLI SCRIPT
