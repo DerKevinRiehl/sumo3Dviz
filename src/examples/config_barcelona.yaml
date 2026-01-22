@@ -20,6 +20,8 @@ traffic_signals:
 
 visualization_parameters:
   show_other_vehicles: true
+  low_poly_cars_file: "data/3d_models/cars/Low Poly Cars.glb"
+  car_file: "data/3d_models/cars/Car.glb"
   tree_positions_file: "examples/barcelona_simulation/viz_object_positions/trees.add.xml"
   fence_lines_file: "examples/barcelona_simulation/viz_object_positions/fences.add.xml"
   shops_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"

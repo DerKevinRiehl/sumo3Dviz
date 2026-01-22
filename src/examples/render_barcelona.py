@@ -52,6 +52,12 @@ if __name__ == "__main__":
 
     # visualization parameters
     show_other_vehicles = True
+    low_poly_cars_file = os.path.join(
+        os.path.dirname(__file__), "../../data/3d_models/cars/Low Poly Cars.glb"
+    )
+    car_file = os.path.join(
+        os.path.dirname(__file__), "../../data/3d_models/cars/Car.glb"
+    )
     traffic_signal_states_file = os.path.join(
         os.path.dirname(__file__),
         "../../examples/barcelona_simulation/simulation_logs/signal_states.xml",
@@ -220,6 +226,14 @@ if __name__ == "__main__":
         block_positions=block_positions,
         block_model_file=block_model_file,
     )  # blocks
+
+    # load cars and ego vehicle car
+    car_models = loader.load_car_models(
+        context=context, low_poly_cars_file=low_poly_cars_file
+    )
+    ego_car = loader.load_ego_car_model(context=context, car_file=car_file)
+    ego_car.setPos(lane_width / 2, 25, 0)
+    ego_car.setHpr(180, 90, 0)
     # endregion
 
     # TODO: MAKE SURE TO MAKE ALL THE SAME CHANGES ALSO IN THE CLI SCRIPT

@@ -214,4 +214,20 @@ if __name__ == "__main__":
             os.getcwd(), config["visualization_parameters"]["block_model_file"]
         ),
     )  # blocks
+
+    # load cars and ego vehicle car
+    car_models = loader.load_car_models(
+        context=context,
+        low_poly_cars_file=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["low_poly_cars_file"]
+        ),
+    )
+    ego_car = loader.load_ego_car_model(
+        context=context,
+        car_file=os.path.join(
+            os.getcwd(), config["visualization_parameters"]["car_file"]
+        ),
+    )
+    ego_car.setPos(config["trajectory_parameters"]["lane_width"] / 2, 25, 0)
+    ego_car.setHpr(180, 90, 0)
     # endregion

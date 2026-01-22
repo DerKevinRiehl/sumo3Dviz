@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 import pandera.pandas as pa
 import xml.etree.ElementTree as ET
+from panda3d.core import Filename, NodePath
+from direct.showbase.ShowBase import ShowBase
 from typing import cast, Tuple, Union
 from pandera.typing import DataFrame, Series
 
@@ -303,6 +305,45 @@ class LoaderTools:
 
         print("Shop positions loaded ✓")
         return shop_positions
+
+    def load_car_models(self, context: ShowBase, low_poly_cars_file: str):
+        """
+        # TODO: add docstring
+        """
+        if not os.path.exists(low_poly_cars_file):
+            warnings.warn(f"Car models file {low_poly_cars_file} does not exist.")
+            return None
+
+        if context.loader is None:
+            raise ValueError("Panda3D context loader is not initialized.")
+
+        print("Loading car models...")
+        car_collection: NodePath = context.loader.loadModel(
+            Filename.fromOsSpecific(low_poly_cars_file)
+        )
+        car_models = [car_collection.find("**/" + str(n)) for n in range(1, 10 + 1)]
+        print("Car models loaded ✓")
+        return car_models
+
+    def load_ego_car_model(
+        self,
+        context: ShowBase,
+        car_file: str,
+    ):
+        """
+        # TODO: add docstring
+        """
+        if not os.path.exists(car_file):
+            raise ValueError(f"Ego car model file {car_file} does not exist.")
+
+        if context.loader is None:
+            raise ValueError("Panda3D context loader is not initialized.")
+
+        print("Loading ego car model...")
+        ego_car: NodePath = context.loader.loadModel(Filename.fromOsSpecific(car_file))
+        ego_car.reparentTo(context.render)
+        print("Ego car model loaded ✓")
+        return ego_car
 
     @pa.check_types
     def _convert_to_fps_rate(

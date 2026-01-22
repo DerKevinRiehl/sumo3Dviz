@@ -303,7 +303,6 @@ create_building_shops(context, shop_positions)
 create_building_homes(context, homes_positions)
 create_building_blocks(context, block_positions)
 
-# TODO: CONTINUE MIGRATING BELOW THIS LINE
 # other cars collection
 car_models = load_car_models(context)
 others_car_instances = {}
@@ -311,6 +310,8 @@ others_car_instances = {}
 ego_car = load_ego_car_model(context)
 ego_car.setPos(visualization_parameter["lane_width"] / 2, 25, 0)
 ego_car.setHpr(180, 90, 0)
+
+# TODO: CONTINUE MIGRATING BELOW THIS LINE
 # traffic light
 if RAMP_METERING:
     traffic_light_positions = {
