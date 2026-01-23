@@ -310,16 +310,9 @@ class LoaderTools:
         """
         # TODO: add docstring
         """
-        if not os.path.exists(low_poly_cars_file):
-            raise ValueError(f"Car models file {low_poly_cars_file} does not exist.")
-
-        if context.loader is None:
-            raise ValueError("Panda3D context loader is not initialized.")
-
+        # TODO: THIS IS NOT CLEANLY SOLVED; SOME OBJECTS LOADED IN RENDERING_TOOLS, OTHER IN LOADER_TOOLS
         print("Loading car models...")
-        car_collection: NodePath = context.loader.loadModel(
-            Filename.fromOsSpecific(low_poly_cars_file)
-        )
+        car_collection: NodePath = context.loader.loadModel(low_poly_cars_file)
         car_models = [car_collection.find("**/" + str(n)) for n in range(1, 10 + 1)]
         print("Car models loaded ✓")
         return car_models
@@ -332,14 +325,16 @@ class LoaderTools:
         """
         # TODO: add docstring
         """
-        if not os.path.exists(car_file):
-            raise ValueError(f"Ego car model file {car_file} does not exist.")
+        # if not os.path.exists(car_file):
+        #     raise ValueError(f"Ego car model file {car_file} does not exist.")
 
-        if context.loader is None:
-            raise ValueError("Panda3D context loader is not initialized.")
-
+        # if context.loader is None:
+        #     raise ValueError("Panda3D context loader is not initialized.")
+        
+        # TODO: THIS IS NOT CLEANLY SOLVED; SOME OBJECTS LOADED IN RENDERING_TOOLS, OTHER IN LOADER_TOOLS
+        # IF I USE  get_model_path().append_directory(Filename("src/../data"))  then I dont need / cnat check like this anymore
         print("Loading ego car model...")
-        ego_car: NodePath = context.loader.loadModel(Filename.fromOsSpecific(car_file))
+        ego_car: NodePath = context.loader.loadModel(car_file)
         ego_car.reparentTo(context.render)
         print("Ego car model loaded ✓")
         return ego_car

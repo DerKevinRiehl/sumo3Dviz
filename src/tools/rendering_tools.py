@@ -16,7 +16,6 @@ from panda3d.core import CardMaker, LColor, Filename, TextureStage
 from panda3d.core import LineSegs, FontPool, TextNode, Texture
 from panda3d.core import DirectionalLight, AmbientLight, Vec4
 
-
 class RenderingTools:
     # TODO: add docstring
 
@@ -61,10 +60,9 @@ class RenderingTools:
         sky_sphere.setTwoSided(True)
 
         # load the texture
-        sky_texture = Texture()
-        sky_texture.read(
-            Filename(Filename.fromOsSpecific(sky_texture_file).get_fullpath())
-        )
+        # sky_texture = Texture()
+        # sky_texture.read(sky_texture_file)
+        sky_texture = context.loader.loadTexture(sky_texture_file)
         sky_sphere.setTexture(sky_texture, 1)
 
         # set rendering properties
@@ -89,9 +87,7 @@ class RenderingTools:
         ground.setHpr(25, -90, 0)
 
         # load the texture
-        ground_tex = context.loader.loadTexture(
-            Filename.fromOsSpecific(path_floor_texture).get_fullpath()
-        )
+        ground_tex = context.loader.loadTexture(path_floor_texture)
         ground_tex.setWrapU(Texture.WM_repeat)
         ground_tex.setWrapV(Texture.WM_repeat)
         ground.setTexture(ground_tex)
@@ -121,13 +117,14 @@ class RenderingTools:
             return []
 
         # load tree models
-        print("Rendering trees...")
-        tree1_model: NodePath = context.loader.loadModel(
-            Filename.fromOsSpecific(tree_model_file_1).get_fullpath()
-        )
-        tree2_model: NodePath = context.loader.loadModel(
-            Filename.fromOsSpecific(tree_model_file_2).get_fullpath()
-        )
+        # print("Rendering trees...")
+        # print("exists?", Filename.fromOsSpecific(tree_model_file_1).exists())
+        # print("exists?", Filename.fromOsSpecific(tree_model_file_1).get_fullpath())
+        # print("jo")
+        # input()
+        
+        tree1_model = context.loader.loadModel(tree_model_file_1)
+        tree2_model = context.loader.loadModel(tree_model_file_2)
 
         # generate trees
         tree_instances = []
@@ -249,9 +246,7 @@ class RenderingTools:
 
         # load shop model
         print("Rendering shops...")
-        building: NodePath = context.loader.loadModel(
-            Filename.fromOsSpecific(store_model_file).get_fullpath()
-        )
+        building: NodePath = context.loader.loadModel(store_model_file)
 
         # get the original bounding box
         min_point, max_point = building.getTightBounds()
@@ -301,9 +296,7 @@ class RenderingTools:
 
         # load home model
         print("Rendering homes...")
-        building: NodePath = context.loader.loadModel(
-            Filename.fromOsSpecific(home_model_file)
-        )
+        building: NodePath = context.loader.loadModel(home_model_file)
 
         # generate homes
         home_instances = []
@@ -340,9 +333,7 @@ class RenderingTools:
 
         # load block model
         print("Rendering building blocks...")
-        building: NodePath = context.loader.loadModel(
-            Filename.fromOsSpecific(block_model_file)
-        )
+        building: NodePath = context.loader.loadModel(block_model_file)
 
         # generate blocks
         block_instances = []
