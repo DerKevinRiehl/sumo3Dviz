@@ -57,7 +57,7 @@ video_parameters = {
     "output_file": "output_video.avi",
     "fps_rate": 25,
     "frame_width_px": 1140,
-    "frame_heigth_px": 900,
+    "frame_height_px": 900,
 }
 
 trajectory_parameters = {
@@ -155,7 +155,7 @@ def update_scene_world(task):
             img_array = np.frombuffer(data, np.uint8)
             img_array = img_array.reshape(
                 (
-                    video_parameters["frame_heigth_px"],
+                    video_parameters["frame_height_px"],
                     video_parameters["frame_width_px"],
                     4,
                 )
@@ -248,7 +248,7 @@ if visualization_parameter["record_video"]:
         video_parameters["output_file"],
         cv2.VideoWriter_fourcc(*"MJPG"),
         video_parameters["fps_rate"],
-        (video_parameters["frame_width_px"], video_parameters["frame_heigth_px"]),
+        (video_parameters["frame_width_px"], video_parameters["frame_height_px"]),
         True,
     )
 
@@ -266,7 +266,7 @@ loadPrcFileData(
     "win-size "
     + str(video_parameters["frame_width_px"])
     + " "
-    + str(video_parameters["frame_heigth_px"]),
+    + str(video_parameters["frame_height_px"]),
 )
 loadPrcFileData("", "framebuffer-multisample 1")
 

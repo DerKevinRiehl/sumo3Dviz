@@ -658,6 +658,95 @@ class RenderingTools:
         road.setColor(LColor(*color))
         print("White signal line drawn ✓")
 
+    def update_traffic_light(
+        self,
+        signal: str,
+        design: int,
+        timer: float,
+        box_node1: NodePath,
+        box_node2: NodePath,
+        box_node3: Union[NodePath, None],
+        text_node: Union[TextNode, None],
+    ):
+        """
+        Update traffic light colors and timer display based on signal state.
+
+        Args:
+            signal: Traffic light state ('green', 'red', 'yellow', 'yellow2')
+            design: Traffic light design type (0=SIMPLE, 1=3-HEAD, 2=COUNTDOWN_TIMER, 3=SIMPLE)
+            timer: Countdown timer value
+            box_node1: First light box node (red or red in simple)
+            box_node2: Second light box node (yellow or green in simple)
+            box_node3: Third light box node (green in 3-head, None otherwise)
+            text_node: Text node for countdown timer (None if no timer)
+        """
+        # determine Design
+        if design == 0 or design == 3:  # RAMP METERING SIMPLE
+            THREE_HEAD = False
+            COUNTDOWN_TIMER = False
+        elif design == 1:  # THREE HEADED
+            THREE_HEAD = True
+            COUNTDOWN_TIMER = False
+        elif design == 2:  # COUNTDOWN_TIMER
+            THREE_HEAD = False
+            COUNTDOWN_TIMER = True
+        else:
+            THREE_HEAD = False
+            COUNTDOWN_TIMER = False
+
+        # set Traffic Light colors
+        full_color = 1.0
+        dark_color = 0.2
+
+        if signal == "green":
+            color_green = full_color
+            color_red = dark_color
+            color_yellow = dark_color
+        elif signal == "red":
+            color_green = dark_color
+            color_red = full_color
+            color_yellow = dark_color
+        elif signal == "yellow":
+            if THREE_HEAD:
+                color_green = dark_color
+                color_red = full_color
+                color_yellow = full_color
+            else:
+                color_green = dark_color
+                color_red = full_color
+                color_yellow = dark_color
+        elif signal == "yellow2":
+            if THREE_HEAD:
+                color_green = dark_color
+                color_red = dark_color
+                color_yellow = full_color
+            else:
+                color_green = dark_color
+                color_red = full_color
+                color_yellow = dark_color
+        else:
+            color_green = dark_color
+            color_red = dark_color
+            color_yellow = dark_color
+
+        # update light colors
+        if THREE_HEAD:
+            box_node1.setColor(color_red, 0, 0, 1)
+            box_node2.setColor(color_yellow, color_yellow, 0, 1)
+            if box_node3 is not None:
+                box_node3.setColor(0, color_green, 0, 1)
+        else:
+            box_node1.setColor(color_red, 0, 0, 1)
+            box_node2.setColor(0, color_green, 0, 1)
+
+        # update countdown timer text
+        if COUNTDOWN_TIMER and text_node is not None:
+            if timer != 0:
+                text = "{:02d}".format(int(timer + 1))
+            else:
+                text = ""
+            text_node.setText(text)
+
     def create_road_network(
         self,
         context: ShowBase,

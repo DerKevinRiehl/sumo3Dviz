@@ -17,6 +17,8 @@ from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties
 from src.tools.loader_tools import LoaderTools
 from src.tools.interaction_tools import InteractionTools
 from src.tools.rendering_tools import RenderingTools
+from src.tools.trajectory_tools import TrajectoryTools
+from src.tools.simulation_tools import SimulationManager
 
 
 if __name__ == "__main__":
@@ -61,6 +63,7 @@ if __name__ == "__main__":
     loader = LoaderTools()
     interaction_tools = InteractionTools()
     rendering_tools = RenderingTools()
+    trajectory_tools = TrajectoryTools()
 
     # load the trajectories from the SUMO log and apply trajectory smoothing to them
     (
@@ -79,8 +82,11 @@ if __name__ == "__main__":
         show_other_vehicles=config["visualization_parameters"]["show_other_vehicles"],
     )
 
+    # add veh_id column to df_ego_smoothed for compatibility
+    df_ego_smoothed["veh_id"] = config["trajectory_parameters"]["ego_identifier"]
+
     # load traffic light signal
-    df_simulation_log_light = loader.load_traffic_light_signals(
+    df_traffic_light = loader.load_traffic_light_signals(
         traffic_signal_states_file=config["traffic_signals"][
             "traffic_signal_states_file"
         ],
@@ -123,10 +129,12 @@ if __name__ == "__main__":
             fps=config["video_parameters"]["video_fps"],
             frameSize=(
                 config["video_parameters"]["video_width_px"],
-                config["video_parameters"]["video_heigth_px"],
+                config["video_parameters"]["video_height_px"],
             ),
             isColor=True,
         )
+    else:
+        video_writer = None
 
     # create 3D rendering context
     if headless:
@@ -136,7 +144,7 @@ if __name__ == "__main__":
         "win-size "
         + str(config["video_parameters"]["video_width_px"])
         + " "
-        + str(config["video_parameters"]["video_heigth_px"]),
+        + str(config["video_parameters"]["video_height_px"]),
     )
     loadPrcFileData("", "framebuffer-multisample 1")
     context = ShowBase()
@@ -252,6 +260,8 @@ if __name__ == "__main__":
             p4=config["traffic_signals"]["ramp"]["stop_line_d"],
             sep_line_width=config["trajectory_parameters"]["sep_line_width"],
         )
+    else:
+        box_node1, box_node2, box_node3, text_node = None, None, None, None
 
     # set the initial camera position
     cast(Camera, context.camera).setPos(
@@ -260,4 +270,50 @@ if __name__ == "__main__":
         config["visualization_parameters"]["viewer_height"],
     )
     cast(Camera, context.camera).setHpr(120, 0, 0)
+    # endregion
+
+    # ! RUN SIMULATION / RENDERING LOOP
+    # region
+    # convert list of tuples for easier access
+    trajectory_points = df_ego_smoothed[
+        ["veh_id", "pos_x", "pos_y", "computed_angle_deg", "time"]
+    ].values
+    signal_points = (
+        df_traffic_light[["time", "state", "timer"]].values
+        if df_traffic_light is not None
+        else None
+    )
+
+    # create the simulation manager
+    simulation_manager = SimulationManager(
+        context=context,
+        trajectory_points=trajectory_points,
+        signal_points=signal_points,
+        video_start_idx=video_start_idx,
+        video_end_idx=video_end_idx,
+        car_models=car_models,
+        ego_car=ego_car,
+        smoothened_trajectory_data=smoothened_trajectory_data,
+        trajectory_tools=trajectory_tools,
+        rendering_tools=rendering_tools,
+        viewer_height=config["visualization_parameters"]["viewer_height"],
+        show_other_vehicles=config["visualization_parameters"]["show_other_vehicles"],
+        ramp_metering=config["traffic_signals"]["ramp_metering"],
+        design=config["traffic_signals"]["design"],
+        video_width_px=config["video_parameters"]["video_width_px"],
+        video_height_px=config["video_parameters"]["video_height_px"],
+        video_writer=video_writer,
+        box_node1=box_node1,
+        box_node2=box_node2,
+        box_node3=box_node3,
+        text_node=text_node,
+    )
+
+    # assign the update function to the task manager
+    context.taskMgr.doMethodLater(0.0, simulation_manager.update_world, "update_world")
+    context.run()
+
+    # once completed, release the video writer
+    if config["video_parameters"]["record_video"] and video_writer is not None:
+        video_writer.release()
     # endregion

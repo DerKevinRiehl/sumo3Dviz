@@ -241,3 +241,53 @@ class TrajectoryTools:
             SmoothenedTrajectoryDFSchema.validate(cast(pd.DataFrame, df))
 
         return smoothened_trajectory_data
+
+    def get_closest_vehicles(
+        self,
+        smoothened_trajectory_data: list,
+        current_pos: list,
+        current_time: float,
+        max_vehicles: int = 200,
+    ) -> list:
+        """
+        # TODO: add docstring
+        """
+        # collect vehicles and their positions at current_time
+        vehicle_data = []
+        for i, df in enumerate(smoothened_trajectory_data):
+            # find rows at current_time with tolerance
+            mask = np.isclose(df["time"], current_time, atol=0.01)
+            if mask.any():
+                row = df[mask].iloc[0]
+                # use 'computed_angle_deg' if present, otherwise use 'angle'
+                angle = row.get("computed_angle_deg", row.get("angle", np.nan))
+                vehicle_data.append(
+                    {
+                        "veh_id": i,  # vehicle index in trajectory data
+                        "pos_x": row["pos_x"],
+                        "pos_y": row["pos_y"],
+                        "angle": angle,
+                    }
+                )
+
+        # if no vehicles at current_time, return empty list
+        if not vehicle_data:
+            return []
+
+        # compute distances
+        positions = np.array([[v["pos_x"], v["pos_y"]] for v in vehicle_data])
+        current_pos_array = np.array(current_pos)
+        distances = np.linalg.norm(positions - current_pos_array, axis=1)
+
+        # add distances to vehicle info
+        for i, v in enumerate(vehicle_data):
+            v["distance"] = distances[i]
+
+        # sort by distance and select top max_vehicles
+        sorted_vehicles = sorted(vehicle_data, key=lambda x: x["distance"])
+
+        # return list of [pos_x, pos_y, angle, veh_id] for closest vehicles
+        return [
+            [v["pos_x"], v["pos_y"], v["angle"], v["veh_id"]]
+            for v in sorted_vehicles[:max_vehicles]
+        ]

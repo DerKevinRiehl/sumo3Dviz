@@ -12,7 +12,7 @@ video_parameters:
   output_file: "results/barcelona_simulation.avi"
   video_fps: 25.0
   video_width_px: 1140
-  video_heigth_px: 900
+  video_height_px: 900
 
 traffic_signals:
   ramp_metering: true

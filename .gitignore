@@ -211,3 +211,7 @@ __marimo__/
 
 # Example simulation extracted position file
 examples/barcelona_simulation/simulation_logs/vehicle_positions.xml
+
+# results inside the results folder (excluding the gitkeep file)
+results/
+!results/.gitkeep
