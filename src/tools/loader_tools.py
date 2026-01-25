@@ -317,9 +317,7 @@ class LoaderTools:
             raise ValueError("Panda3D context loader is not initialized.")
 
         print("Loading car models...")
-        car_collection: NodePath = context.loader.loadModel(
-            Filename.fromOsSpecific(low_poly_cars_file)
-        )
+        car_collection: NodePath = context.loader.loadModel(low_poly_cars_file)
         car_models = [car_collection.find("**/" + str(n)) for n in range(1, 10 + 1)]
         print("Car models loaded ✓")
         return car_models
@@ -339,7 +337,7 @@ class LoaderTools:
             raise ValueError("Panda3D context loader is not initialized.")
 
         print("Loading ego car model...")
-        ego_car: NodePath = context.loader.loadModel(Filename.fromOsSpecific(car_file))
+        ego_car: NodePath = context.loader.loadModel(car_file)
         ego_car.reparentTo(context.render)
         print("Ego car model loaded ✓")
         return ego_car
