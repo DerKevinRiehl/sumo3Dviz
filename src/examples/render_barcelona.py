@@ -5,9 +5,17 @@
 # configuration file / command line arguments described there.
 import os
 import cv2
+import platform
 from typing import cast
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties, Camera
+from panda3d.core import (
+    Filename,
+    Camera,
+    loadPrcFileData,
+    AntialiasAttrib,
+    FrameBufferProperties,
+    get_model_path,
+)
 
 from src.tools.loader_tools import LoaderTools
 from src.tools.interaction_tools import InteractionTools
@@ -77,12 +85,6 @@ if __name__ == "__main__":
     # visualization parameters
     show_other_vehicles = True
     viewer_height = 1.5
-    low_poly_cars_file = os.path.join(
-        os.path.dirname(__file__), "../../data/3d_models/cars/Low Poly Cars.glb"
-    )
-    car_file = os.path.join(
-        os.path.dirname(__file__), "../../data/3d_models/cars/Car.glb"
-    )
     traffic_signal_states_file = os.path.join(
         os.path.dirname(__file__),
         "../../examples/barcelona_simulation/simulation_logs/signal_states.xml",
@@ -103,31 +105,51 @@ if __name__ == "__main__":
         os.path.dirname(__file__),
         "../../examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
     )
-    sky_texture_file = os.path.join(
-        os.path.dirname(__file__), "../../data/images/texture_sky_daycloud1.jpg"
-    )
-    floor_texture_file = os.path.join(
-        os.path.dirname(__file__),
-        "../../data/images/texture_ground_grass.jpg",
-    )
-    store_model_file = os.path.join(
-        os.path.dirname(__file__),
-        "../../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
-    )
-    home_model_file = os.path.join(
-        os.path.dirname(__file__),
-        "../../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
-    )
-    block_model_file = os.path.join(
-        os.path.dirname(__file__),
-        "../../data/3d_models/buildings/Residential Buildings 002.obj",
-    )
-    tree_model_file_1 = os.path.join(
-        os.path.dirname(__file__), "../../data/3d_models/trees/MapleTree.obj"
-    )
-    tree_model_file_2 = os.path.join(
-        os.path.dirname(__file__), "../../data/3d_models/trees/Hazelnut.obj"
-    )
+
+    if platform.system() == "Windows":
+        get_model_path().append_directory(Filename("data"))
+        low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
+        car_file = "3d_models/cars/Car.glb"
+        sky_texture_file = "images/texture_sky_blue.jpg"
+        floor_texture_file = "images/texture_ground_grass.jpg"
+        store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
+        home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
+        block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
+        tree_model_file_1 = "3d_models/trees/MapleTree.obj"
+        tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
+    else:
+        low_poly_cars_file = os.path.join(
+            os.path.dirname(__file__), "../../data/3d_models/cars/Low Poly Cars.glb"
+        )
+        car_file = os.path.join(
+            os.path.dirname(__file__), "../../data/3d_models/cars/Car.glb"
+        )
+        sky_texture_file = os.path.join(
+            os.path.dirname(__file__), "../../data/images/texture_sky_daycloud1.jpg"
+        )
+        floor_texture_file = os.path.join(
+            os.path.dirname(__file__),
+            "../../data/images/texture_ground_grass.jpg",
+        )
+        store_model_file = os.path.join(
+            os.path.dirname(__file__),
+            "../../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
+        )
+        home_model_file = os.path.join(
+            os.path.dirname(__file__),
+            "../../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
+        )
+        block_model_file = os.path.join(
+            os.path.dirname(__file__),
+            "../../data/3d_models/buildings/Residential Buildings 002.obj",
+        )
+        tree_model_file_1 = os.path.join(
+            os.path.dirname(__file__), "../../data/3d_models/trees/MapleTree.obj"
+        )
+        tree_model_file_2 = os.path.join(
+            os.path.dirname(__file__), "../../data/3d_models/trees/Hazelnut.obj"
+        )
+
     tree_scale_1 = 0.2
     tree_scale_2 = 0.5
     tree_size_variability = 1
