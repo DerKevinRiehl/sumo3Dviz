@@ -310,9 +310,6 @@ class LoaderTools:
         """
         # TODO: add docstring
         """
-        if not os.path.exists(low_poly_cars_file):
-            raise ValueError(f"Car models file {low_poly_cars_file} does not exist.")
-
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
 
@@ -330,9 +327,6 @@ class LoaderTools:
         """
         # TODO: add docstring
         """
-        if not os.path.exists(car_file):
-            raise ValueError(f"Ego car model file {car_file} does not exist.")
-
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
 
