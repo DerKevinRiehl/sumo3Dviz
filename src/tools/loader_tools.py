@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import warnings
 import sumolib
 import pandas as pd
@@ -163,7 +163,7 @@ class LoaderTools:
         if traffic_signal_states_file is None:
             return None
 
-        if not os.path.exists(traffic_signal_states_file):
+        if not Path(traffic_signal_states_file).exists():
             warnings.warn(
                 f"Traffic signal states file {traffic_signal_states_file} does not exist."
             )
@@ -232,7 +232,7 @@ class LoaderTools:
         if xml_file is None:
             return None
 
-        if not os.path.exists(xml_file):
+        if not Path(xml_file).exists():
             warnings.warn(f"Tree positions file {xml_file} does not exist.")
             return None
 
@@ -259,7 +259,7 @@ class LoaderTools:
         if xml_file is None:
             return None
 
-        if not os.path.exists(xml_file):
+        if not Path(xml_file).exists():
             warnings.warn(f"Fence lines file {xml_file} does not exist.")
             return None
 
@@ -290,7 +290,7 @@ class LoaderTools:
         if xml_file is None:
             return None
 
-        if not os.path.exists(xml_file):
+        if not Path(xml_file).exists():
             warnings.warn(f"Shop positions file {xml_file} does not exist.")
             return None
 
@@ -312,6 +312,13 @@ class LoaderTools:
         """
         # TODO: THIS IS NOT CLEANLY SOLVED; SOME OBJECTS LOADED IN RENDERING_TOOLS, OTHER IN LOADER_TOOLS
         print("Loading car models...")
+        # fail fast with a clear message if the file is missing
+        if not Path(low_poly_cars_file).exists():
+            raise FileNotFoundError(f"Car models file not found: {low_poly_cars_file}")
+
+        if context.loader is None:
+            raise ValueError("Panda3D context loader is not initialized.")
+
         car_collection: NodePath = context.loader.loadModel(low_poly_cars_file)
         car_models = [car_collection.find("**/" + str(n)) for n in range(1, 10 + 1)]
         print("Car models loaded ✓")
@@ -325,14 +332,14 @@ class LoaderTools:
         """
         # TODO: add docstring
         """
-        # if not os.path.exists(car_file):
-        #     raise ValueError(f"Ego car model file {car_file} does not exist.")
-
-        # if context.loader is None:
-        #     raise ValueError("Panda3D context loader is not initialized.")
-        
         # TODO: THIS IS NOT CLEANLY SOLVED; SOME OBJECTS LOADED IN RENDERING_TOOLS, OTHER IN LOADER_TOOLS
-        # IF I USE  get_model_path().append_directory(Filename("src/../data"))  then I dont need / cnat check like this anymore
+        # IF I USE  get_model_path().append_directory(Filename("src/../data"))  then I dont need / cant check like this anymore
+        # but still validate the ego car file exists to provide a clear message
+        if not Path(car_file).exists():
+            raise FileNotFoundError(f"Ego car model file not found: {car_file}")
+
+        if context.loader is None:
+            raise ValueError("Panda3D context loader is not initialized.")
         print("Loading ego car model...")
         ego_car: NodePath = context.loader.loadModel(car_file)
         ego_car.reparentTo(context.render)

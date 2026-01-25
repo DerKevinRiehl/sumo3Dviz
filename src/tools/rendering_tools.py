@@ -1,6 +1,7 @@
 import numpy as np
 import sumolib
 import warnings
+from pathlib import Path
 from typing import Tuple, Union
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import (
@@ -15,6 +16,7 @@ from panda3d.core import (
 from panda3d.core import CardMaker, LColor, Filename, TextureStage
 from panda3d.core import LineSegs, FontPool, TextNode, Texture
 from panda3d.core import DirectionalLight, AmbientLight, Vec4
+
 
 class RenderingTools:
     # TODO: add docstring
@@ -60,8 +62,9 @@ class RenderingTools:
         sky_sphere.setTwoSided(True)
 
         # load the texture
-        # sky_texture = Texture()
-        # sky_texture.read(sky_texture_file)
+        if not Path(sky_texture_file).exists():
+            raise FileNotFoundError(f"Sky texture not found: {sky_texture_file}")
+
         sky_texture = context.loader.loadTexture(sky_texture_file)
         sky_sphere.setTexture(sky_texture, 1)
 
@@ -87,6 +90,9 @@ class RenderingTools:
         ground.setHpr(25, -90, 0)
 
         # load the texture
+        if not Path(path_floor_texture).exists():
+            raise FileNotFoundError(f"Floor texture not found: {path_floor_texture}")
+
         ground_tex = context.loader.loadTexture(path_floor_texture)
         ground_tex.setWrapU(Texture.WM_repeat)
         ground_tex.setWrapV(Texture.WM_repeat)
@@ -116,15 +122,13 @@ class RenderingTools:
             warnings.warn("No tree positions provided. Skipping tree creation.")
             return []
 
-        # load tree models
-        # print("Rendering trees...")
-        # print("exists?", Filename.fromOsSpecific(tree_model_file_1).exists())
-        # print("exists?", Filename.fromOsSpecific(tree_model_file_1).get_fullpath())
-        # print("jo")
-        # input()
-        
-        tree1_model = context.loader.loadModel(tree_model_file_1)
-        tree2_model = context.loader.loadModel(tree_model_file_2)
+        if not Path(tree_model_file_1).exists():
+            raise FileNotFoundError(f"Tree model file not found: {tree_model_file_1}")
+        if not Path(tree_model_file_2).exists():
+            raise FileNotFoundError(f"Tree model file not found: {tree_model_file_2}")
+
+        tree1_model: NodePath = context.loader.loadModel(tree_model_file_1)
+        tree2_model: NodePath = context.loader.loadModel(tree_model_file_2)
 
         # generate trees
         tree_instances = []
@@ -246,6 +250,9 @@ class RenderingTools:
 
         # load shop model
         print("Rendering shops...")
+        if not Path(store_model_file).exists():
+            raise FileNotFoundError(f"Store model file not found: {store_model_file}")
+
         building: NodePath = context.loader.loadModel(store_model_file)
 
         # get the original bounding box
@@ -296,6 +303,9 @@ class RenderingTools:
 
         # load home model
         print("Rendering homes...")
+        if not Path(home_model_file).exists():
+            raise FileNotFoundError(f"Home model file not found: {home_model_file}")
+
         building: NodePath = context.loader.loadModel(home_model_file)
 
         # generate homes
@@ -333,6 +343,9 @@ class RenderingTools:
 
         # load block model
         print("Rendering building blocks...")
+        if not Path(block_model_file).exists():
+            raise FileNotFoundError(f"Block model file not found: {block_model_file}")
+
         building: NodePath = context.loader.loadModel(block_model_file)
 
         # generate blocks

@@ -3,7 +3,7 @@
 # properties. For an illustration on how to use this library through the CLI,
 # please refer to the render_barcelona_cli.py script and the corresponding
 # configuration file / command line arguments described there.
-import os
+from pathlib import Path
 import cv2
 from typing import cast
 from direct.showbase.ShowBase import ShowBase
@@ -26,16 +26,25 @@ if __name__ == "__main__":
     headless = False
 
     # trajectory parameters
-    trajectory_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__),
-        "../../../examples/barcelona_simulation/simulation_logs/vehicle_positions.xml",
-    )))
+    trajectory_file = str(
+        (
+            Path(__file__).resolve().parents[2]
+            / "examples"
+            / "barcelona_simulation"
+            / "simulation_logs"
+            / "vehicle_positions.xml"
+        ).resolve()
+    )
     ego_identifier = "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
-    
-    sumo_network_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__),
-        "../../../examples/barcelona_simulation/Network.net.xml",
-    )))
+
+    sumo_network_file = str(
+        (
+            Path(__file__).resolve().parents[2]
+            / "examples"
+            / "barcelona_simulation"
+            / "Network.net.xml"
+        ).resolve()
+    )
     lane_width = 3.2
     sep_line_width = 0.2
     simtime_start = 39.0
@@ -46,9 +55,11 @@ if __name__ == "__main__":
     video_fps = 25
     video_width_px = 1140
     video_height_px = 900
-    output_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__), "../../../results/barcelona_simulation.avi"
-    )))
+    output_file = str(
+        (
+            Path(__file__).resolve().parents[2] / "results" / "barcelona_simulation.avi"
+        ).resolve()
+    )
 
     # traffic signals
     ramp_metering = False
@@ -73,45 +84,86 @@ if __name__ == "__main__":
     }
 
     traffic_light_id = "JE3"
-    tree_positions_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__),
-        "../../../examples/barcelona_simulation/viz_object_positions/trees.add.xml",
-    )))
+    tree_positions_file = str(
+        (
+            Path(__file__).resolve().parents[2]
+            / "examples"
+            / "barcelona_simulation"
+            / "viz_object_positions"
+            / "trees.add.xml"
+        ).resolve()
+    )
+
     # visualization parameters
     show_other_vehicles = True
     viewer_height = 1.5
-    traffic_signal_states_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__),
-        "../../../examples/barcelona_simulation/simulation_logs/signal_states.xml",
-    )))
-    fence_lines_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__),
-        "../../../examples/barcelona_simulation/viz_object_positions/fences.add.xml",
-    )))
-    shops_positions_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__),
-        "../../../examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml",
-    )))
-    homes_positions_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__),
-        "../../../examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml",
-    )))
-    blocks_positions_file = os.path.abspath(os.path.normpath(os.path.join(
-        os.path.realpath(__file__),
-        "../../../examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
-    )))
-    
-    get_model_path().append_directory(Filename("src/../data")) # TODO; IMPORTANT LINE BTW
-    low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
-    car_file = "3d_models/cars/Car.glb"
-    sky_texture_file = "images/texture_sky_blue.jpg"
-    floor_texture_file = "images/texture_ground_grass.jpg"
-    store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
-    home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
-    block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
-    tree_model_file_1 = "3d_models/trees/MapleTree.obj"
-    tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
-    
+    traffic_signal_states_file = str(
+        (
+            Path(__file__).resolve().parents[2]
+            / "examples"
+            / "barcelona_simulation"
+            / "simulation_logs"
+            / "signal_states.xml"
+        ).resolve()
+    )
+    fence_lines_file = str(
+        (
+            Path(__file__).resolve().parents[2]
+            / "examples"
+            / "barcelona_simulation"
+            / "viz_object_positions"
+            / "fences.add.xml"
+        ).resolve()
+    )
+    shops_positions_file = str(
+        (
+            Path(__file__).resolve().parents[2]
+            / "examples"
+            / "barcelona_simulation"
+            / "viz_object_positions"
+            / "buildings_shops.add.xml"
+        ).resolve()
+    )
+    homes_positions_file = str(
+        (
+            Path(__file__).resolve().parents[2]
+            / "examples"
+            / "barcelona_simulation"
+            / "viz_object_positions"
+            / "buildings_homes.add.xml"
+        ).resolve()
+    )
+    blocks_positions_file = str(
+        (
+            Path(__file__).resolve().parents[2]
+            / "examples"
+            / "barcelona_simulation"
+            / "viz_object_positions"
+            / "buildings_blocks.add.xml"
+        ).resolve()
+    )
+
+    abs_data_dir = (Path(__file__).resolve().parents[2] / "data").resolve()
+    get_model_path().append_directory(Filename.fromOsSpecific(str(abs_data_dir)))
+    low_poly_cars_file = str(abs_data_dir / "3d_models" / "cars" / "Low Poly Cars.glb")
+    car_file = str(abs_data_dir / "3d_models" / "cars" / "Car.glb")
+    sky_texture_file = str(abs_data_dir / "images" / "texture_sky_blue.jpg")
+    floor_texture_file = str(abs_data_dir / "images" / "texture_ground_grass.jpg")
+    store_model_file = str(
+        abs_data_dir
+        / "3d_models"
+        / "buildings"
+        / "10065_Corner Grocery Store_V2_L3.obj"
+    )
+    home_model_file = str(
+        abs_data_dir / "3d_models" / "buildings" / "10084_Small Home_V3_Iteration0.obj"
+    )
+    block_model_file = str(
+        abs_data_dir / "3d_models" / "buildings" / "Residential Buildings 002.obj"
+    )
+    tree_model_file_1 = str(abs_data_dir / "3d_models" / "trees" / "MapleTree.obj")
+    tree_model_file_2 = str(abs_data_dir / "3d_models" / "trees" / "Hazelnut.obj")
+
     tree_scale_1 = 0.2
     tree_scale_2 = 0.5
     tree_size_variability = 1
