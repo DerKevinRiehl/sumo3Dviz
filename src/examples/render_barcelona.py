@@ -110,7 +110,7 @@ if __name__ == "__main__":
         get_model_path().append_directory(Filename("data"))
         low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
         car_file = "3d_models/cars/Car.glb"
-        sky_texture_file = "images/texture_sky_blue.jpg"
+        sky_texture_file = "images/texture_sky_daycloud1.jpg"
         floor_texture_file = "images/texture_ground_grass.jpg"
         store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
         home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
