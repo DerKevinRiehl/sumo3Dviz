@@ -4,11 +4,18 @@ from panda3d.core import Camera
 
 
 class InteractionTools:
-    # TODO: add docstring
+    """Provides tools for handling user interaction with the 3D visualization."""
 
     def addCameraControlKeyboard(self, context: ShowBase):
-        """
-        # TODO: add docstring
+        """Configure keyboard controls for camera movement and rotation.
+
+        Sets up arrow keys for camera position (left/right/forward/backward),
+        W/S keys for vertical movement (up/down), Q/A keys for pitch rotation
+        (look up/down), and E/D keys for heading rotation (look left/right).
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context to attach keyboard
+                controls to.
         """
 
         # move camera left/right/forward/backward

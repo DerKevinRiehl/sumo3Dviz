@@ -29,7 +29,7 @@ class SmoothenedTrajectoryDFSchema(pa.DataFrameModel):
 
 
 class TrajectoryTools:
-    # TODO: add docstring
+    """Tools for processing and smoothing vehicle trajectories from SUMO simulations."""
 
     @pa.check_types
     def get_vehicle_trajectory_raw(
@@ -37,8 +37,19 @@ class TrajectoryTools:
         df_simulation_log_cars: DataFrame[TrajectoryDFSchema],
         ego_identifier: str,
     ) -> tuple[DataFrame[TrajectoryDFSchema], float, float]:
-        """
-        # TODO: add docstring
+        """Extract the raw trajectory for a specific vehicle from simulation data.
+
+        Args:
+            df_simulation_log_cars (DataFrame[TrajectoryDFSchema]): Complete simulation
+                log containing trajectories for all vehicles with columns: time, veh_id,
+                pos_x, pos_y, angle.
+            ego_identifier (str): Vehicle ID to extract trajectory for.
+
+        Returns:
+            tuple[DataFrame[TrajectoryDFSchema], float, float]: A tuple containing:
+                - DataFrame with the vehicle's trajectory
+                - First timestamp of the trajectory
+                - Last timestamp of the trajectory
         """
         # extract the trajectory for the ego vehicle
         df_trajectory = TrajectoryDFSchema.validate(
@@ -57,11 +68,13 @@ class TrajectoryTools:
         return df_trajectory, first_timestamp, last_timestamp
 
     def normalize_angle(self, angle: float) -> float:
-        """
-        Normalize angle to be within [-180, 180] degrees.
+        """Normalize angle to be within [-180, 180] degrees.
 
         Args:
-            angle (float): Angle in degrees.
+            angle (float): Angle in degrees to normalize.
+
+        Returns:
+            float: Normalized angle in degrees within the range [-180, 180].
         """
         return ((angle + 180) % 360) - 180
 
@@ -69,8 +82,21 @@ class TrajectoryTools:
     def interpolate_trajectory(
         self, df_trajectory: DataFrame[TrajectoryDFSchema], video_fps: float
     ) -> Union[DataFrame[SmoothenedTrajectoryDFSchema], None]:
-        """
-        # TODO: add docstring
+        """Interpolate and smooth a vehicle trajectory to match video frame rate.
+
+        Resamples the trajectory to the specified FPS, applies linear interpolation
+        for missing values, smooths position and angle data using rolling means,
+        and computes movement direction based on position changes.
+
+        Args:
+            df_trajectory (DataFrame[TrajectoryDFSchema]): Raw vehicle trajectory
+                with columns: time, veh_id, pos_x, pos_y, angle.
+            video_fps (float): Target video frames per second for resampling.
+
+        Returns:
+            DataFrame[SmoothenedTrajectoryDFSchema] | None: Smoothed trajectory with
+                columns: time, pos_x, pos_y, computed_angle_deg, angle. Returns None
+                if the trajectory has less than 2 data points.
         """
         # set the time column as index for interpolation
         df_trajectory = df_trajectory.set_index("time")
@@ -180,8 +206,23 @@ class TrajectoryTools:
         last_timestamp: float,
         video_fps: float,
     ) -> list[DataFrame[SmoothenedTrajectoryDFSchema]]:
-        """
-        # TODO: add docstring
+        """Process and smooth trajectories for all vehicles except the ego vehicle.
+
+        Iterates through all vehicles in the simulation log, normalizes angles,
+        and applies interpolation and smoothing to each trajectory.
+
+        Args:
+            ego_identifier (str): Vehicle ID of the ego vehicle to exclude from
+                processing.
+            df_simulation_log_cars (DataFrame[TrajectoryDFSchema]): Complete simulation
+                log containing trajectories for all vehicles.
+            first_timestamp (float): First timestamp of ego vehicle trajectory.
+            last_timestamp (float): Last timestamp of ego vehicle trajectory.
+            video_fps (float): Target video frames per second for resampling.
+
+        Returns:
+            list[DataFrame[SmoothenedTrajectoryDFSchema]]: List of smoothed trajectory
+                DataFrames for all vehicles except the ego vehicle.
         """
 
         # group the vehicle trajectories by their vehicle id
@@ -249,8 +290,23 @@ class TrajectoryTools:
         current_time: float,
         max_vehicles: int = 200,
     ) -> list:
-        """
-        # TODO: add docstring
+        """Find the closest vehicles to a given position at a specific time.
+
+        Searches through smoothed trajectory data to find vehicles present at the
+        specified time, computes their distances from the current position, and
+        returns the closest ones sorted by distance.
+
+        Args:
+            smoothened_trajectory_data (list): List of smoothed trajectory DataFrames
+                for all vehicles.
+            current_pos (list): Current position as [x, y] coordinates.
+            current_time (float): Current simulation time to query vehicle positions.
+            max_vehicles (int): Maximum number of closest vehicles to return.
+                Defaults to 200.
+
+        Returns:
+            list: List of vehicle data for the closest vehicles, where each entry
+                is [pos_x, pos_y, angle, veh_id], sorted by distance from current_pos.
         """
         # collect vehicles and their positions at current_time
         vehicle_data = []

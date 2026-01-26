@@ -29,7 +29,7 @@ class TrafficLightDFSchema(pa.DataFrameModel):
 
 
 class LoaderTools:
-    # TODO: add docstring
+    """Tools for loading and processing SUMO simulation data and 3D models."""
 
     @pa.check_types
     def load_trajectory(
@@ -46,8 +46,34 @@ class LoaderTools:
         int,
         int,
     ]:
-        """
-        # TODO: add docstring
+        """Load and process vehicle trajectories from SUMO simulation log.
+
+        Parses a SUMO FCD (Floating Car Data) XML file, extracts vehicle positions
+        and orientations, smooths the ego vehicle trajectory, and optionally processes
+        trajectories for all other vehicles.
+
+        Args:
+            trajectory_file (str): Path to SUMO FCD output XML file containing
+                vehicle positions.
+            ego_identifier (str): Vehicle ID of the ego vehicle to track.
+            simtime_start (float): Start time of the video segment in simulation time.
+            simtime_end (float): End time of the video segment in simulation time.
+            video_fps (float): Target video frames per second for trajectory resampling.
+                Defaults to 25.
+            show_other_vehicles (bool): Whether to process trajectories for non-ego
+                vehicles. Defaults to True.
+
+        Returns:
+            Tuple containing:
+                - DataFrame[SmoothenedTrajectoryDFSchema]: Smoothed ego vehicle trajectory
+                - list[DataFrame[SmoothenedTrajectoryDFSchema]] | None: List of smoothed
+                    trajectories for other vehicles, or None if show_other_vehicles is False
+                - int: Index of video start frame in the ego trajectory
+                - int: Index of video end frame in the ego trajectory
+
+        Raises:
+            ValueError: If SUMO log entries are missing required attributes or if
+                ego vehicle trajectory cannot be smoothed.
         """
         # load the trajectory data from the SUMO simulation log
         tree = ET.parse(trajectory_file)
@@ -155,8 +181,25 @@ class LoaderTools:
         traffic_light_id: str,
         video_fps: float,
     ) -> Union[DataFrame[TrafficLightDFSchema], None]:
-        """
-        # TODO: add docstring
+        """Load and process traffic light signal states from SUMO log.
+
+        Parses a SUMO traffic light states XML file, resamples to match video FPS,
+        adds yellow transition phases, and computes countdown timers to next green phase.
+
+        Args:
+            traffic_signal_states_file (str | None): Path to SUMO traffic light states
+                XML file. If None, returns None.
+            start_time (float): Start time to crop signal data.
+            end_time (float): End time to crop signal data.
+            traffic_light_id (str): ID of the traffic light to extract states for.
+            video_fps (float): Target video frames per second for resampling.
+
+        Returns:
+            DataFrame[TrafficLightDFSchema] | None: DataFrame with columns time, state,
+                and timer, or None if file doesn't exist or is not provided.
+
+        Raises:
+            ValueError: If SUMO log entries are missing required attributes.
         """
 
         # check if the file exists, return early otherwise
@@ -224,8 +267,15 @@ class LoaderTools:
     def load_tree_positions(
         self, xml_file: Union[str, None]
     ) -> Union[list[list[float]], None]:
-        """
-        # TODO: add docstring
+        """Load tree positions from a SUMO POI (Point of Interest) XML file.
+
+        Args:
+            xml_file (str | None): Path to SUMO POI XML file containing tree positions.
+                If None, returns None.
+
+        Returns:
+            list[list[float]] | None: List of [x, y] coordinate pairs for tree positions,
+                or None if file is not provided or doesn't exist.
         """
 
         # check if the file exists, return early otherwise
@@ -251,8 +301,16 @@ class LoaderTools:
     def load_fence_lines(
         self, xml_file: Union[str, None]
     ) -> Union[list[list[list[float]]], None]:
-        """
-        # TODO: add docstring
+        """Load fence line polylines from a SUMO polygon XML file.
+
+        Args:
+            xml_file (str | None): Path to SUMO polygon XML file containing fence lines.
+                If None, returns None.
+
+        Returns:
+            list[list[list[float]]] | None: List of polylines, where each polyline is a
+                list of [x, y] coordinate pairs, or None if file is not provided or
+                doesn't exist.
         """
 
         # check if the file exists, return early otherwise
@@ -282,8 +340,15 @@ class LoaderTools:
     def load_shop_positions(
         self, xml_file: Union[str, None]
     ) -> Union[list[list[float]], None]:
-        """
-        # TODO: add docstring
+        """Load shop building positions from a SUMO POI XML file.
+
+        Args:
+            xml_file (str | None): Path to SUMO POI XML file containing shop positions.
+                If None, returns None.
+
+        Returns:
+            list[list[float]] | None: List of [x, y] coordinate pairs for shop positions,
+                or None if file is not provided or doesn't exist.
         """
 
         # check if the file exists, return early otherwise
@@ -307,8 +372,18 @@ class LoaderTools:
         return shop_positions
 
     def load_car_models(self, context: ShowBase, low_poly_cars_file: str):
-        """
-        # TODO: add docstring
+        """Load low-poly car models for rendering non-ego vehicles.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            low_poly_cars_file (str): Path to the 3D model file containing multiple
+                car models (expects models numbered 1-10).
+
+        Returns:
+            list: List of NodePath instances for car models 1 through 10.
+
+        Raises:
+            ValueError: If context.loader is not initialized.
         """
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
@@ -324,8 +399,18 @@ class LoaderTools:
         context: ShowBase,
         car_file: str,
     ):
-        """
-        # TODO: add docstring
+        """Load the 3D model for the ego vehicle.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            car_file (str): Path to the ego car 3D model file.
+
+        Returns:
+            NodePath: NodePath instance of the loaded ego car model, attached
+                to the render scene.
+
+        Raises:
+            ValueError: If context.loader is not initialized.
         """
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
@@ -340,8 +425,19 @@ class LoaderTools:
     def _convert_to_fps_rate(
         self, df: DataFrame[TrafficLightBasicDFSchema], video_fps: float
     ) -> DataFrame[TrafficLightBasicDFSchema]:
-        """
-        # TODO: add docstring
+        """Resample traffic light state data to match target video frame rate.
+
+        Uses forward-fill reindexing to ensure each video frame has a corresponding
+        traffic light state.
+
+        Args:
+            df (DataFrame[TrafficLightBasicDFSchema]): Traffic light states with
+                columns: time, state.
+            video_fps (float): Target frames per second.
+
+        Returns:
+            DataFrame[TrafficLightBasicDFSchema]: Resampled traffic light states at
+                the target FPS.
         """
 
         # type validation (as state cannot be validated correctly with pandera)
@@ -364,8 +460,18 @@ class LoaderTools:
     def _add_yellow_transition(
         self, df_signals_log: DataFrame[TrafficLightBasicDFSchema]
     ) -> DataFrame[TrafficLightBasicDFSchema]:
-        """
-        # TODO: add docstring
+        """Add 3-second yellow transition phases between red and green states.
+
+        Inserts yellow ('y') phases before red-to-green transitions and
+        yellow2 ('y2') phases before green-to-red transitions.
+
+        Args:
+            df_signals_log (DataFrame[TrafficLightBasicDFSchema]): Traffic light
+                states with columns: time, state.
+
+        Returns:
+            DataFrame[TrafficLightBasicDFSchema]: Traffic light states with yellow
+                transitions added.
         """
 
         # find the indices where the state changes from red to green or vice versa
@@ -403,8 +509,18 @@ class LoaderTools:
     def _add_countdown_timer(
         self, df_signals_log: DataFrame[TrafficLightBasicDFSchema]
     ) -> DataFrame[TrafficLightDFSchema]:
-        """
-        # TODO: add docstring
+        """Compute countdown timer values to the next green phase.
+
+        Traverses the traffic light states backwards to determine the next green
+        phase time for each timestamp and calculates time remaining.
+
+        Args:
+            df_signals_log (DataFrame[TrafficLightBasicDFSchema]): Traffic light
+                states with columns: time, state.
+
+        Returns:
+            DataFrame[TrafficLightDFSchema]: Traffic light states with added timer
+                column showing seconds until next green phase (0 when green or yellow2).
         """
 
         # for each row, find the next green index (or np.nan if none)
