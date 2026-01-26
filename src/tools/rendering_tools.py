@@ -18,11 +18,16 @@ from panda3d.core import DirectionalLight, AmbientLight, Vec4
 
 
 class RenderingTools:
-    # TODO: add docstring
+    """Provides tools for rendering 3D scene elements for SUMO traffic visualization."""
 
     def create_light(self, context: ShowBase):
-        """
-        # TODO: add docstring
+        """Create and configure lighting sources for the 3D scene.
+
+        Sets up ambient light for general illumination and a directional light
+        positioned to provide highlights and shading effects.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context to attach lights to.
         """
 
         # ambient light (fill light)
@@ -47,8 +52,18 @@ class RenderingTools:
         sky_texture_file: str,
         horizon_distance=50000,
     ):
-        """
-        # TODO: add docstring
+        """Create a textured sky sphere as the scene background.
+
+        Loads a spherical model, applies a sky texture, and configures it to render
+        as the background without depth writing.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            sky_texture_file (str): Path to the sky texture image file.
+            horizon_distance (float): Radius of the sky sphere. Defaults to 50000.
+
+        Raises:
+            ValueError: If context.loader is not initialized.
         """
         if context.loader is None:
             raise ValueError("Context loader is not initialized.")
@@ -72,8 +87,18 @@ class RenderingTools:
         print("Sky rendered ✓")
 
     def create_floor(self, context: ShowBase, path_floor_texture: str, INFINITY=50000):
-        """
-        # TODO: add docstring
+        """Create a textured ground plane for the scene.
+
+        Generates a large card with a repeating texture to serve as the ground surface.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            path_floor_texture (str): Path to the floor texture image file.
+            INFINITY (float): Size of the ground plane in each direction.
+                Defaults to 50000.
+
+        Raises:
+            ValueError: If context.loader is not initialized.
         """
         if context.loader is None:
             raise ValueError("Context loader is not initialized.")
@@ -105,8 +130,27 @@ class RenderingTools:
         tree_size_variability=1,
         tree_color_variability=0.1,
     ):
-        """
-        # TODO: add docstring
+        """Create tree instances at specified positions with randomized appearance.
+
+        Loads two tree models and randomly places them at given positions with
+        variations in scale, color, and rotation for natural appearance.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            tree_positions (list[list[float]] | None): List of [x, y] coordinates
+                for tree placement. If None, no trees are created.
+            tree_model_file_1 (str): Path to the first tree model file.
+            tree_model_file_2 (str): Path to the second tree model file.
+            tree_scale_1 (float): Base scale for the first tree model. Defaults to 0.2.
+            tree_scale_2 (float): Base scale for the second tree model. Defaults to 0.5.
+            tree_size_variability (float): Scale variability multiplier. Defaults to 1.
+            tree_color_variability (float): Color variation amount. Defaults to 0.1.
+
+        Returns:
+            list: List of tree NodePath instances created.
+
+        Raises:
+            ValueError: If context.loader is not initialized.
         """
 
         if context.loader is None:
@@ -164,8 +208,24 @@ class RenderingTools:
         z_end=1.0,
         spacing=2.0,
     ):
-        """
-        # TODO: add docstring
+        """Create highway fence structures along specified polylines.
+
+        Generates vertical posts at regular intervals along fence lines and connects
+        them with horizontal rails at two heights.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            fence_lines (list[list[list[float]]] | None): List of polylines, where
+                each polyline is a list of [x, y] coordinates. If None, no fences
+                are created.
+            color (Tuple[float, float, float, float]): RGBA color for fence lines.
+                Defaults to (0.3, 0.3, 0.3, 1).
+            pole_thickness (float): Thickness of fence lines in pixels. Defaults to 10.
+            vertical_line_dist (float): Vertical distance between the two horizontal
+                rails. Defaults to 0.3.
+            z_start (float): Starting height for vertical posts. Defaults to 0.03.
+            z_end (float): Ending height for vertical posts. Defaults to 1.0.
+            spacing (float): Distance between adjacent fence posts. Defaults to 2.0.
         """
 
         if fence_lines is None:
@@ -228,8 +288,24 @@ class RenderingTools:
         shop_positions: Union[list[list[float]], None],
         store_model_file: str,
     ):
-        """
-        # TODO: add docstring
+        """Create shop building instances at specified positions.
+
+        Loads a shop model, scales it to a target width of 8 units, and places
+        instances at given positions.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            shop_positions (list[list[float]] | None): List of [x, y] coordinates
+                for shop placement. If None, no shops are created.
+            store_model_file (str): Path to the shop 3D model file.
+
+        Returns:
+            tuple: A tuple containing:
+                - list: List of shop NodePath instances created
+                - float | None: Scaled depth of the shop model
+
+        Raises:
+            ValueError: If context.loader is not initialized.
         """
 
         if context.loader is None:
@@ -278,8 +354,24 @@ class RenderingTools:
         homes_positions: Union[list[list[float]], None],
         home_model_file: str,
     ):
-        """
-        # TODO: add docstring
+        """Create residential building instances at specified positions.
+
+        Loads a home model, scales it to 0.01, and places instances at given
+        positions with slight random color variations.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            homes_positions (list[list[float]] | None): List of [x, y] coordinates
+                for home placement. If None, no homes are created.
+            home_model_file (str): Path to the home 3D model file.
+
+        Returns:
+            tuple: A tuple containing:
+                - list: List of home NodePath instances created
+                - None: Placeholder for API consistency
+
+        Raises:
+            ValueError: If context.loader is not initialized.
         """
 
         if context.loader is None:
@@ -315,8 +407,24 @@ class RenderingTools:
         block_positions: Union[list[list[float]], None],
         block_model_file: str,
     ):
-        """
-        # TODO: add docstring
+        """Create large building block instances at specified positions.
+
+        Loads a building block model and places instances at given positions with
+        randomized colors for variety.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            block_positions (list[list[float]] | None): List of [x, y] coordinates
+                for block placement. If None, no blocks are created.
+            block_model_file (str): Path to the building block 3D model file.
+
+        Returns:
+            tuple: A tuple containing:
+                - list: List of building block NodePath instances created
+                - None: Placeholder for API consistency
+
+        Raises:
+            ValueError: If context.loader is not initialized.
         """
 
         if context.loader is None:
@@ -357,8 +465,32 @@ class RenderingTools:
         signal: str = "yellow",
         timer: float = 5,
     ):
-        """
-        # TODO: add docstring
+        """Create a traffic light at a specified position with initial state.
+
+        Generates a traffic light structure with a pole, housing box, and light
+        indicators. Supports different designs including simple ramp metering,
+        three-headed traffic lights, and countdown timer displays.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            design (int): Traffic light design type:
+                - 0 or 3: Simple ramp metering (red/green only)
+                - 1: Three-headed traffic light (red/yellow/green)
+                - 2: Ramp metering with countdown timer
+            x (float): X coordinate for traffic light position.
+            y (float): Y coordinate for traffic light position.
+            z (float): Z coordinate (ground level). Defaults to 0.
+            pole_height (float): Height of the traffic light pole. Defaults to 2.0.
+            signal (str): Initial signal state ('green', 'red', 'yellow', 'yellow2').
+                Defaults to 'yellow'.
+            timer (float): Initial countdown timer value in seconds. Defaults to 5.
+
+        Returns:
+            tuple: A tuple containing:
+                - box_node1: First light box NodePath (red light)
+                - box_node2: Second light box NodePath (yellow or green light)
+                - box_node3: Third light box NodePath (green light, None if not 3-headed)
+                - text_node: TextNode for countdown timer (None if no timer)
         """
 
         print("Drawing traffic light...")
@@ -491,8 +623,17 @@ class RenderingTools:
         lbl: str,
         color: Tuple[float, float, float, float],
     ):
-        """
-        # TODO: add docstring
+        """Create a 3D box geometry node with specified dimensions and color.
+
+        Args:
+            width (float): Width of the box (x-axis).
+            height (float): Height of the box (y-axis).
+            depth (float): Depth of the box (z-axis).
+            lbl (str): Label for the geometry node.
+            color (Tuple[float, float, float, float]): RGBA color values.
+
+        Returns:
+            GeomNode: A geometry node representing the box.
         """
         frm = GeomVertexFormat.getV3n3c4()
         vdata = GeomVertexData(lbl, frm, Geom.UHStatic)
@@ -566,8 +707,17 @@ class RenderingTools:
         height: float,
         color: Tuple[float, float, float, float] = (0, 0, 0, 1),
     ):
-        """
-        # TODO: add docstring
+        """Create a rectangular card that always faces the camera.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            x (float): X coordinate for rectangle center.
+            y (float): Y coordinate for rectangle center.
+            z (float): Z coordinate for rectangle center.
+            width (float): Width of the rectangle.
+            height (float): Height of the rectangle.
+            color (Tuple[float, float, float, float]): RGBA color values.
+                Defaults to (0, 0, 0, 1).
         """
         cm = CardMaker("billboarded_rect")
         cm.setFrame(-width / 2, width / 2, -height / 2, height / 2)
@@ -585,8 +735,21 @@ class RenderingTools:
         text: str,
         color: Tuple[float, float, float, float] = (1, 1, 1, 1),
     ):
-        """
-        # TODO: add docstring
+        """Create text that always faces the camera.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            x (float): X coordinate for text position.
+            y (float): Y coordinate for text position.
+            z (float): Z coordinate for text position.
+            text (str): Text content to display.
+            color (Tuple[float, float, float, float]): RGBA color values for text.
+                Defaults to (1, 1, 1, 1).
+
+        Returns:
+            tuple: A tuple containing:
+                - node: NodePath of the text
+                - text_node: TextNode instance for updating text content
         """
         # create a TextNode
         text_node = TextNode("billboarded_text")
@@ -613,8 +776,18 @@ class RenderingTools:
         color: Tuple[float, float, float, float] = (1, 1, 1, 1),
         z=0.03,
     ):
-        """
-        # TODO: add docstring
+        """Create a white signal line (stop line) between two points.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            p1 (float): X coordinate of first point.
+            p2 (float): Y coordinate of first point.
+            p3 (float): X coordinate of second point.
+            p4 (float): Y coordinate of second point.
+            sep_line_width (float): Width of the signal line.
+            color (Tuple[float, float, float, float]): RGBA color values.
+                Defaults to (1, 1, 1, 1).
+            z (float): Z coordinate (height) of the line. Defaults to 0.03.
         """
         # convert to numpy arrays
         print("Drawing white signal line...")
@@ -742,8 +915,20 @@ class RenderingTools:
         concrete_color: Tuple[float, float, float, float] = (0.2, 0.2, 0.2, 1),
         separator_color: Tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1),
     ):
-        """
-        # TODO: add docstring
+        """Create a 3D representation of a SUMO road network.
+
+        Loads a SUMO network file and renders all edges, lanes, and junctions
+        with appropriate lane markings.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            sumo_network_file (str): Path to the SUMO network (.net.xml) file.
+            lane_width (float): Width of each lane.
+            sep_line_width (float): Width of lane separator lines.
+            concrete_color (Tuple[float, float, float, float]): RGBA color for
+                road surface. Defaults to (0.2, 0.2, 0.2, 1).
+            separator_color (Tuple[float, float, float, float]): RGBA color for
+                lane markings. Defaults to (1.0, 1.0, 1.0, 1).
         """
         # load SUMO road network
         print("Rendering road network...")
@@ -794,8 +979,22 @@ class RenderingTools:
         concrete_color: Tuple[float, float, float, float],
         separator_color: Tuple[float, float, float, float],
     ):
-        """
-        # TODO: add docstring
+        """Create a single lane with appropriate road markings.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            lane_shape: List of (x, y) coordinate tuples defining the lane centerline.
+            lane_width (float): Width of the lane.
+            sep_line_width (float): Width of lane separator lines.
+            lane_id (str): Lane identifier determining marking type:
+                - 'b': Both side markings (single lane edge)
+                - 'a': Rightmost lane (solid right, dashed left)
+                - 'e': Leftmost lane (solid left)
+                - 'i': Interior lane (dashed right)
+            concrete_color (Tuple[float, float, float, float]): RGBA color for
+                road surface.
+            separator_color (Tuple[float, float, float, float]): RGBA color for
+                lane markings.
         """
         self._create_concrete(
             context=context,
@@ -864,8 +1063,14 @@ class RenderingTools:
         color: Tuple[float, float, float, float],
         z=0.01,
     ):
-        """
-        # TODO: add docstring
+        """Create road surface geometry along a lane centerline.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            lane_shape: List of (x, y) coordinate tuples defining the lane centerline.
+            lane_width (float): Width of the lane.
+            color (Tuple[float, float, float, float]): RGBA color for road surface.
+            z (float): Z coordinate (height) of the road surface. Defaults to 0.01.
         """
 
         for i in range(0, len(lane_shape) - 1):
@@ -901,8 +1106,15 @@ class RenderingTools:
         color: Tuple[float, float, float, float],
         z=0.03,
     ):
-        """
-        # TODO: add docstring
+        """Create a solid separator line on the left side of a lane.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            lane_shape: List of (x, y) coordinate tuples defining the lane centerline.
+            lane_width (float): Width of the lane.
+            sep_line_width (float): Width of the separator line.
+            color (Tuple[float, float, float, float]): RGBA color for the line.
+            z (float): Z coordinate (height) of the line. Defaults to 0.03.
         """
 
         for i in range(0, len(lane_shape) - 1):
@@ -943,8 +1155,15 @@ class RenderingTools:
         color: Tuple[float, float, float, float],
         z=0.03,
     ):
-        """
-        # TODO: add docstring
+        """Create a solid separator line on the right side of a lane.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            lane_shape: List of (x, y) coordinate tuples defining the lane centerline.
+            lane_width (float): Width of the lane.
+            sep_line_width (float): Width of the separator line.
+            color (Tuple[float, float, float, float]): RGBA color for the line.
+            z (float): Z coordinate (height) of the line. Defaults to 0.03.
         """
 
         for i in range(0, len(lane_shape) - 1):
@@ -988,8 +1207,19 @@ class RenderingTools:
         dash_length=1.0,
         gap_length=1.0,
     ):
-        """
-        # TODO: add docstring
+        """Create a dashed separator line on the right side of a lane.
+
+        Currently not implemented due to rendering performance issues.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            lane_shape: List of (x, y) coordinate tuples defining the lane centerline.
+            lane_width (float): Width of the lane.
+            sep_line_width (float): Width of the separator line.
+            color (Tuple[float, float, float, float]): RGBA color for the line.
+            z (float): Z coordinate (height) of the line. Defaults to 0.03.
+            dash_length (float): Length of each dash. Defaults to 1.0.
+            gap_length (float): Length of gap between dashes. Defaults to 1.0.
         """
 
         pass
@@ -1025,8 +1255,16 @@ class RenderingTools:
         concrete_color: Tuple[float, float, float, float],
         z=0.01,
     ):
-        """
-        # TODO: add docstring
+        """Create a filled polygon using a triangle fan geometry.
+
+        Used for rendering junction areas in the road network.
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+            shape_points: List of (x, y) coordinate tuples defining the polygon vertices.
+            concrete_color (Tuple[float, float, float, float]): RGBA color for
+                the polygon.
+            z (float): Z coordinate (height) of the polygon. Defaults to 0.01.
         """
 
         if len(shape_points) < 3:
