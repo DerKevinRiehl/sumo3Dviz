@@ -68,15 +68,15 @@ class TrajectoryTools:
         return df_trajectory, first_timestamp, last_timestamp
 
     def normalize_angle(self, angle: float) -> float:
-        """Normalize angle to be within [-180, 180] degrees.
+        """Normalize angle to be within [0, 360] degrees.
 
         Args:
             angle (float): Angle in degrees to normalize.
 
         Returns:
-            float: Normalized angle in degrees within the range [-180, 180].
+            float: Normalized angle in degrees within the range [0, 360].
         """
-        return ((angle + 180) % 360) - 180
+        return (angle + 360) % 360
 
     @pa.check_types
     def interpolate_trajectory(
@@ -102,6 +102,10 @@ class TrajectoryTools:
         df_trajectory = df_trajectory.set_index("time")
         t_min = df_trajectory.index.min()
         t_max = df_trajectory.index.max()
+
+        # unwrap angles to handle 0/360 wraparound before interpolation
+        angle_unwrapped = np.rad2deg(np.unwrap(np.deg2rad(df_trajectory["angle"])))
+        df_trajectory["angle"] = angle_unwrapped
 
         # resample the trajectory to the desired video fps and interpolate missing values linearly
         desired_timestamps = np.arange(t_min, t_max, 1 / video_fps)
@@ -157,10 +161,6 @@ class TrajectoryTools:
         df_smoothed["computed_angle_deg"] = df_smoothed["computed_angle_deg"].fillna(
             df_smoothed["angle"]
         )
-        df_smoothed["computed_angle_deg"] = [
-            self.normalize_angle(angle=angle)
-            for angle in df_smoothed["computed_angle_deg"]
-        ]
 
         # reset the computed angles with the original values where the vehicle is not moving enough
         # -> the ratio between dx and dy becomes unstable from the numerical simulation
@@ -195,6 +195,7 @@ class TrajectoryTools:
             )
         )
         df_smoothed["time"] = df_smoothed["time"].round(3)
+
         return df_smoothed
 
     @pa.check_types
@@ -250,16 +251,22 @@ class TrajectoryTools:
                         cast(pd.DataFrame, df_trajectory)
                     )
 
-                    # apply the smoothening procedure to the trajectory
-                    df_trajectory["angle"] = [
-                        self.normalize_angle(angle=angle)
-                        for angle in df_trajectory["angle"]
-                    ]
+                    # interpolate the trajectory
                     df_smoothed = self.interpolate_trajectory(
                         df_trajectory=df_trajectory, video_fps=video_fps
                     )
 
                     if df_smoothed is not None:
+                        # apply the smoothening procedure to the trajectory
+                        df_smoothed["angle"] = [
+                            self.normalize_angle(angle=angle)
+                            for angle in df_smoothed["angle"]
+                        ]
+                        df_smoothed["computed_angle_deg"] = [
+                            self.normalize_angle(angle=angle)
+                            for angle in df_smoothed["computed_angle_deg"]
+                        ]
+
                         smoothened_trajectory_data.append(df_smoothed)
                         print(
                             "Smoothening trajectory for vehicle",

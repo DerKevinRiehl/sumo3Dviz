@@ -124,12 +124,6 @@ class LoaderTools:
             df_simulation_log_cars, ego_identifier
         )
 
-        # normalize the angles to be within [-180, 180] degrees
-        df_ego_trajectory["angle"] = [
-            trajectory_tools.normalize_angle(angle)
-            for angle in df_ego_trajectory["angle"]
-        ]
-
         # smoothen the ego vehicle trajectory for better visualization
         df_ego_smoothed = trajectory_tools.interpolate_trajectory(
             df_ego_trajectory, video_fps
@@ -140,6 +134,16 @@ class LoaderTools:
             raise ValueError(
                 "Could not smoothen the ego vehicle trajectory, aborting process."
             )
+
+        # normalize the angles after smoothing
+        df_ego_smoothed["angle"] = [
+            trajectory_tools.normalize_angle(angle)
+            for angle in df_ego_smoothed["angle"]
+        ]
+        df_ego_smoothed["computed_angle_deg"] = [
+            trajectory_tools.normalize_angle(angle)
+            for angle in df_ego_smoothed["computed_angle_deg"]
+        ]
 
         # reset the time to the current index
         df_ego_smoothed = df_ego_smoothed.reset_index()
