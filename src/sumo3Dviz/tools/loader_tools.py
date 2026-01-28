@@ -1,11 +1,12 @@
 import os
+import platform
 import warnings
 import sumolib
 import pandas as pd
 import numpy as np
 import pandera.pandas as pa
 import xml.etree.ElementTree as ET
-from panda3d.core import Filename, NodePath
+from panda3d.core import Filename, NodePath, get_model_path
 from direct.showbase.ShowBase import ShowBase
 from typing import cast, Tuple, Union
 from pandera.typing import DataFrame, Series
@@ -375,7 +376,7 @@ class LoaderTools:
         print("Shop positions loaded ✓")
         return shop_positions
 
-    def load_car_models(self, context: ShowBase, low_poly_cars_file: str):
+    def load_car_models(self, context: ShowBase):
         """Load low-poly car models for rendering non-ego vehicles.
 
         Args:
@@ -392,17 +393,22 @@ class LoaderTools:
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
 
+        if platform.system() == "Windows":
+            get_model_path().append_directory(Filename("../data"))
+            low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
+        else:
+            low_poly_cars_file = os.path.join(
+                os.path.dirname(__file__),
+                "../data/3d_models/cars/Low Poly Cars.glb",
+            )
+
         print("Loading car models...")
         car_collection: NodePath = context.loader.loadModel(low_poly_cars_file)
         car_models = [car_collection.find("**/" + str(n)) for n in range(1, 10 + 1)]
         print("Car models loaded ✓")
         return car_models
 
-    def load_ego_car_model(
-        self,
-        context: ShowBase,
-        car_file: str,
-    ):
+    def load_ego_car_model(self, context: ShowBase):
         """Load the 3D model for the ego vehicle.
 
         Args:
@@ -418,6 +424,15 @@ class LoaderTools:
         """
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
+
+        if platform.system() == "Windows":
+            get_model_path().append_directory(Filename("../data"))
+            car_file = "3d_models/cars/Car.glb"
+        else:
+            car_file = os.path.join(
+                os.path.dirname(__file__),
+                "../data/3d_models/cars/Car.glb",
+            )
 
         print("Loading ego car model...")
         ego_car: NodePath = context.loader.loadModel(car_file)

@@ -113,8 +113,6 @@ if __name__ == "__main__":
     # -> will not be available after installation through pip
     if platform.system() == "Windows":
         get_model_path().append_directory(Filename("data"))
-        low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
-        car_file = "3d_models/cars/Car.glb"
         sky_texture_file = "images/texture_sky_daycloud1.jpg"
         ground_texture_file = "images/texture_ground_grass.jpg"
         store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
@@ -123,13 +121,6 @@ if __name__ == "__main__":
         tree_model_file_1 = "3d_models/trees/MapleTree.obj"
         tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
     else:
-        low_poly_cars_file = os.path.join(
-            os.path.dirname(__file__),
-            "../src/sumo3Dviz/data/3d_models/cars/Low Poly Cars.glb",
-        )
-        car_file = os.path.join(
-            os.path.dirname(__file__), "../src/sumo3Dviz/data/3d_models/cars/Car.glb"
-        )
         sky_texture_file = os.path.join(
             os.path.dirname(__file__),
             "../src/sumo3Dviz/data/images/texture_sky_daycloud1.jpg",
@@ -290,10 +281,8 @@ if __name__ == "__main__":
     )  # blocks
 
     # load cars and ego vehicle car
-    car_models = loader.load_car_models(
-        context=context, low_poly_cars_file=low_poly_cars_file
-    )
-    ego_car = loader.load_ego_car_model(context=context, car_file=car_file)
+    car_models = loader.load_car_models(context=context)
+    ego_car = loader.load_ego_car_model(context=context)
     ego_car.setPos(lane_width / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)
 
