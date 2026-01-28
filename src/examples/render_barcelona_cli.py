@@ -305,8 +305,8 @@ if __name__ == "__main__":
     rendering_tools.create_trees(
         context=context,
         tree_positions=tree_positions,
-        tree_model_file_1=os.path.join(os.getcwd(), tree_model_file_1),
-        tree_model_file_2=os.path.join(os.getcwd(), tree_model_file_2),
+        tree_model_file_1=tree_model_file_1,
+        tree_model_file_2=tree_model_file_2,
         tree_scale_1=tree_scale_1,
         tree_scale_2=tree_scale_2,
         tree_size_variability=tree_size_variability,
@@ -318,27 +318,27 @@ if __name__ == "__main__":
     rendering_tools.create_building_shops(
         context=context,
         shop_positions=shop_positions,
-        store_model_file=os.path.join(os.getcwd(), store_model_file),
+        store_model_file=store_model_file,
     )  # shops
     rendering_tools.create_building_homes(
         context=context,
         homes_positions=homes_positions,
-        home_model_file=os.path.join(os.getcwd(), home_model_file),
+        home_model_file=home_model_file,
     )  # homes
     rendering_tools.create_building_blocks(
         context=context,
         block_positions=block_positions,
-        block_model_file=os.path.join(os.getcwd(), block_model_file),
+        block_model_file=block_model_file,
     )  # blocks
 
     # load cars and ego vehicle car
     car_models = loader.load_car_models(
         context=context,
-        low_poly_cars_file=os.path.join(os.getcwd(), low_poly_cars_file),
+        low_poly_cars_file=low_poly_cars_file,
     )
     ego_car = loader.load_ego_car_model(
         context=context,
-        car_file=os.path.join(os.getcwd(), car_file),
+        car_file=car_file,
     )
     ego_car.setPos(config["trajectory_parameters"]["lane_width"] / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)
