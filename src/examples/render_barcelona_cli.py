@@ -173,9 +173,7 @@ if __name__ == "__main__":
     elif ground_texture == "ground_halloween":
         ground_texture_file = "images/texture_ground_halloween.jpg"
 
-    if platform.system() == "Windows":
-        get_model_path().append_directory(Filename("data"))
-    else:
+    if platform.system() != "Windows":
         sky_texture_file = os.path.join(
             os.path.dirname(__file__), f"../../data/{sky_texture_file}"
         )
