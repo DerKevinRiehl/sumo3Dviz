@@ -28,7 +28,7 @@ class SimulationManager:
         viewer_height: float,
         show_other_vehicles: bool,
         ramp_metering: bool,
-        design: int,
+        design: str,
         video_width_px: float,
         video_height_px: float,
         video_writer: Optional[cv2.VideoWriter] = None,
@@ -54,7 +54,7 @@ class SimulationManager:
             viewer_height: Camera height above ground
             show_other_vehicles: Whether to render other vehicles
             ramp_metering: Whether ramp metering is enabled
-            design: Traffic light design type
+            design: Traffic light design type ("simple", "three_headed", "countdown_timer")
             video_width_px: Width of the output video in pixels
             video_height_px: Height of the output video in pixels
             video_writer: OpenCV VideoWriter (optional)

@@ -3,15 +3,17 @@
 # In order for the script to work correctly, please specify the configuration script
 # path and name in the command line arguments.
 #
-# Command:
+# Example command:
 # python src/examples/render_barcelona_cli.py --config src/examples/config_barcelona.yaml
 
 import os
 import cv2
 import yaml
+import json
 import platform
 import argparse
 from typing import cast
+from jsonschema import validate, ValidationError
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import (
     Filename,
@@ -63,6 +65,18 @@ if __name__ == "__main__":
         print(
             f"Could not load the configuration file, please make sure it exists at: {config_path}"
         )
+        exit(1)
+
+    # validate the configuration against the schema
+    _schema_path = os.path.join(os.path.dirname(__file__), "config_schema.json")
+    with open(_schema_path, "r") as f:
+        schema = json.load(f)
+    try:
+        validate(instance=config, schema=schema)
+        print("✓ Configuration file validated successfully")
+    except ValidationError as e:
+        print(f"Configuration validation error: {e.message}")
+        print(f"Failed at: {' -> '.join(str(p) for p in e.path)}")
         exit(1)
 
     # load fixed files from the corresponding data folder (not configurable)

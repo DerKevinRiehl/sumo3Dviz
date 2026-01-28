@@ -1,0 +1,212 @@
+{
+  "type": "object",
+  "properties": {
+    "trajectory_parameters": {
+      "type": "object",
+      "properties": {
+        "trajectory_file": {
+          "type": "string"
+        },
+        "ego_identifier": {
+          "type": "string"
+        },
+        "sumo_network_file": {
+          "type": "string"
+        },
+        "lane_width": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sep_line_width": {
+          "type": "number",
+          "minimum": 0
+        },
+        "simtime_start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "simtime_end": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "trajectory_file",
+        "ego_identifier",
+        "sumo_network_file",
+        "lane_width",
+        "sep_line_width",
+        "simtime_start",
+        "simtime_end"
+      ],
+      "additionalProperties": false
+    },
+    "video_parameters": {
+      "type": "object",
+      "properties": {
+        "record_video": {
+          "type": "boolean"
+        },
+        "output_file": {
+          "type": "string"
+        },
+        "video_fps": {
+          "type": "number",
+          "minimum": 1
+        },
+        "video_width_px": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "video_height_px": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["record_video", "video_fps"],
+      "if": {
+        "properties": {
+          "record_video": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": ["output_file", "video_width_px", "video_height_px"]
+      },
+      "additionalProperties": false
+    },
+    "traffic_signals": {
+      "type": "object",
+      "properties": {
+        "ramp_metering": {
+          "type": "boolean"
+        },
+        "design": {
+          "type": "string",
+          "enum": ["simple", "three_headed", "countdown_timer"]
+        },
+        "ramp": {
+          "type": "object",
+          "properties": {
+            "pos_x": {
+              "type": "number"
+            },
+            "pos_y": {
+              "type": "number"
+            },
+            "stop_line_a": {
+              "type": "number"
+            },
+            "stop_line_b": {
+              "type": "number"
+            },
+            "stop_line_c": {
+              "type": "number"
+            },
+            "stop_line_d": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "pos_x",
+            "pos_y",
+            "stop_line_a",
+            "stop_line_b",
+            "stop_line_c",
+            "stop_line_d"
+          ],
+          "additionalProperties": false
+        },
+        "traffic_signal_states_file": {
+          "type": "string"
+        },
+        "traffic_light_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ramp_metering",
+        "traffic_signal_states_file",
+        "traffic_light_id"
+      ],
+      "if": {
+        "properties": {
+          "ramp_metering": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": ["design", "ramp"]
+      },
+      "additionalProperties": false
+    },
+    "visualization_parameters": {
+      "type": "object",
+      "properties": {
+        "show_other_vehicles": {
+          "type": "boolean"
+        },
+        "viewer_height": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tree_positions_file": {
+          "type": "string"
+        },
+        "fence_lines_file": {
+          "type": "string"
+        },
+        "shops_positions_file": {
+          "type": "string"
+        },
+        "homes_positions_file": {
+          "type": "string"
+        },
+        "blocks_positions_file": {
+          "type": "string"
+        },
+        "sky_texture": {
+          "type": "string",
+          "enum": [
+            "sky_blue",
+            "sky_cloudy",
+            "sky_overcast",
+            "sky_dawn",
+            "sky_night_stars",
+            "sky_night_clear",
+            "sky_night_forest",
+            "sky_night_desert",
+            "sky_halloween"
+          ]
+        },
+        "ground_texture": {
+          "type": "string",
+          "enum": [
+            "ground_grass",
+            "ground_stone",
+            "ground_sand",
+            "ground_chess",
+            "ground_chesslarge",
+            "ground_halloween"
+          ]
+        }
+      },
+      "required": [
+        "show_other_vehicles",
+        "viewer_height",
+        "sky_texture",
+        "ground_texture"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "trajectory_parameters",
+    "video_parameters",
+    "traffic_signals",
+    "visualization_parameters"
+  ],
+  "additionalProperties": false
+}

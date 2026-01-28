@@ -457,7 +457,7 @@ class RenderingTools:
     def create_traffic_light(
         self,
         context: ShowBase,
-        design: int,
+        design: str,
         x: float,
         y: float,
         z: float = 0,
@@ -473,10 +473,10 @@ class RenderingTools:
 
         Args:
             context (ShowBase): The Panda3D ShowBase context.
-            design (int): Traffic light design type:
-                - 0 or 3: Simple ramp metering (red/green only)
-                - 1: Three-headed traffic light (red/yellow/green)
-                - 2: Ramp metering with countdown timer
+            design (str): Traffic light design type:
+                - "simple": Simple ramp metering (red/green only)
+                - "three_headed": Three-headed traffic light (red/yellow/green)
+                - "countdown_timer": Ramp metering with countdown timer
             x (float): X coordinate for traffic light position.
             y (float): Y coordinate for traffic light position.
             z (float): Z coordinate (ground level). Defaults to 0.
@@ -494,13 +494,13 @@ class RenderingTools:
         """
 
         print("Drawing traffic light...")
-        if design == 0 or design == 3:  # ## RAMP METERING SIMPLE
+        if design == "simple":  # RAMP METERING SIMPLE
             THREE_HEAD = False
             COUNTDOWN_TIMER = False
-        elif design == 1:  # ############# THREE HEADED
+        elif design == "three_headed":  # THREE HEADED
             THREE_HEAD = True
             COUNTDOWN_TIMER = False
-        elif design == 2:  # ############# COUNTDONW_TIMER
+        elif design == "countdown_timer":  # COUNTDOWN TIMER
             THREE_HEAD = False
             COUNTDOWN_TIMER = True
         else:
@@ -820,7 +820,7 @@ class RenderingTools:
     def update_traffic_light(
         self,
         signal: str,
-        design: int,
+        design: str,
         timer: float,
         box_node1: NodePath,
         box_node2: NodePath,
@@ -832,7 +832,7 @@ class RenderingTools:
 
         Args:
             signal: Traffic light state ('green', 'red', 'yellow', 'yellow2')
-            design: Traffic light design type (0=SIMPLE, 1=3-HEAD, 2=COUNTDOWN_TIMER, 3=SIMPLE)
+            design: Traffic light design type ("simple", "three_headed", "countdown_timer")
             timer: Countdown timer value
             box_node1: First light box node (red or red in simple)
             box_node2: Second light box node (yellow or green in simple)
@@ -840,13 +840,13 @@ class RenderingTools:
             text_node: Text node for countdown timer (None if no timer)
         """
         # determine Design
-        if design == 0 or design == 3:  # RAMP METERING SIMPLE
+        if design == "simple":  # RAMP METERING SIMPLE
             THREE_HEAD = False
             COUNTDOWN_TIMER = False
-        elif design == 1:  # THREE HEADED
+        elif design == "three_headed":  # THREE HEADED
             THREE_HEAD = True
             COUNTDOWN_TIMER = False
-        elif design == 2:  # COUNTDOWN_TIMER
+        elif design == "countdown_timer":  # COUNTDOWN TIMER
             THREE_HEAD = False
             COUNTDOWN_TIMER = True
         else:
