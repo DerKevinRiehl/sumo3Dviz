@@ -82,20 +82,12 @@ if __name__ == "__main__":
     # load fixed files from the corresponding data folder (not configurable)
     if platform.system() == "Windows":
         get_model_path().append_directory(Filename("data"))
-        low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
-        car_file = "3d_models/cars/Car.glb"
         store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
         home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
         block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
         tree_model_file_1 = "3d_models/trees/MapleTree.obj"
         tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
     else:
-        low_poly_cars_file = os.path.join(
-            os.path.dirname(__file__), "../data/3d_models/cars/Low Poly Cars.glb"
-        )
-        car_file = os.path.join(
-            os.path.dirname(__file__), "../data/3d_models/cars/Car.glb"
-        )
         store_model_file = os.path.join(
             os.path.dirname(__file__),
             "../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
@@ -346,14 +338,8 @@ if __name__ == "__main__":
     )  # blocks
 
     # load cars and ego vehicle car
-    car_models = loader.load_car_models(
-        context=context,
-        low_poly_cars_file=low_poly_cars_file,
-    )
-    ego_car = loader.load_ego_car_model(
-        context=context,
-        car_file=car_file,
-    )
+    car_models = loader.load_car_models(context=context)
+    ego_car = loader.load_ego_car_model(context=context)
     ego_car.setPos(config["trajectory_parameters"]["lane_width"] / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)
 
