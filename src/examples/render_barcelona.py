@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # traffic signals
     ramp_metering = False
-    design = 0  # DESIGN TYPES: 0 = SIMPLE, 1 = 3-head, 2 = COUNTDOWN_TIMER, 3 = SIMPLE
+    design = "simple"  # DESIGN TYPES: simple, three_headed, countdown_timer
     traffic_light_positions = {
         "ramp_1": {
             "pos_x": 20217.08 - 0.0,

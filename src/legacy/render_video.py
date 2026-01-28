@@ -77,7 +77,7 @@ visualization_parameter = {
     "show_others": True,
 }
 
-DESIGN = 0  # DESIGN TYPES: 0 = SIMPLE, 1 = 3-head, 2 = COUNTDOWN_TIMER, 3 = SIMPLE
+DESIGN = "simple"  # DESIGN TYPES: simple, three_headed, countdown_timer
 RAMP_METERING = False
 SIMULATION = "NO_CONTROL"  # SIMULATION TYPES: "NO_CONTROL", "45_ALINEA", "60_ALINEA"
 HEADLESS = False
