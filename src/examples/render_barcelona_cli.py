@@ -8,11 +8,19 @@
 
 import os
 import cv2
-import argparse
 import yaml
+import platform
+import argparse
 from typing import cast
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import loadPrcFileData, AntialiasAttrib, FrameBufferProperties, Camera
+from panda3d.core import (
+    Filename,
+    Camera,
+    loadPrcFileData,
+    AntialiasAttrib,
+    FrameBufferProperties,
+    get_model_path,
+)
 
 from src.tools.loader_tools import LoaderTools
 from src.tools.interaction_tools import InteractionTools
@@ -56,6 +64,125 @@ if __name__ == "__main__":
             f"Could not load the configuration file, please make sure it exists at: {config_path}"
         )
         exit(1)
+
+    # load fixed files from the corresponding data folder (not configurable)
+    if platform.system() == "Windows":
+        get_model_path().append_directory(Filename("data"))
+        low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
+        car_file = "3d_models/cars/Car.glb"
+        store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
+        home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
+        block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
+        tree_model_file_1 = "3d_models/trees/MapleTree.obj"
+        tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
+    else:
+        low_poly_cars_file = os.path.join(
+            os.path.dirname(__file__), "../../data/3d_models/cars/Low Poly Cars.glb"
+        )
+        car_file = os.path.join(
+            os.path.dirname(__file__), "../../data/3d_models/cars/Car.glb"
+        )
+        store_model_file = os.path.join(
+            os.path.dirname(__file__),
+            "../../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
+        )
+        home_model_file = os.path.join(
+            os.path.dirname(__file__),
+            "../../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
+        )
+        block_model_file = os.path.join(
+            os.path.dirname(__file__),
+            "../../data/3d_models/buildings/Residential Buildings 002.obj",
+        )
+        tree_model_file_1 = os.path.join(
+            os.path.dirname(__file__), "../../data/3d_models/trees/MapleTree.obj"
+        )
+        tree_model_file_2 = os.path.join(
+            os.path.dirname(__file__), "../../data/3d_models/trees/Hazelnut.obj"
+        )
+
+    tree_scale_1 = 0.2
+    tree_scale_2 = 0.5
+    tree_size_variability = 1
+    tree_color_variability = 0.1
+
+    # load visualization components that are configurable from a selection of files
+    available_sky_textures = [
+        "sky_blue",
+        "sky_cloudy",
+        "sky_overcast",
+        "sky_dawn",
+        "sky_night_stars",
+        "sky_night_clear",
+        "sky_night_forest",
+        "sky_night_desert",
+        "sky_halloween",
+    ]
+    available_ground_textures = [
+        "ground_grass",
+        "ground_stone",
+        "ground_sand",
+        "ground_chess",
+        "ground_chesslarge",
+        "ground_halloween",
+    ]
+    sky_texture = config["visualization_parameters"]["sky_texture"]
+    ground_texture = config["visualization_parameters"]["ground_texture"]
+
+    if sky_texture not in available_sky_textures:
+        raise ValueError(
+            f"Sky texture '{sky_texture}' is not available. Please choose from: {available_sky_textures}"
+        )
+
+    if ground_texture not in available_ground_textures:
+        raise ValueError(
+            f"Ground texture '{ground_texture}' is not available. Please choose from: {available_ground_textures}"
+        )
+
+    sky_texture_file = ""
+    ground_texture_file = ""
+    if sky_texture == "sky_blue":
+        sky_texture_file = "images/texture_sky_blue.jpg"
+    elif sky_texture == "sky_cloudy":
+        sky_texture_file = "images/texture_sky_daycloud1.jpg"
+    elif sky_texture == "sky_overcast":
+        sky_texture_file = "images/texture_sky_daycloud2.jpg"
+    elif sky_texture == "sky_dawn":
+        sky_texture_file = "images/texture_sky_daycloud3.jpg"
+    elif sky_texture == "sky_night_stars":
+        sky_texture_file = "images/texture_sky_night1.jpg"
+    elif sky_texture == "sky_night_clear":
+        sky_texture_file = "images/texture_sky_night2.jpg"
+    elif sky_texture == "sky_night_forest":
+        sky_texture_file = "images/texture_sky_night3.jpg"
+    elif sky_texture == "sky_night_desert":
+        sky_texture_file = "images/texture_sky_night4.jpg"
+    elif sky_texture == "sky_halloween":
+        sky_texture_file = "images/texture_sky_halloween.jpg"
+
+    if ground_texture == "ground_grass":
+        ground_texture_file = "images/texture_ground_grass.jpg"
+    elif ground_texture == "ground_stone":
+        ground_texture_file = "images/texture_ground_stone.jpg"
+    elif ground_texture == "ground_sand":
+        ground_texture_file = "images/texture_ground_sand.jpg"
+    elif ground_texture == "ground_chess":
+        ground_texture_file = "images/texture_ground_chess.jpg"
+    elif ground_texture == "ground_chesslarge":
+        ground_texture_file = "images/texture_ground_chesslarge.jpg"
+    elif ground_texture == "ground_halloween":
+        ground_texture_file = "images/texture_ground_halloween.jpg"
+
+    if platform.system() == "Windows":
+        get_model_path().append_directory(Filename("data"))
+    else:
+        sky_texture_file = os.path.join(
+            os.path.dirname(__file__), f"../../data/{sky_texture_file}"
+        )
+        ground_texture_file = os.path.join(
+            os.path.dirname(__file__),
+            f"../../data/{ground_texture_file}",
+        )
     # endregion
 
     # ! LOADER FUNCTIONS
@@ -171,33 +298,21 @@ if __name__ == "__main__":
     )  # light source (otherwise all will be dark)
     rendering_tools.create_sky(
         context=context,
-        sky_texture_file=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["sky_texture_file"]
-        ),
+        sky_texture_file=sky_texture_file,
     )  # skybox / skydome
     rendering_tools.create_floor(
         context=context,
-        path_floor_texture=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["floor_texture_file"]
-        ),
+        path_ground_texture=ground_texture_file,
     )  # grass floor
     rendering_tools.create_trees(
         context=context,
         tree_positions=tree_positions,
-        tree_model_file_1=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["tree_model_file_1"]
-        ),
-        tree_model_file_2=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["tree_model_file_2"]
-        ),
-        tree_scale_1=config["visualization_parameters"]["tree_scale_1"],
-        tree_scale_2=config["visualization_parameters"]["tree_scale_2"],
-        tree_size_variability=config["visualization_parameters"][
-            "tree_size_variability"
-        ],
-        tree_color_variability=config["visualization_parameters"][
-            "tree_color_variability"
-        ],
+        tree_model_file_1=os.path.join(os.getcwd(), tree_model_file_1),
+        tree_model_file_2=os.path.join(os.getcwd(), tree_model_file_2),
+        tree_scale_1=tree_scale_1,
+        tree_scale_2=tree_scale_2,
+        tree_size_variability=tree_size_variability,
+        tree_color_variability=tree_color_variability,
     )  # trees
     rendering_tools.create_highway_fences(
         context=context, fence_lines=fence_lines
@@ -205,37 +320,27 @@ if __name__ == "__main__":
     rendering_tools.create_building_shops(
         context=context,
         shop_positions=shop_positions,
-        store_model_file=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["store_model_file"]
-        ),
+        store_model_file=os.path.join(os.getcwd(), store_model_file),
     )  # shops
     rendering_tools.create_building_homes(
         context=context,
         homes_positions=homes_positions,
-        home_model_file=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["home_model_file"]
-        ),
+        home_model_file=os.path.join(os.getcwd(), home_model_file),
     )  # homes
     rendering_tools.create_building_blocks(
         context=context,
         block_positions=block_positions,
-        block_model_file=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["block_model_file"]
-        ),
+        block_model_file=os.path.join(os.getcwd(), block_model_file),
     )  # blocks
 
     # load cars and ego vehicle car
     car_models = loader.load_car_models(
         context=context,
-        low_poly_cars_file=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["low_poly_cars_file"]
-        ),
+        low_poly_cars_file=os.path.join(os.getcwd(), low_poly_cars_file),
     )
     ego_car = loader.load_ego_car_model(
         context=context,
-        car_file=os.path.join(
-            os.getcwd(), config["visualization_parameters"]["car_file"]
-        ),
+        car_file=os.path.join(os.getcwd(), car_file),
     )
     ego_car.setPos(config["trajectory_parameters"]["lane_width"] / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)

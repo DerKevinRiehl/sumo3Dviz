@@ -86,14 +86,14 @@ class RenderingTools:
         sky_sphere.setLightOff()
         print("Sky rendered ✓")
 
-    def create_floor(self, context: ShowBase, path_floor_texture: str, INFINITY=50000):
+    def create_floor(self, context: ShowBase, path_ground_texture: str, INFINITY=50000):
         """Create a textured ground plane for the scene.
 
         Generates a large card with a repeating texture to serve as the ground surface.
 
         Args:
             context (ShowBase): The Panda3D ShowBase context.
-            path_floor_texture (str): Path to the floor texture image file.
+            path_ground_texture (str): Path to the floor texture image file.
             INFINITY (float): Size of the ground plane in each direction.
                 Defaults to 50000.
 
@@ -112,7 +112,7 @@ class RenderingTools:
         ground.setHpr(25, -90, 0)
 
         # load the texture
-        ground_tex = context.loader.loadTexture(path_floor_texture)
+        ground_tex = context.loader.loadTexture(path_ground_texture)
         ground_tex.setWrapU(Texture.WM_repeat)
         ground_tex.setWrapV(Texture.WM_repeat)
         ground.setTexture(ground_tex)

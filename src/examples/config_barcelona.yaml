@@ -15,7 +15,7 @@ video_parameters:
   video_height_px: 900
 
 traffic_signals:
-  ramp_metering: true
+  ramp_metering: false
   design: 0 # DESIGN TYPES: 0 = SIMPLE, 1 = 3-head, 2 = COUNTDOWN_TIMER, 3 = SIMPLE
   ramp:
     pos_x: 20217.08
@@ -30,24 +30,14 @@ traffic_signals:
 visualization_parameters:
   show_other_vehicles: true
   viewer_height: 1.5
-  # TODO: use configurable - keep in config
+  # configurable environment files
   tree_positions_file: "examples/barcelona_simulation/viz_object_positions/trees.add.xml"
   fence_lines_file: "examples/barcelona_simulation/viz_object_positions/fences.add.xml"
   shops_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"
   homes_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml"
   blocks_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"
-  # TODO: offer selection of strings for these values and validate them -> load file directly from data/images/
-  sky_texture_file: "data/images/texture_sky_daycloud1.jpg"
-  floor_texture_file: "data/images/texture_ground_grass.jpg"
-  # TODO: files below here should not be configurable
-  low_poly_cars_file: "data/3d_models/cars/Low Poly Cars.glb"
-  car_file: "data/3d_models/cars/Car.glb"
-  store_model_file: "data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
-  home_model_file: "data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
-  block_model_file: "data/3d_models/buildings/Residential Buildings 002.obj"
-  tree_model_file_1: "data/3d_models/trees/MapleTree.obj"
-  tree_model_file_2: "data/3d_models/trees/Hazelnut.obj"
-  tree_scale_1: 0.2
-  tree_scale_2: 0.5
-  tree_size_variability: 1
-  tree_color_variability: 0.1
+  # configurable environment files with selection
+  # available options: sky_blue, sky_cloudy, sky_overcast, sky_dawn, sky_night_stars, sky_night_clear, sky_night_forest, sky_night_desert, sky_halloween
+  sky_texture: "sky_cloudy"
+  # available options: ground_grass, ground_stone, ground_sand, ground_chess, ground_chesslarge, ground_halloween
+  ground_texture: "ground_grass"
