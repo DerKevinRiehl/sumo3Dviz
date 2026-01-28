@@ -210,7 +210,7 @@ __marimo__/
 .DS_Store
 
 # Example simulation extracted position file
-src/examples/barcelona_simulation/simulation_logs/vehicle_positions.xml
+examples/barcelona_simulation/simulation_logs/vehicle_positions.xml
 
 # results inside the results folder (excluding the gitkeep file)
 results/

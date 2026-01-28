@@ -54,7 +54,7 @@ if __name__ == "__main__":
     video_width_px = 1140
     video_height_px = 900
     output_file = os.path.join(
-        os.path.dirname(__file__), "../../results/barcelona_simulation.avi"
+        os.path.dirname(__file__), "../results/barcelona_simulation.avi"
     )
 
     # traffic signals
@@ -109,6 +109,8 @@ if __name__ == "__main__":
         "barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
     )
 
+    # TODO: find another option to import these files from the package instead of using corresponding filepaths
+    # -> will not be available after installation through pip
     if platform.system() == "Windows":
         get_model_path().append_directory(Filename("data"))
         low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
@@ -123,36 +125,38 @@ if __name__ == "__main__":
     else:
         low_poly_cars_file = os.path.join(
             os.path.dirname(__file__),
-            "../sumo3Dviz/data/3d_models/cars/Low Poly Cars.glb",
+            "../src/sumo3Dviz/data/3d_models/cars/Low Poly Cars.glb",
         )
         car_file = os.path.join(
-            os.path.dirname(__file__), "../sumo3Dviz/data/3d_models/cars/Car.glb"
+            os.path.dirname(__file__), "../src/sumo3Dviz/data/3d_models/cars/Car.glb"
         )
         sky_texture_file = os.path.join(
             os.path.dirname(__file__),
-            "../sumo3Dviz/data/images/texture_sky_daycloud1.jpg",
+            "../src/sumo3Dviz/data/images/texture_sky_daycloud1.jpg",
         )
         ground_texture_file = os.path.join(
             os.path.dirname(__file__),
-            "../sumo3Dviz/data/images/texture_ground_grass.jpg",
+            "../src/sumo3Dviz/data/images/texture_ground_grass.jpg",
         )
         store_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../sumo3Dviz/data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
+            "../src/sumo3Dviz/data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
         )
         home_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../sumo3Dviz/data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
+            "../src/sumo3Dviz/data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
         )
         block_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../sumo3Dviz/data/3d_models/buildings/Residential Buildings 002.obj",
+            "../src/sumo3Dviz/data/3d_models/buildings/Residential Buildings 002.obj",
         )
         tree_model_file_1 = os.path.join(
-            os.path.dirname(__file__), "../sumo3Dviz/data/3d_models/trees/MapleTree.obj"
+            os.path.dirname(__file__),
+            "../src/sumo3Dviz/data/3d_models/trees/MapleTree.obj",
         )
         tree_model_file_2 = os.path.join(
-            os.path.dirname(__file__), "../sumo3Dviz/data/3d_models/trees/Hazelnut.obj"
+            os.path.dirname(__file__),
+            "../src/sumo3Dviz/data/3d_models/trees/Hazelnut.obj",
         )
 
     tree_scale_1 = 0.2

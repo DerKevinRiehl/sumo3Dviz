@@ -2,7 +2,7 @@
 # the configuration parameters in the corresponding configuration script.
 #
 # Example command:
-# python src/sumo3Dviz/cli/render_cli.py --config src/examples/config_barcelona.yaml
+# python src/sumo3Dviz/cli/render_cli.py --config examples/config_barcelona.yaml
 
 import os
 import cv2
