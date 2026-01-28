@@ -1,10 +1,8 @@
-# This script renders a 3D visualization of a SUMO simulation scenario in Barcelona
-# using the configuration parameters in the corresponding configuration script.
-# In order for the script to work correctly, please specify the configuration script
-# path and name in the command line arguments.
+# This script renders a 3D visualization of a SUMO simulation scenario using
+# the configuration parameters in the corresponding configuration script.
 #
 # Example command:
-# python src/examples/render_barcelona_cli.py --config src/examples/config_barcelona.yaml
+# python cli/render_cli.py --config src/examples/config_barcelona.yaml
 
 import os
 import cv2
@@ -91,28 +89,28 @@ if __name__ == "__main__":
         tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
     else:
         low_poly_cars_file = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/cars/Low Poly Cars.glb"
+            os.path.dirname(__file__), "../data/3d_models/cars/Low Poly Cars.glb"
         )
         car_file = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/cars/Car.glb"
+            os.path.dirname(__file__), "../data/3d_models/cars/Car.glb"
         )
         store_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
+            "../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
         )
         home_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
+            "../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
         )
         block_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../../data/3d_models/buildings/Residential Buildings 002.obj",
+            "../data/3d_models/buildings/Residential Buildings 002.obj",
         )
         tree_model_file_1 = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/trees/MapleTree.obj"
+            os.path.dirname(__file__), "../data/3d_models/trees/MapleTree.obj"
         )
         tree_model_file_2 = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/trees/Hazelnut.obj"
+            os.path.dirname(__file__), "../data/3d_models/trees/Hazelnut.obj"
         )
 
     tree_scale_1 = 0.2
@@ -189,11 +187,11 @@ if __name__ == "__main__":
 
     if platform.system() != "Windows":
         sky_texture_file = os.path.join(
-            os.path.dirname(__file__), f"../../data/{sky_texture_file}"
+            os.path.dirname(__file__), f"../data/{sky_texture_file}"
         )
         ground_texture_file = os.path.join(
             os.path.dirname(__file__),
-            f"../../data/{ground_texture_file}",
+            f"../data/{ground_texture_file}",
         )
     # endregion
 
