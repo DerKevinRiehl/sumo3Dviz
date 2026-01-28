@@ -1,7 +1,7 @@
 trajectory_parameters:
-  trajectory_file: "examples/barcelona_simulation/simulation_logs/vehicle_positions.xml" # all paths should be defined relative to the current working directory
+  trajectory_file: "src/examples/barcelona_simulation/simulation_logs/vehicle_positions.xml" # all paths should be defined relative to the current working directory
   ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
-  sumo_network_file: "examples/barcelona_simulation/Network.net.xml"
+  sumo_network_file: "src/examples/barcelona_simulation/Network.net.xml"
   lane_width: 3.2
   sep_line_width: 0.2
   simtime_start: 39.0
@@ -24,18 +24,18 @@ traffic_signals:
     stop_line_b: 18264.87
     stop_line_c: 20226.77
     stop_line_d: 18261.15
-  traffic_signal_states_file: "examples/barcelona_simulation/simulation_logs/signal_states.xml"
+  traffic_signal_states_file: "src/examples/barcelona_simulation/simulation_logs/signal_states.xml"
   traffic_light_id: "JE3"
 
 visualization_parameters:
   show_other_vehicles: true
   viewer_height: 1.5
   # configurable environment files
-  tree_positions_file: "examples/barcelona_simulation/viz_object_positions/trees.add.xml"
-  fence_lines_file: "examples/barcelona_simulation/viz_object_positions/fences.add.xml"
-  shops_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"
-  homes_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml"
-  blocks_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"
+  tree_positions_file: "src/examples/barcelona_simulation/viz_object_positions/trees.add.xml"
+  fence_lines_file: "src/examples/barcelona_simulation/viz_object_positions/fences.add.xml"
+  shops_positions_file: "src/examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"
+  homes_positions_file: "src/examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml"
+  blocks_positions_file: "src/examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"
   # configurable environment files with selection
   # available options: sky_blue, sky_cloudy, sky_overcast, sky_dawn, sky_night_stars, sky_night_clear, sky_night_forest, sky_night_desert, sky_halloween
   sky_texture: "sky_cloudy"

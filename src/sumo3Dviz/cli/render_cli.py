@@ -2,7 +2,7 @@
 # the configuration parameters in the corresponding configuration script.
 #
 # Example command:
-# python cli/render_cli.py --config src/examples/config_barcelona.yaml
+# python src/sumo3Dviz/cli/render_cli.py --config src/examples/config_barcelona.yaml
 
 import os
 import cv2
@@ -22,11 +22,13 @@ from panda3d.core import (
     get_model_path,
 )
 
-from src.tools.loader_tools import LoaderTools
-from src.tools.interaction_tools import InteractionTools
-from src.tools.rendering_tools import RenderingTools
-from src.tools.trajectory_tools import TrajectoryTools
-from src.tools.simulation_tools import SimulationManager
+from sumo3Dviz import (
+    LoaderTools,
+    InteractionTools,
+    RenderingTools,
+    TrajectoryTools,
+    SimulationManager,
+)
 
 
 if __name__ == "__main__":

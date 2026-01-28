@@ -17,11 +17,14 @@ from panda3d.core import (
     get_model_path,
 )
 
-from src.tools.loader_tools import LoaderTools
-from src.tools.interaction_tools import InteractionTools
-from src.tools.rendering_tools import RenderingTools
-from src.tools.trajectory_tools import TrajectoryTools
-from src.tools.simulation_tools import SimulationManager
+from sumo3Dviz import (
+    LoaderTools,
+    InteractionTools,
+    RenderingTools,
+    TrajectoryTools,
+    SimulationManager,
+)
+
 
 if __name__ == "__main__":
     # ! CONFIGURATION PARAMETERS (passed directly to classes / functions)
@@ -33,12 +36,12 @@ if __name__ == "__main__":
     # trajectory parameters
     trajectory_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/simulation_logs/vehicle_positions.xml",
+        "barcelona_simulation/simulation_logs/vehicle_positions.xml",
     )
     ego_identifier = "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
     sumo_network_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/Network.net.xml",
+        "barcelona_simulation/Network.net.xml",
     )
     lane_width = 3.2
     sep_line_width = 0.2
@@ -79,7 +82,7 @@ if __name__ == "__main__":
     traffic_light_id = "JE3"
     tree_positions_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/trees.add.xml",
+        "barcelona_simulation/viz_object_positions/trees.add.xml",
     )
 
     # visualization parameters
@@ -87,23 +90,23 @@ if __name__ == "__main__":
     viewer_height = 1.5
     traffic_signal_states_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/simulation_logs/signal_states.xml",
+        "barcelona_simulation/simulation_logs/signal_states.xml",
     )
     fence_lines_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/fences.add.xml",
+        "barcelona_simulation/viz_object_positions/fences.add.xml",
     )
     shops_positions_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml",
+        "barcelona_simulation/viz_object_positions/buildings_shops.add.xml",
     )
     homes_positions_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml",
+        "barcelona_simulation/viz_object_positions/buildings_homes.add.xml",
     )
     blocks_positions_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
+        "barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
     )
 
     if platform.system() == "Windows":
@@ -119,35 +122,37 @@ if __name__ == "__main__":
         tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
     else:
         low_poly_cars_file = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/cars/Low Poly Cars.glb"
+            os.path.dirname(__file__),
+            "../sumo3Dviz/data/3d_models/cars/Low Poly Cars.glb",
         )
         car_file = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/cars/Car.glb"
+            os.path.dirname(__file__), "../sumo3Dviz/data/3d_models/cars/Car.glb"
         )
         sky_texture_file = os.path.join(
-            os.path.dirname(__file__), "../../data/images/texture_sky_daycloud1.jpg"
+            os.path.dirname(__file__),
+            "../sumo3Dviz/data/images/texture_sky_daycloud1.jpg",
         )
         ground_texture_file = os.path.join(
             os.path.dirname(__file__),
-            "../../data/images/texture_ground_grass.jpg",
+            "../sumo3Dviz/data/images/texture_ground_grass.jpg",
         )
         store_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
+            "../sumo3Dviz/data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
         )
         home_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
+            "../sumo3Dviz/data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
         )
         block_model_file = os.path.join(
             os.path.dirname(__file__),
-            "../../data/3d_models/buildings/Residential Buildings 002.obj",
+            "../sumo3Dviz/data/3d_models/buildings/Residential Buildings 002.obj",
         )
         tree_model_file_1 = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/trees/MapleTree.obj"
+            os.path.dirname(__file__), "../sumo3Dviz/data/3d_models/trees/MapleTree.obj"
         )
         tree_model_file_2 = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/trees/Hazelnut.obj"
+            os.path.dirname(__file__), "../sumo3Dviz/data/3d_models/trees/Hazelnut.obj"
         )
 
     tree_scale_1 = 0.2

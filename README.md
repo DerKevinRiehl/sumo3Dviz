@@ -1,6 +1,7 @@
 Commands to reproduce the video script as working on MacOS:
 
 # SOFTWARE SETUP OF SUMO3DVIZ
+
 Create a virtual environment and activate it:
 
 ```bash
@@ -11,7 +12,11 @@ source venv/bin/activate # -> on Windows use correspondingly slightly different 
 Install the required packages:
 
 ```bash
-pip install -r requirements.txt
+# Install package
+pip install -e .
+
+# For development (includes pytest)
+pip install -e ".[dev]"
 ```
 
 Run the video rendering script from the root of the repository:
@@ -20,9 +25,7 @@ Run the video rendering script from the root of the repository:
 python code/render_video.py
 ```
 
-
 Dependencies: On MacOS it might be required to install Panda3D through the corresponding installer provided on their website (instead of only using the Python package - not sure, should be tested, current setup has both the python package and the installed version).
-
 
 # PREPARE SIMULATION
 
@@ -33,6 +36,7 @@ In the following explanations how to do it.
 Moreover, we provide an example (barcelona_simulation) that demos all outlined information.
 
 (1) **Log Vehicle Positions in your `Configuration.sumocfg`:**
+
 ```xml
 <!-- YOUR Configuration.sumocfg -->
 <?xml version="1.0" encoding="UTF-8"?>
@@ -52,6 +56,7 @@ Moreover, we provide an example (barcelona_simulation) that demos all outlined i
 ```
 
 (2) **Log Traffic Light States `Configuration.sumocfg`:**
+
 ```xml
 <!-- YOUR Configuration.sumocfg -->
 <?xml version="1.0" encoding="UTF-8"?>
@@ -70,6 +75,7 @@ Moreover, we provide an example (barcelona_simulation) that demos all outlined i
 ```
 
 And create the additional file `tls_logging.add.xml` in the same folder:
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <additional>
@@ -81,6 +87,7 @@ And create the additional file `tls_logging.add.xml` in the same folder:
 (3) **Additional Objects (Fences, Trees, Buildings...):**
 
 You can create polygon files (POIs) with Netedit, and store them, for example following `trees.add.xml`:
+
 ```xml
 <additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
     <!-- Shapes -->
@@ -94,15 +101,17 @@ You can create polygon files (POIs) with Netedit, and store them, for example fo
     <poi id="poi_1003" color="red" layer="202.00" x="20209.14" y="18647.88"/>
     <!-- ... -->
 ```
+
 This is then loaded by our software.
 
-
-# Tutorial: sumo3Dviz Usage 
+# Tutorial: sumo3Dviz Usage
 
 Example with the barcelona network.
 
 ## Via Command Line
+
 TODO
 
 ## Via Python Script
+
 TODO
