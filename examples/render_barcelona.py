@@ -109,47 +109,7 @@ if __name__ == "__main__":
         "barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
     )
 
-    # TODO: find another option to import these files from the package instead of using corresponding filepaths
-    # -> will not be available after installation through pip
-    if platform.system() == "Windows":
-        get_model_path().append_directory(Filename("data"))
-        sky_texture_file = "images/texture_sky_daycloud1.jpg"
-        ground_texture_file = "images/texture_ground_grass.jpg"
-        store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
-        home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
-        block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
-        tree_model_file_1 = "3d_models/trees/MapleTree.obj"
-        tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
-    else:
-        sky_texture_file = os.path.join(
-            os.path.dirname(__file__),
-            "../src/sumo3Dviz/data/images/texture_sky_daycloud1.jpg",
-        )
-        ground_texture_file = os.path.join(
-            os.path.dirname(__file__),
-            "../src/sumo3Dviz/data/images/texture_ground_grass.jpg",
-        )
-        store_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../src/sumo3Dviz/data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
-        )
-        home_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../src/sumo3Dviz/data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
-        )
-        block_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../src/sumo3Dviz/data/3d_models/buildings/Residential Buildings 002.obj",
-        )
-        tree_model_file_1 = os.path.join(
-            os.path.dirname(__file__),
-            "../src/sumo3Dviz/data/3d_models/trees/MapleTree.obj",
-        )
-        tree_model_file_2 = os.path.join(
-            os.path.dirname(__file__),
-            "../src/sumo3Dviz/data/3d_models/trees/Hazelnut.obj",
-        )
-
+    # tree scaling and variability parameters
     tree_scale_1 = 0.2
     tree_scale_2 = 0.5
     tree_size_variability = 1
@@ -242,43 +202,55 @@ if __name__ == "__main__":
     )  # roads / sumo network
 
     # add scenery elements
-    rendering_tools.create_light(
-        context=context
-    )  # light source (otherwise all will be dark)
-    rendering_tools.create_sky(
-        context=context, sky_texture_file=sky_texture_file
-    )  # skybox / skydome
-    rendering_tools.create_floor(
-        context=context, path_ground_texture=ground_texture_file
-    )  # grass floor
+    # light source (otherwise all will be dark)
+    rendering_tools.create_light(context=context)
+
+    # skybox / skydome
+    # choose from one of the pre-defined options (sky_texture parameter)
+    # or, optionally, a custom sky texture file can be provided
+    # -> in this case, the correct handling of file paths
+    #    for Panda3D on Windows needs to be ensured
+    rendering_tools.create_sky(context=context, sky_texture="sky_cloudy")
+
+    # surrounding ground
+    # choose from one of the pre-defined options (ground_texture parameter)
+    # or, optionally, a custom ground texture file can be provided
+    # -> in this case, the correct handling of file paths
+    #    for Panda3D on Windows needs to be ensured
+    rendering_tools.create_ground(context=context, ground_texture="ground_grass")
+
+    # trees
+    # optionally, a custom tree object model file can be provided
+    # -> in this case, the correct handling of file paths
+    #    for Panda3D on Windows needs to be ensured
     rendering_tools.create_trees(
         context=context,
         tree_positions=tree_positions,
-        tree_model_file_1=tree_model_file_1,
-        tree_model_file_2=tree_model_file_2,
         tree_scale_1=tree_scale_1,
         tree_scale_2=tree_scale_2,
         tree_size_variability=tree_size_variability,
         tree_color_variability=tree_color_variability,
-    )  # trees
-    rendering_tools.create_highway_fences(
-        context=context, fence_lines=fence_lines
-    )  # highways fences
+    )
+
+    # highway fences
+    rendering_tools.create_highway_fences(context=context, fence_lines=fence_lines)
+
+    # buildings: shops, homes, blocks
+    # optionally, a custom building model file can be provided
+    # -> in this case, the correct handling of file paths
+    #    for Panda3D on Windows needs to be ensured
     rendering_tools.create_building_shops(
         context=context,
         shop_positions=shop_positions,
-        store_model_file=store_model_file,
-    )  # shops
+    )
     rendering_tools.create_building_homes(
         context=context,
         homes_positions=homes_positions,
-        home_model_file=home_model_file,
-    )  # homes
+    )
     rendering_tools.create_building_blocks(
         context=context,
         block_positions=block_positions,
-        block_model_file=block_model_file,
-    )  # blocks
+    )
 
     # load cars and ego vehicle car
     car_models = loader.load_car_models(context=context)

@@ -376,16 +376,20 @@ class LoaderTools:
         print("Shop positions loaded ✓")
         return shop_positions
 
-    def load_car_models(self, context: ShowBase):
-        """Load low-poly car models for rendering non-ego vehicles.
+    def load_car_models(self, context: ShowBase) -> list[NodePath]:
+        """Load a collection of low-polygon car models for non-ego vehicles.
+
+        Loads a GLB file containing multiple car meshes (expected to be named/numbered
+        1..10 inside the file) and returns a list of NodePath references to each model.
+        On Windows the engine model path is adjusted; on other platforms the model is
+        resolved relative to this module's directory.
 
         Args:
-            context (ShowBase): The Panda3D ShowBase context.
-            low_poly_cars_file (str): Path to the 3D model file containing multiple
-                car models (expects models numbered 1-10).
+            context (ShowBase): Active Panda3D ShowBase instance. Must have a valid
+                loader attribute.
 
         Returns:
-            list: List of NodePath instances for car models 1 through 10.
+            list[NodePath]: List of NodePath objects corresponding to car models 1..10.
 
         Raises:
             ValueError: If context.loader is not initialized.
@@ -394,7 +398,7 @@ class LoaderTools:
             raise ValueError("Panda3D context loader is not initialized.")
 
         if platform.system() == "Windows":
-            get_model_path().append_directory(Filename("../data"))
+            get_model_path().append_directory(Filename("data"))
             low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
         else:
             low_poly_cars_file = os.path.join(
@@ -408,16 +412,19 @@ class LoaderTools:
         print("Car models loaded ✓")
         return car_models
 
-    def load_ego_car_model(self, context: ShowBase):
-        """Load the 3D model for the ego vehicle.
+    def load_ego_car_model(self, context: ShowBase) -> NodePath:
+        """Load and attach the ego vehicle 3D model to the scene.
+
+        Loads a single ego car model (GLB) and reparents it to the provided ShowBase
+        render node so it is immediately part of the scene graph. The model file path
+        resolution mirrors load_car_models (Windows vs. relative path).
 
         Args:
-            context (ShowBase): The Panda3D ShowBase context.
-            car_file (str): Path to the ego car 3D model file.
+            context (ShowBase): Active Panda3D ShowBase instance. Must have a valid
+                loader attribute and a render node.
 
         Returns:
-            NodePath: NodePath instance of the loaded ego car model, attached
-                to the render scene.
+            NodePath: The loaded ego car NodePath, parented to context.render.
 
         Raises:
             ValueError: If context.loader is not initialized.
@@ -426,7 +433,7 @@ class LoaderTools:
             raise ValueError("Panda3D context loader is not initialized.")
 
         if platform.system() == "Windows":
-            get_model_path().append_directory(Filename("../data"))
+            get_model_path().append_directory(Filename("data"))
             car_file = "3d_models/cars/Car.glb"
         else:
             car_file = os.path.join(

@@ -1,6 +1,8 @@
-import numpy as np
+import os
 import sumolib
 import warnings
+import platform
+import numpy as np
 from typing import Tuple, Union
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import (
@@ -11,10 +13,19 @@ from panda3d.core import (
     GeomVertexWriter,
     GeomTriangles,
     NodePath,
+    CardMaker,
+    LColor,
+    Filename,
+    TextureStage,
+    LineSegs,
+    FontPool,
+    TextNode,
+    Texture,
+    DirectionalLight,
+    AmbientLight,
+    Vec4,
+    get_model_path,
 )
-from panda3d.core import CardMaker, LColor, Filename, TextureStage
-from panda3d.core import LineSegs, FontPool, TextNode, Texture
-from panda3d.core import DirectionalLight, AmbientLight, Vec4
 
 
 class RenderingTools:
@@ -49,8 +60,9 @@ class RenderingTools:
     def create_sky(
         self,
         context: ShowBase,
-        sky_texture_file: str,
-        horizon_distance=50000,
+        sky_texture: Union[str, None] = None,
+        sky_texture_file: Union[str, None] = None,
+        horizon_distance: float = 50000,
     ):
         """Create a textured sky sphere as the scene background.
 
@@ -59,14 +71,68 @@ class RenderingTools:
 
         Args:
             context (ShowBase): The Panda3D ShowBase context.
-            sky_texture_file (str): Path to the sky texture image file.
+            sky_texture (Union[str, None]): Textures that can be loaded directly
+                from an available selection. Available textures are: sky_blue,
+                sky_cloudy, sky_overcast, sky_dawn, sky_night_stars, sky_night_clear,
+                sky_night_forest, sky_halloween.
+            sky_texture_file (Union[str, None]): Optional path to the sky texture
+                image file. If None is provided, sky texture string is checked and if
+                this is not provided either, the default texture is loaded. If a
+                texture file is provided by the user, they are responsible for ensuring
+                it is a seamless equirectangular projection and that the filepath
+                format is valid and compatible with Panda3D (potential model path
+                adjustments may be necessary).
             horizon_distance (float): Radius of the sky sphere. Defaults to 50000.
 
         Raises:
-            ValueError: If context.loader is not initialized.
+            ValueError: If context.loader is not initialized or if an unknown
+                sky texture is specified.
         """
+
         if context.loader is None:
             raise ValueError("Context loader is not initialized.")
+
+        if sky_texture_file is not None:
+            pass  # use provided texture file
+        elif sky_texture is not None:
+            # if a predefined texture is selected, load it
+            if sky_texture == "sky_blue":
+                sky_texture_file = "images/texture_sky_blue.jpg"
+            elif sky_texture == "sky_cloudy":
+                sky_texture_file = "images/texture_sky_daycloud1.jpg"
+            elif sky_texture == "sky_overcast":
+                sky_texture_file = "images/texture_sky_daycloud2.png"
+            elif sky_texture == "sky_dawn":
+                sky_texture_file = "images/texture_sky_daycloud3.png"
+            elif sky_texture == "sky_night_stars":
+                sky_texture_file = "images/texture_sky_night1.png"
+            elif sky_texture == "sky_night_clear":
+                sky_texture_file = "images/texture_sky_night2.png"
+            elif sky_texture == "sky_night_forest":
+                sky_texture_file = "images/texture_sky_night3.png"
+            elif sky_texture == "sky_night_desert":
+                sky_texture_file = "images/texture_sky_night4.png"
+            elif sky_texture == "sky_halloween":
+                sky_texture_file = "images/texture_sky_halloween.jpg"
+            else:
+                raise ValueError(f"Unknown sky texture: {sky_texture}")
+
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+            else:
+                sky_texture_file = os.path.join(
+                    os.path.dirname(__file__), f"../data/{sky_texture_file}"
+                )
+        else:
+            # load default sky texture (if neither string nor file provided)
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+                sky_texture_file = "images/texture_sky_daycloud1.jpg"
+            else:
+                sky_texture_file = os.path.join(
+                    os.path.dirname(__file__),
+                    "../data/images/texture_sky_daycloud1.jpg",
+                )
 
         # generate an inverted sphere model
         print("Rendering sky...")
@@ -86,22 +152,75 @@ class RenderingTools:
         sky_sphere.setLightOff()
         print("Sky rendered ✓")
 
-    def create_floor(self, context: ShowBase, path_ground_texture: str, INFINITY=50000):
+    def create_ground(
+        self,
+        context: ShowBase,
+        ground_texture: Union[str, None] = None,
+        ground_texture_file: Union[str, None] = None,
+        INFINITY: float = 50000,
+    ):
         """Create a textured ground plane for the scene.
 
         Generates a large card with a repeating texture to serve as the ground surface.
 
         Args:
             context (ShowBase): The Panda3D ShowBase context.
-            path_ground_texture (str): Path to the floor texture image file.
+            ground_texture (Union[str, None]): Textures that can be loaded directly
+                from an available selection. Available textures are: ground_grass,
+                ground_stone, ground_sand, ground_chess, ground_chesslarge,
+                ground_halloween.
+            ground_texture_file (Union[str, None]): Optional path to the floor texture
+                image file. If None is provided, ground texture string is checked and if
+                this is not provided either, the default texture is loaded. If a
+                texture file is provided by the user, they are responsible for ensuring
+                the filepath format is valid and compatible with Panda3D (potential
+                model path adjustments may be necessary).
             INFINITY (float): Size of the ground plane in each direction.
                 Defaults to 50000.
 
         Raises:
-            ValueError: If context.loader is not initialized.
+            ValueError: If context.loader is not initialized or if an unknown
+                ground texture is specified.
         """
+
         if context.loader is None:
             raise ValueError("Context loader is not initialized.")
+
+        if ground_texture_file is not None:
+            pass  # use provided texture string
+        elif ground_texture is not None:
+            # if a predefined texture is selected, load it
+            if ground_texture == "ground_grass":
+                ground_texture_file = "images/texture_ground_grass.jpg"
+            elif ground_texture == "ground_stone":
+                ground_texture_file = "images/texture_ground_stone.png"
+            elif ground_texture == "ground_sand":
+                ground_texture_file = "images/texture_ground_sand.png"
+            elif ground_texture == "ground_chess":
+                ground_texture_file = "images/texture_ground_chess.png"
+            elif ground_texture == "ground_chesslarge":
+                ground_texture_file = "images/texture_ground_chesslarge.png"
+            elif ground_texture == "ground_halloween":
+                ground_texture_file = "images/texture_ground_halloween.png"
+            else:
+                raise ValueError(f"Unknown ground texture: {ground_texture}")
+
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+            else:
+                ground_texture_file = os.path.join(
+                    os.path.dirname(__file__), f"../data/{ground_texture_file}"
+                )
+        else:
+            # load default ground texture (if neither string nor file provided)
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+                ground_texture_file = "images/texture_ground_grass.jpg"
+            else:
+                ground_texture_file = os.path.join(
+                    os.path.dirname(__file__),
+                    "../data/images/texture_ground_grass.jpg",
+                )
 
         # set ground parameters
         print("Rendering ground floor...")
@@ -112,7 +231,7 @@ class RenderingTools:
         ground.setHpr(25, -90, 0)
 
         # load the texture
-        ground_tex = context.loader.loadTexture(path_ground_texture)
+        ground_tex = context.loader.loadTexture(ground_texture_file)
         ground_tex.setWrapU(Texture.WM_repeat)
         ground_tex.setWrapV(Texture.WM_repeat)
         ground.setTexture(ground_tex)
@@ -123,8 +242,8 @@ class RenderingTools:
         self,
         context: ShowBase,
         tree_positions: Union[list[list[float]], None],
-        tree_model_file_1: str,
-        tree_model_file_2: str,
+        tree_model_file_1: Union[str, None] = None,
+        tree_model_file_2: Union[str, None] = None,
         tree_scale_1=0.2,
         tree_scale_2=0.5,
         tree_size_variability=1,
@@ -139,8 +258,16 @@ class RenderingTools:
             context (ShowBase): The Panda3D ShowBase context.
             tree_positions (list[list[float]] | None): List of [x, y] coordinates
                 for tree placement. If None, no trees are created.
-            tree_model_file_1 (str): Path to the first tree model file.
-            tree_model_file_2 (str): Path to the second tree model file.
+            tree_model_file_1 (Union[str, None]): Optional path to the first tree
+                model file. If None, the default model is used. If a model file is provided
+                by the user, they are responsible for ensuring the filepath format is
+                valid and compatible with Panda3D (potential model path adjustments
+                may be necessary).
+            tree_model_file_2 (Union[str, None]): Optional path to the second tree
+                model file. If None, the default model is used. If a model file is provided
+                by the user, they are responsible for ensuring the filepath format is
+                valid and compatible with Panda3D (potential model path adjustments
+                may be necessary).
             tree_scale_1 (float): Base scale for the first tree model. Defaults to 0.2.
             tree_scale_2 (float): Base scale for the second tree model. Defaults to 0.5.
             tree_size_variability (float): Scale variability multiplier. Defaults to 1.
@@ -159,6 +286,26 @@ class RenderingTools:
         if tree_positions is None:
             warnings.warn("No tree positions provided. Skipping tree creation.")
             return []
+
+        if tree_model_file_1 is None:
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+                tree_model_file_1 = "3d_models/trees/MapleTree.obj"
+            else:
+                tree_model_file_1 = os.path.join(
+                    os.path.dirname(__file__),
+                    "../data/3d_models/trees/MapleTree.obj",
+                )
+
+        if tree_model_file_2 is None:
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+                tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
+            else:
+                tree_model_file_2 = os.path.join(
+                    os.path.dirname(__file__),
+                    "../data/3d_models/trees/Hazelnut.obj",
+                )
 
         # load tree models
         print("Rendering trees...")
@@ -286,7 +433,7 @@ class RenderingTools:
         self,
         context: ShowBase,
         shop_positions: Union[list[list[float]], None],
-        store_model_file: str,
+        store_model_file: Union[str, None] = None,
     ):
         """Create shop building instances at specified positions.
 
@@ -297,7 +444,11 @@ class RenderingTools:
             context (ShowBase): The Panda3D ShowBase context.
             shop_positions (list[list[float]] | None): List of [x, y] coordinates
                 for shop placement. If None, no shops are created.
-            store_model_file (str): Path to the shop 3D model file.
+            store_model_file (str | None): Optional path to the 3D shop
+                model file. If None is provided, the default model is used. If a
+                model file is provided by the user, they are responsible for ensuring
+                the filepath format is valid and compatible with Panda3D (potential
+                model path adjustments may be necessary).
 
         Returns:
             tuple: A tuple containing:
@@ -314,6 +465,18 @@ class RenderingTools:
         if shop_positions is None:
             warnings.warn("No shop positions provided. Skipping shop creation.")
             return [], None
+
+        if store_model_file is None:
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+                store_model_file = (
+                    "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
+                )
+            else:
+                store_model_file = os.path.join(
+                    os.path.dirname(__file__),
+                    "../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
+                )
 
         # load shop model
         print("Rendering shops...")
@@ -352,7 +515,7 @@ class RenderingTools:
         self,
         context: ShowBase,
         homes_positions: Union[list[list[float]], None],
-        home_model_file: str,
+        home_model_file: Union[str, None] = None,
     ):
         """Create residential building instances at specified positions.
 
@@ -363,7 +526,11 @@ class RenderingTools:
             context (ShowBase): The Panda3D ShowBase context.
             homes_positions (list[list[float]] | None): List of [x, y] coordinates
                 for home placement. If None, no homes are created.
-            home_model_file (str): Path to the home 3D model file.
+            home_model_file (str | None): Optional path to the 3D home
+                model file. If None is provided, the default model is used. If a
+                model file is provided by the user, they are responsible for ensuring
+                the filepath format is valid and compatible with Panda3D (potential
+                model path adjustments may be necessary).
 
         Returns:
             tuple: A tuple containing:
@@ -380,6 +547,18 @@ class RenderingTools:
         if homes_positions is None:
             warnings.warn("No home positions provided. Skipping home creation.")
             return [], None
+
+        if home_model_file is None:
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+                home_model_file = (
+                    "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
+                )
+            else:
+                home_model_file = os.path.join(
+                    os.path.dirname(__file__),
+                    "../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
+                )
 
         # load home model
         print("Rendering homes...")
@@ -405,7 +584,7 @@ class RenderingTools:
         self,
         context: ShowBase,
         block_positions: Union[list[list[float]], None],
-        block_model_file: str,
+        block_model_file: Union[str, None] = None,
     ):
         """Create large building block instances at specified positions.
 
@@ -416,7 +595,11 @@ class RenderingTools:
             context (ShowBase): The Panda3D ShowBase context.
             block_positions (list[list[float]] | None): List of [x, y] coordinates
                 for block placement. If None, no blocks are created.
-            block_model_file (str): Path to the building block 3D model file.
+            block_model_file (str | None): Optional path to the 3D building block
+                model file. If None is provided, the default model is used. If a
+                model file is provided by the user, they are responsible for ensuring
+                the filepath format is valid and compatible with Panda3D (potential
+                model path adjustments may be necessary).
 
         Returns:
             tuple: A tuple containing:
@@ -434,6 +617,16 @@ class RenderingTools:
             warnings.warn("No block positions provided. Skipping block creation.")
             return [], None
 
+        if block_model_file is None:
+            if platform.system() == "Windows":
+                get_model_path().append_directory(Filename("data"))
+                block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
+            else:
+                block_model_file = os.path.join(
+                    os.path.dirname(__file__),
+                    "../data/3d_models/buildings/Residential Buildings 002.obj",
+                )
+
         # load block model
         print("Rendering building blocks...")
         building: NodePath = context.loader.loadModel(block_model_file)
@@ -441,16 +634,16 @@ class RenderingTools:
         # generate blocks
         block_instances = []
         for position in block_positions:
-            tree_instance = building.copyTo(context.render)
-            tree_instance.setColor(
+            block_instance = building.copyTo(context.render)
+            block_instance.setColor(
                 0.3 + 0.7 * np.random.random(),
                 0.3 + 0.7 * np.random.random(),
                 0.3 + 0.7 * np.random.random(),
                 1,
             )
-            tree_instance.setPos(position[0], position[1], 0)
-            tree_instance.setHpr(90, 90, 0)
-            block_instances.append(tree_instance)
+            block_instance.setPos(position[0], position[1], 0)
+            block_instance.setHpr(90, 90, 0)
+            block_instances.append(block_instance)
 
         print("Building blocks rendered ✓")
 
