@@ -155,8 +155,8 @@ visualization_parameters:
   # Choose the ground surface appearance
   # Available options:
   #   - ground_grass: Natural grass texture
-  #   - ground_stone: Stone/concrete texture
-  #   - ground_sand: Sand/desert texture
+  #   - ground_stone: Stone texture
+  #   - ground_sand: Sand texture
   #   - ground_chess: Chess board pattern (small)
   #   - ground_chesslarge: Chess board pattern (large)
   #   - ground_halloween: Halloween-themed ground
