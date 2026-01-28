@@ -111,7 +111,7 @@ if __name__ == "__main__":
         low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
         car_file = "3d_models/cars/Car.glb"
         sky_texture_file = "images/texture_sky_daycloud1.jpg"
-        floor_texture_file = "images/texture_ground_grass.jpg"
+        ground_texture_file = "images/texture_ground_grass.jpg"
         store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
         home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
         block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         sky_texture_file = os.path.join(
             os.path.dirname(__file__), "../../data/images/texture_sky_daycloud1.jpg"
         )
-        floor_texture_file = os.path.join(
+        ground_texture_file = os.path.join(
             os.path.dirname(__file__),
             "../../data/images/texture_ground_grass.jpg",
         )
@@ -249,7 +249,7 @@ if __name__ == "__main__":
         context=context, sky_texture_file=sky_texture_file
     )  # skybox / skydome
     rendering_tools.create_floor(
-        context=context, path_floor_texture=floor_texture_file
+        context=context, path_ground_texture=ground_texture_file
     )  # grass floor
     rendering_tools.create_trees(
         context=context,
