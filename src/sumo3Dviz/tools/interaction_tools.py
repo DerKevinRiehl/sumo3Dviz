@@ -18,39 +18,55 @@ class InteractionTools:
                 controls to.
         """
 
+        def print_cam_state():
+            cam = cast(Camera, context.camera)
+            x, y, z = cam.getX(), cam.getY(), cam.getZ()
+            h, p, r = cam.getH(), cam.getP(), cam.getR()
+            print(f"pos=({x:.2f}, {y:.2f}, {z:.2f}), hpr=({h:.2f}, {p:.2f}, {r:.2f})")
+
         # move camera left/right/forward/backward
         def move_left():
-            cast(Camera, context.camera).setX(context.camera, -1)
+            cast(Camera, context.camera).setX(context.camera, -3)
+            print_cam_state()
 
         def move_right():
-            cast(Camera, context.camera).setX(context.camera, 1)
+            cast(Camera, context.camera).setX(context.camera, 3)
+            print_cam_state()
 
         def move_forward():
-            cast(Camera, context.camera).setY(context.camera, 1)
+            cast(Camera, context.camera).setY(context.camera, 3)
+            print_cam_state()
 
         def move_backward():
-            cast(Camera, context.camera).setY(context.camera, -1)
+            cast(Camera, context.camera).setY(context.camera, -3)
+            print_cam_state()
 
         # move camera up/down (w/s)
         def move_up():
-            cast(Camera, context.camera).setZ(context.camera, 1)
+            cast(Camera, context.camera).setZ(context.camera, 3)
+            print_cam_state()
 
         def move_down():
-            cast(Camera, context.camera).setZ(context.camera, -1)
+            cast(Camera, context.camera).setZ(context.camera, -3)
+            print_cam_state()
 
         # look up/down (q/a) -- rotate pitch
         def look_up():
-            cast(Camera, context.camera).setP(cast(Camera, context.camera).getP() + 5)
+            cast(Camera, context.camera).setP(cast(Camera, context.camera).getP() + 10)
+            print_cam_state()
 
         def look_down():
-            cast(Camera, context.camera).setP(cast(Camera, context.camera).getP() - 5)
+            cast(Camera, context.camera).setP(cast(Camera, context.camera).getP() - 10)
+            print_cam_state()
 
         # look left/right (e/d) -- rotate heading
         def look_left():
-            cast(Camera, context.camera).setH(cast(Camera, context.camera).getH() + 5)
+            cast(Camera, context.camera).setH(cast(Camera, context.camera).getH() + 10)
+            print_cam_state()
 
         def look_right():
-            cast(Camera, context.camera).setH(cast(Camera, context.camera).getH() - 5)
+            cast(Camera, context.camera).setH(cast(Camera, context.camera).getH() - 10)
+            print_cam_state()
 
         context.accept("arrow_left", move_left)
         context.accept("arrow_right", move_right)
