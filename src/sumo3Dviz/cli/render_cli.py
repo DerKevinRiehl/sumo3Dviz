@@ -8,18 +8,15 @@ import os
 import cv2
 import yaml
 import json
-import platform
 import argparse
 from typing import cast
 from jsonschema import validate, ValidationError
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import (
-    Filename,
     Camera,
     loadPrcFileData,
     AntialiasAttrib,
     FrameBufferProperties,
-    get_model_path,
 )
 
 from sumo3Dviz import (

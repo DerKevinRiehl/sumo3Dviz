@@ -31,6 +31,15 @@ from panda3d.core import (
 class RenderingTools:
     """Provides tools for rendering 3D scene elements for SUMO traffic visualization."""
 
+    def __init__(self):
+        """Initialize the RenderingTools and adjust model path on Windows."""
+        if platform.system() == "Windows":
+            windows_path = os.path.normpath(
+                os.path.join(os.path.dirname(__file__), "..", "data")
+            )
+            windows_path = Filename.fromOsSpecific(windows_path)
+            get_model_path().append_directory(windows_path)
+
     def create_light(self, context: ShowBase):
         """Create and configure lighting sources for the 3D scene.
 
@@ -117,16 +126,13 @@ class RenderingTools:
             else:
                 raise ValueError(f"Unknown sky texture: {sky_texture}")
 
-            if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
-            else:
+            if platform.system() != "Windows":
                 sky_texture_file = os.path.join(
                     os.path.dirname(__file__), f"../data/{sky_texture_file}"
                 )
         else:
             # load default sky texture (if neither string nor file provided)
             if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
                 sky_texture_file = "images/texture_sky_daycloud1.jpg"
             else:
                 sky_texture_file = os.path.join(
@@ -205,16 +211,13 @@ class RenderingTools:
             else:
                 raise ValueError(f"Unknown ground texture: {ground_texture}")
 
-            if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
-            else:
+            if platform.system() != "Windows":
                 ground_texture_file = os.path.join(
                     os.path.dirname(__file__), f"../data/{ground_texture_file}"
                 )
         else:
             # load default ground texture (if neither string nor file provided)
             if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
                 ground_texture_file = "images/texture_ground_grass.jpg"
             else:
                 ground_texture_file = os.path.join(
@@ -289,7 +292,6 @@ class RenderingTools:
 
         if tree_model_file_1 is None:
             if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
                 tree_model_file_1 = "3d_models/trees/MapleTree.obj"
             else:
                 tree_model_file_1 = os.path.join(
@@ -299,7 +301,6 @@ class RenderingTools:
 
         if tree_model_file_2 is None:
             if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
                 tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
             else:
                 tree_model_file_2 = os.path.join(
@@ -468,7 +469,6 @@ class RenderingTools:
 
         if store_model_file is None:
             if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
                 store_model_file = (
                     "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
                 )
@@ -550,7 +550,6 @@ class RenderingTools:
 
         if home_model_file is None:
             if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
                 home_model_file = (
                     "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
                 )
@@ -619,7 +618,6 @@ class RenderingTools:
 
         if block_model_file is None:
             if platform.system() == "Windows":
-                get_model_path().append_directory(Filename("data"))
                 block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
             else:
                 block_model_file = os.path.join(

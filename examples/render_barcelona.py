@@ -5,16 +5,13 @@
 # configuration file / command line arguments described there.
 import os
 import cv2
-import platform
 from typing import cast
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import (
-    Filename,
     Camera,
     loadPrcFileData,
     AntialiasAttrib,
     FrameBufferProperties,
-    get_model_path,
 )
 
 from sumo3Dviz import (

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sumo3Dviz"
-version = "0.1.1"
+version = "0.1.2"
 description = "3D visualization of SUMO traffic simulations"
 readme = "README.md"
 requires-python = ">=3.9"

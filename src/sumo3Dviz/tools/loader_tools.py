@@ -32,6 +32,15 @@ class TrafficLightDFSchema(pa.DataFrameModel):
 class LoaderTools:
     """Tools for loading and processing SUMO simulation data and 3D models."""
 
+    def __init__(self):
+        """Initialize the LoaderTools and adjust model path on Windows."""
+        if platform.system() == "Windows":
+            windows_path = os.path.normpath(
+                os.path.join(os.path.dirname(__file__), "..", "data")
+            )
+            windows_path = Filename.fromOsSpecific(windows_path)
+            get_model_path().append_directory(windows_path)
+
     @pa.check_types
     def load_trajectory(
         self,
@@ -398,7 +407,6 @@ class LoaderTools:
             raise ValueError("Panda3D context loader is not initialized.")
 
         if platform.system() == "Windows":
-            get_model_path().append_directory(Filename("data"))
             low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
         else:
             low_poly_cars_file = os.path.join(
@@ -433,7 +441,6 @@ class LoaderTools:
             raise ValueError("Panda3D context loader is not initialized.")
 
         if platform.system() == "Windows":
-            get_model_path().append_directory(Filename("data"))
             car_file = "3d_models/cars/Car.glb"
         else:
             car_file = os.path.join(
