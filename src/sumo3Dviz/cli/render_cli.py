@@ -2,7 +2,7 @@
 # the configuration parameters in the corresponding configuration script.
 #
 # Example command:
-# python cli/render_cli.py --config src/examples/config_barcelona.yaml
+# python src/sumo3Dviz/cli/render_cli.py --config examples/config_barcelona.yaml
 
 import os
 import cv2
@@ -22,11 +22,13 @@ from panda3d.core import (
     get_model_path,
 )
 
-from src.tools.loader_tools import LoaderTools
-from src.tools.interaction_tools import InteractionTools
-from src.tools.rendering_tools import RenderingTools
-from src.tools.trajectory_tools import TrajectoryTools
-from src.tools.simulation_tools import SimulationManager
+from sumo3Dviz import (
+    LoaderTools,
+    InteractionTools,
+    RenderingTools,
+    TrajectoryTools,
+    SimulationManager,
+)
 
 
 if __name__ == "__main__":
@@ -77,47 +79,6 @@ if __name__ == "__main__":
         print(f"Failed at: {' -> '.join(str(p) for p in e.path)}")
         exit(1)
 
-    # load fixed files from the corresponding data folder (not configurable)
-    if platform.system() == "Windows":
-        get_model_path().append_directory(Filename("data"))
-        low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
-        car_file = "3d_models/cars/Car.glb"
-        store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
-        home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
-        block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
-        tree_model_file_1 = "3d_models/trees/MapleTree.obj"
-        tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
-    else:
-        low_poly_cars_file = os.path.join(
-            os.path.dirname(__file__), "../data/3d_models/cars/Low Poly Cars.glb"
-        )
-        car_file = os.path.join(
-            os.path.dirname(__file__), "../data/3d_models/cars/Car.glb"
-        )
-        store_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
-        )
-        home_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
-        )
-        block_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../data/3d_models/buildings/Residential Buildings 002.obj",
-        )
-        tree_model_file_1 = os.path.join(
-            os.path.dirname(__file__), "../data/3d_models/trees/MapleTree.obj"
-        )
-        tree_model_file_2 = os.path.join(
-            os.path.dirname(__file__), "../data/3d_models/trees/Hazelnut.obj"
-        )
-
-    tree_scale_1 = 0.2
-    tree_scale_2 = 0.5
-    tree_size_variability = 1
-    tree_color_variability = 0.1
-
     # load visualization components that are configurable from a selection of files
     available_sky_textures = [
         "sky_blue",
@@ -149,49 +110,6 @@ if __name__ == "__main__":
     if ground_texture not in available_ground_textures:
         raise ValueError(
             f"Ground texture '{ground_texture}' is not available. Please choose from: {available_ground_textures}"
-        )
-
-    sky_texture_file = ""
-    ground_texture_file = ""
-    if sky_texture == "sky_blue":
-        sky_texture_file = "images/texture_sky_blue.jpg"
-    elif sky_texture == "sky_cloudy":
-        sky_texture_file = "images/texture_sky_daycloud1.jpg"
-    elif sky_texture == "sky_overcast":
-        sky_texture_file = "images/texture_sky_daycloud2.jpg"
-    elif sky_texture == "sky_dawn":
-        sky_texture_file = "images/texture_sky_daycloud3.jpg"
-    elif sky_texture == "sky_night_stars":
-        sky_texture_file = "images/texture_sky_night1.jpg"
-    elif sky_texture == "sky_night_clear":
-        sky_texture_file = "images/texture_sky_night2.jpg"
-    elif sky_texture == "sky_night_forest":
-        sky_texture_file = "images/texture_sky_night3.jpg"
-    elif sky_texture == "sky_night_desert":
-        sky_texture_file = "images/texture_sky_night4.jpg"
-    elif sky_texture == "sky_halloween":
-        sky_texture_file = "images/texture_sky_halloween.jpg"
-
-    if ground_texture == "ground_grass":
-        ground_texture_file = "images/texture_ground_grass.jpg"
-    elif ground_texture == "ground_stone":
-        ground_texture_file = "images/texture_ground_stone.jpg"
-    elif ground_texture == "ground_sand":
-        ground_texture_file = "images/texture_ground_sand.jpg"
-    elif ground_texture == "ground_chess":
-        ground_texture_file = "images/texture_ground_chess.jpg"
-    elif ground_texture == "ground_chesslarge":
-        ground_texture_file = "images/texture_ground_chesslarge.jpg"
-    elif ground_texture == "ground_halloween":
-        ground_texture_file = "images/texture_ground_halloween.jpg"
-
-    if platform.system() != "Windows":
-        sky_texture_file = os.path.join(
-            os.path.dirname(__file__), f"../data/{sky_texture_file}"
-        )
-        ground_texture_file = os.path.join(
-            os.path.dirname(__file__),
-            f"../data/{ground_texture_file}",
         )
     # endregion
 
@@ -303,55 +221,41 @@ if __name__ == "__main__":
     )  # roads / sumo network
 
     # add scenery elements
-    rendering_tools.create_light(
-        context=context
-    )  # light source (otherwise all will be dark)
-    rendering_tools.create_sky(
-        context=context,
-        sky_texture_file=sky_texture_file,
-    )  # skybox / skydome
-    rendering_tools.create_floor(
-        context=context,
-        path_ground_texture=ground_texture_file,
-    )  # grass floor
+    # light source (otherwise all will be dark)
+    rendering_tools.create_light(context=context)
+
+    # skybox / skydome
+    rendering_tools.create_sky(context=context, sky_texture=sky_texture)
+
+    # grass floor
+    rendering_tools.create_ground(context=context, ground_texture=ground_texture)
+
+    # trees
     rendering_tools.create_trees(
         context=context,
         tree_positions=tree_positions,
-        tree_model_file_1=tree_model_file_1,
-        tree_model_file_2=tree_model_file_2,
-        tree_scale_1=tree_scale_1,
-        tree_scale_2=tree_scale_2,
-        tree_size_variability=tree_size_variability,
-        tree_color_variability=tree_color_variability,
-    )  # trees
-    rendering_tools.create_highway_fences(
-        context=context, fence_lines=fence_lines
-    )  # highways fences
+    )
+
+    # highway fences
+    rendering_tools.create_highway_fences(context=context, fence_lines=fence_lines)
+
+    # buildings: shops, homes, blocks
     rendering_tools.create_building_shops(
         context=context,
         shop_positions=shop_positions,
-        store_model_file=store_model_file,
-    )  # shops
+    )
     rendering_tools.create_building_homes(
         context=context,
         homes_positions=homes_positions,
-        home_model_file=home_model_file,
-    )  # homes
+    )
     rendering_tools.create_building_blocks(
         context=context,
         block_positions=block_positions,
-        block_model_file=block_model_file,
-    )  # blocks
+    )
 
     # load cars and ego vehicle car
-    car_models = loader.load_car_models(
-        context=context,
-        low_poly_cars_file=low_poly_cars_file,
-    )
-    ego_car = loader.load_ego_car_model(
-        context=context,
-        car_file=car_file,
-    )
+    car_models = loader.load_car_models(context=context)
+    ego_car = loader.load_ego_car_model(context=context)
     ego_car.setPos(config["trajectory_parameters"]["lane_width"] / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)
 

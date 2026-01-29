@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sumo3Dviz"
+version = "0.1.0"
+description = "3D visualization of SUMO traffic simulations"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "Kevin Riehl", email = "kriehl@ethz.ch" },
+  { name = "Julius Schlapbach", email = "juliussc@ethz.ch" }
+]
+
+# Runtime dependencies
+dependencies = [
+  "numpy==1.24.4",
+  "opencv-python==4.9.0.80",
+  "pandas==2.1.1",
+  "panda3d==1.10.15",
+  "sumolib==1.25.0",
+  "PyYAML==6.0.3",
+  "pandera==0.26.1",
+  "jsonschema==4.25.1"
+]
+
+# Development / testing dependencies
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0,<9.0.0",
+  "pylint>=3.0.0,<4.0.0",
+  "git-cliff>=2.11.0,<3.0.0"
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

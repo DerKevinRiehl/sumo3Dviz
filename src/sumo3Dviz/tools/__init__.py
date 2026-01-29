@@ -6,3 +6,4 @@ from .trajectory_tools import (
 )
 from .interaction_tools import InteractionTools
 from .rendering_tools import RenderingTools
+from .simulation_tools import SimulationManager

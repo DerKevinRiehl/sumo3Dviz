@@ -17,11 +17,14 @@ from panda3d.core import (
     get_model_path,
 )
 
-from src.tools.loader_tools import LoaderTools
-from src.tools.interaction_tools import InteractionTools
-from src.tools.rendering_tools import RenderingTools
-from src.tools.trajectory_tools import TrajectoryTools
-from src.tools.simulation_tools import SimulationManager
+from sumo3Dviz import (
+    LoaderTools,
+    InteractionTools,
+    RenderingTools,
+    TrajectoryTools,
+    SimulationManager,
+)
+
 
 if __name__ == "__main__":
     # ! CONFIGURATION PARAMETERS (passed directly to classes / functions)
@@ -33,12 +36,12 @@ if __name__ == "__main__":
     # trajectory parameters
     trajectory_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/simulation_logs/vehicle_positions.xml",
+        "barcelona_simulation/simulation_logs/vehicle_positions.xml",
     )
     ego_identifier = "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
     sumo_network_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/Network.net.xml",
+        "barcelona_simulation/Network.net.xml",
     )
     lane_width = 3.2
     sep_line_width = 0.2
@@ -51,7 +54,7 @@ if __name__ == "__main__":
     video_width_px = 1140
     video_height_px = 900
     output_file = os.path.join(
-        os.path.dirname(__file__), "../../results/barcelona_simulation.avi"
+        os.path.dirname(__file__), "../results/barcelona_simulation.avi"
     )
 
     # traffic signals
@@ -79,7 +82,7 @@ if __name__ == "__main__":
     traffic_light_id = "JE3"
     tree_positions_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/trees.add.xml",
+        "barcelona_simulation/viz_object_positions/trees.add.xml",
     )
 
     # visualization parameters
@@ -87,69 +90,26 @@ if __name__ == "__main__":
     viewer_height = 1.5
     traffic_signal_states_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/simulation_logs/signal_states.xml",
+        "barcelona_simulation/simulation_logs/signal_states.xml",
     )
     fence_lines_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/fences.add.xml",
+        "barcelona_simulation/viz_object_positions/fences.add.xml",
     )
     shops_positions_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml",
+        "barcelona_simulation/viz_object_positions/buildings_shops.add.xml",
     )
     homes_positions_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml",
+        "barcelona_simulation/viz_object_positions/buildings_homes.add.xml",
     )
     blocks_positions_file = os.path.join(
         os.path.dirname(__file__),
-        "../../examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
+        "barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
     )
 
-    if platform.system() == "Windows":
-        get_model_path().append_directory(Filename("data"))
-        low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
-        car_file = "3d_models/cars/Car.glb"
-        sky_texture_file = "images/texture_sky_daycloud1.jpg"
-        ground_texture_file = "images/texture_ground_grass.jpg"
-        store_model_file = "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
-        home_model_file = "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
-        block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
-        tree_model_file_1 = "3d_models/trees/MapleTree.obj"
-        tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
-    else:
-        low_poly_cars_file = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/cars/Low Poly Cars.glb"
-        )
-        car_file = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/cars/Car.glb"
-        )
-        sky_texture_file = os.path.join(
-            os.path.dirname(__file__), "../../data/images/texture_sky_daycloud1.jpg"
-        )
-        ground_texture_file = os.path.join(
-            os.path.dirname(__file__),
-            "../../data/images/texture_ground_grass.jpg",
-        )
-        store_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
-        )
-        home_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
-        )
-        block_model_file = os.path.join(
-            os.path.dirname(__file__),
-            "../../data/3d_models/buildings/Residential Buildings 002.obj",
-        )
-        tree_model_file_1 = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/trees/MapleTree.obj"
-        )
-        tree_model_file_2 = os.path.join(
-            os.path.dirname(__file__), "../../data/3d_models/trees/Hazelnut.obj"
-        )
-
+    # tree scaling and variability parameters
     tree_scale_1 = 0.2
     tree_scale_2 = 0.5
     tree_size_variability = 1
@@ -242,49 +202,59 @@ if __name__ == "__main__":
     )  # roads / sumo network
 
     # add scenery elements
-    rendering_tools.create_light(
-        context=context
-    )  # light source (otherwise all will be dark)
-    rendering_tools.create_sky(
-        context=context, sky_texture_file=sky_texture_file
-    )  # skybox / skydome
-    rendering_tools.create_floor(
-        context=context, path_ground_texture=ground_texture_file
-    )  # grass floor
+    # light source (otherwise all will be dark)
+    rendering_tools.create_light(context=context)
+
+    # skybox / skydome
+    # choose from one of the pre-defined options (sky_texture parameter)
+    # or, optionally, a custom sky texture file can be provided
+    # -> in this case, the correct handling of file paths
+    #    for Panda3D on Windows needs to be ensured
+    rendering_tools.create_sky(context=context, sky_texture="sky_cloudy")
+
+    # surrounding ground
+    # choose from one of the pre-defined options (ground_texture parameter)
+    # or, optionally, a custom ground texture file can be provided
+    # -> in this case, the correct handling of file paths
+    #    for Panda3D on Windows needs to be ensured
+    rendering_tools.create_ground(context=context, ground_texture="ground_grass")
+
+    # trees
+    # optionally, a custom tree object model file can be provided
+    # -> in this case, the correct handling of file paths
+    #    for Panda3D on Windows needs to be ensured
     rendering_tools.create_trees(
         context=context,
         tree_positions=tree_positions,
-        tree_model_file_1=tree_model_file_1,
-        tree_model_file_2=tree_model_file_2,
         tree_scale_1=tree_scale_1,
         tree_scale_2=tree_scale_2,
         tree_size_variability=tree_size_variability,
         tree_color_variability=tree_color_variability,
-    )  # trees
-    rendering_tools.create_highway_fences(
-        context=context, fence_lines=fence_lines
-    )  # highways fences
+    )
+
+    # highway fences
+    rendering_tools.create_highway_fences(context=context, fence_lines=fence_lines)
+
+    # buildings: shops, homes, blocks
+    # optionally, a custom building model file can be provided
+    # -> in this case, the correct handling of file paths
+    #    for Panda3D on Windows needs to be ensured
     rendering_tools.create_building_shops(
         context=context,
         shop_positions=shop_positions,
-        store_model_file=store_model_file,
-    )  # shops
+    )
     rendering_tools.create_building_homes(
         context=context,
         homes_positions=homes_positions,
-        home_model_file=home_model_file,
-    )  # homes
+    )
     rendering_tools.create_building_blocks(
         context=context,
         block_positions=block_positions,
-        block_model_file=block_model_file,
-    )  # blocks
+    )
 
     # load cars and ego vehicle car
-    car_models = loader.load_car_models(
-        context=context, low_poly_cars_file=low_poly_cars_file
-    )
-    ego_car = loader.load_ego_car_model(context=context, car_file=car_file)
+    car_models = loader.load_car_models(context=context)
+    ego_car = loader.load_ego_car_model(context=context)
     ego_car.setPos(lane_width / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)
 
