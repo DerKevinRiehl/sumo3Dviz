@@ -24,8 +24,11 @@ from panda3d.core import (
     DirectionalLight,
     AmbientLight,
     Vec4,
+    PNMImage,
+    StringStream,
     get_model_path,
 )
+import pkg_resources
 
 
 class RenderingTools:
@@ -33,13 +36,15 @@ class RenderingTools:
 
     def __init__(self):
         """Initialize the RenderingTools and adjust model path on Windows."""
+        """
         if platform.system() == "Windows":
             windows_path = os.path.normpath(
                 os.path.join(os.path.dirname(__file__), "..", "data")
             )
             windows_path = Filename.fromOsSpecific(windows_path)
             get_model_path().append_directory(windows_path)
-
+        """
+        
     def create_light(self, context: ShowBase):
         """Create and configure lighting sources for the 3D scene.
 
@@ -126,11 +131,15 @@ class RenderingTools:
             else:
                 raise ValueError(f"Unknown sky texture: {sky_texture}")
 
+            """
             if platform.system() != "Windows":
                 sky_texture_file = os.path.join(
                     os.path.dirname(__file__), f"../data/{sky_texture_file}"
                 )
+            """
         else:
+            sky_texture_file = "images/texture_sky_daycloud1.jpg"
+            """
             # load default sky texture (if neither string nor file provided)
             if platform.system() == "Windows":
                 sky_texture_file = "images/texture_sky_daycloud1.jpg"
@@ -139,7 +148,17 @@ class RenderingTools:
                     os.path.dirname(__file__),
                     "../data/images/texture_sky_daycloud1.jpg",
                 )
-
+            """
+            
+        ### new code
+        texture_file = sky_texture_file
+        
+        texture_resource = pkg_resources.resource_string("sumo3Dviz", "data/"+texture_file)
+        texture_image = PNMImage()
+        texture_image.read(StringStream(texture_resource))        
+        texture = Texture("sky")
+        texture.load(texture_image)
+        
         # generate an inverted sphere model
         print("Rendering sky...")
         sky_sphere: NodePath = context.loader.loadModel("models/smiley")
@@ -148,9 +167,10 @@ class RenderingTools:
         sky_sphere.setTwoSided(True)
 
         # load the texture
-        sky_texture = Texture()
-        sky_texture = context.loader.loadTexture(sky_texture_file)
-        sky_sphere.setTexture(sky_texture, 1)
+        #sky_texture = Texture()
+        #sky_texture = context.loader.loadTexture(sky_texture_file)
+        #sky_sphere.setTexture(sky_texture, 1)
+        sky_sphere.setTexture(texture, 1)
 
         # set rendering properties
         sky_sphere.setBin("background", 0)
@@ -211,11 +231,15 @@ class RenderingTools:
             else:
                 raise ValueError(f"Unknown ground texture: {ground_texture}")
 
+            """
             if platform.system() != "Windows":
                 ground_texture_file = os.path.join(
                     os.path.dirname(__file__), f"../data/{ground_texture_file}"
                 )
+            """
         else:
+            ground_texture_file = "images/texture_ground_grass.jpg"
+            """
             # load default ground texture (if neither string nor file provided)
             if platform.system() == "Windows":
                 ground_texture_file = "images/texture_ground_grass.jpg"
@@ -224,7 +248,21 @@ class RenderingTools:
                     os.path.dirname(__file__),
                     "../data/images/texture_ground_grass.jpg",
                 )
-
+            """
+        texture_file = ground_texture_file
+        texture_resource = pkg_resources.resource_string("sumo3Dviz", "data/"+texture_file)
+        texture_image = PNMImage()
+        texture_image.read(StringStream(texture_resource))
+        texture = Texture("ground")
+        texture.load(texture_image)
+        
+        # Apply texture
+        #ts = TextureStage("grass")
+        #ground.setTexture(ts, tex)
+        #ground.setTexScale(ts, 8, 8)
+        #ground.setTwoSided(True)
+        #ground.setColor(Vec4(0.9, 1.0, 0.9, 1.0))
+        
         # set ground parameters
         print("Rendering ground floor...")
         cm_ground = CardMaker("ground")
@@ -234,10 +272,14 @@ class RenderingTools:
         ground.setHpr(25, -90, 0)
 
         # load the texture
-        ground_tex = context.loader.loadTexture(ground_texture_file)
-        ground_tex.setWrapU(Texture.WM_repeat)
-        ground_tex.setWrapV(Texture.WM_repeat)
-        ground.setTexture(ground_tex)
+        #ground_tex = context.loader.loadTexture(ground_texture_file)
+        #ground_tex.setWrapU(Texture.WM_repeat)
+        #ground_tex.setWrapV(Texture.WM_repeat)
+        texture.setWrapU(Texture.WM_repeat)
+        texture.setWrapV(Texture.WM_repeat)
+        #ground.setTexture(ground_tex)
+        ground.setTexture(texture)
+        ground.setTwoSided(True)
         ground.setTexScale(TextureStage.getDefault(), 40000, 40000)
         print("Ground floor rendered ✓")
 
@@ -291,6 +333,7 @@ class RenderingTools:
             return []
 
         if tree_model_file_1 is None:
+            """
             if platform.system() == "Windows":
                 tree_model_file_1 = "3d_models/trees/MapleTree.obj"
             else:
@@ -298,8 +341,11 @@ class RenderingTools:
                     os.path.dirname(__file__),
                     "../data/3d_models/trees/MapleTree.obj",
                 )
-
+            """
+            tree_model_file_1 = "data/3d_models/trees/MapleTree.obj"
+            
         if tree_model_file_2 is None:
+            """
             if platform.system() == "Windows":
                 tree_model_file_2 = "3d_models/trees/Hazelnut.obj"
             else:
@@ -307,12 +353,29 @@ class RenderingTools:
                     os.path.dirname(__file__),
                     "../data/3d_models/trees/Hazelnut.obj",
                 )
-
+            """
+            tree_model_file_2 = "data/3d_models/trees/Hazelnut.obj"
+            
         # load tree models
         print("Rendering trees...")
-        tree1_model: NodePath = context.loader.loadModel(tree_model_file_1)
-        tree2_model: NodePath = context.loader.loadModel(tree_model_file_2)
+        #tree1_model: NodePath = context.loader.loadModel(tree_model_file_1)
+        #tree2_model: NodePath = context.loader.loadModel(tree_model_file_2)
+        tree1_path_bytes = pkg_resources.resource_filename(
+            "sumo3Dviz", tree_model_file_1
+        )
+        tree1_p3d_path = Filename.fromOsSpecific(tree1_path_bytes)
+        tree1_p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
+        tree1_model = context.loader.loadModel(tree1_p3d_path)
 
+        tree2_path_bytes = pkg_resources.resource_filename(
+            "sumo3Dviz", tree_model_file_2
+        )
+        tree2_p3d_path = Filename.fromOsSpecific(tree2_path_bytes)
+        tree2_p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
+        tree2_model = context.loader.loadModel(tree2_p3d_path)       
+
+        #ego_car.setTwoSided(True)      
+        
         # generate trees
         tree_instances = []
         for position in tree_positions:
@@ -468,6 +531,7 @@ class RenderingTools:
             return [], None
 
         if store_model_file is None:
+            """
             if platform.system() == "Windows":
                 store_model_file = (
                     "3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
@@ -477,11 +541,20 @@ class RenderingTools:
                     os.path.dirname(__file__),
                     "../data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj",
                 )
+            """
+            store_model_file = "data/3d_models/buildings/10065_Corner Grocery Store_V2_L3.obj"
+        
 
         # load shop model
         print("Rendering shops...")
-        building: NodePath = context.loader.loadModel(store_model_file)
-
+        #building: NodePath = context.loader.loadModel(store_model_file)
+        building_path_bytes = pkg_resources.resource_filename(
+            "sumo3Dviz", store_model_file
+        )
+        building_p3d_path = Filename.fromOsSpecific(building_path_bytes)
+        building_p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
+        building: NodePath = context.loader.loadModel(building_p3d_path)
+        
         # get the original bounding box
         min_point, max_point = building.getTightBounds()
         if min_point is None or max_point is None:
@@ -549,6 +622,7 @@ class RenderingTools:
             return [], None
 
         if home_model_file is None:
+            """
             if platform.system() == "Windows":
                 home_model_file = (
                     "3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
@@ -558,11 +632,19 @@ class RenderingTools:
                     os.path.dirname(__file__),
                     "../data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj",
                 )
+            """
+            home_model_file = "data/3d_models/buildings/10084_Small Home_V3_Iteration0.obj"
 
         # load home model
         print("Rendering homes...")
-        building: NodePath = context.loader.loadModel(home_model_file)
-
+        #building: NodePath = context.loader.loadModel(home_model_file)
+        building_path_bytes = pkg_resources.resource_filename(
+            "sumo3Dviz", home_model_file
+        )
+        building_p3d_path = Filename.fromOsSpecific(building_path_bytes)
+        building_p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
+        building: NodePath = context.loader.loadModel(building_p3d_path)
+        
         # generate homes
         home_instances = []
         for position in homes_positions:
@@ -617,6 +699,7 @@ class RenderingTools:
             return [], None
 
         if block_model_file is None:
+            """
             if platform.system() == "Windows":
                 block_model_file = "3d_models/buildings/Residential Buildings 002.obj"
             else:
@@ -624,11 +707,19 @@ class RenderingTools:
                     os.path.dirname(__file__),
                     "../data/3d_models/buildings/Residential Buildings 002.obj",
                 )
+            """
+            block_model_file = "data/3d_models/buildings/Residential Buildings 002.obj"
 
         # load block model
         print("Rendering building blocks...")
-        building: NodePath = context.loader.loadModel(block_model_file)
-
+        #building: NodePath = context.loader.loadModel(block_model_file)
+        building_path_bytes = pkg_resources.resource_filename(
+            "sumo3Dviz", block_model_file
+        )
+        building_p3d_path = Filename.fromOsSpecific(building_path_bytes)
+        building_p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
+        building: NodePath = context.loader.loadModel(building_p3d_path)
+        
         # generate blocks
         block_instances = []
         for position in block_positions:

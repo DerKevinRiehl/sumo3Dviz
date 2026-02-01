@@ -51,7 +51,7 @@ if __name__ == "__main__":
     video_width_px = 1140
     video_height_px = 900
     output_file = os.path.join(
-        os.path.dirname(__file__), "../results/barcelona_simulation.avi"
+        os.path.dirname(__file__), "barcelona_simulation.avi"
     )
 
     # traffic signals

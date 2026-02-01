@@ -1,5 +1,7 @@
 Commands to reproduce the video script as working on MacOS:
 
+DEFINETLY USE PYTHON 3.9 FOR NOW !!!
+
 # SOFTWARE SETUP OF SUMO3DVIZ
 
 Create a virtual environment and activate it:

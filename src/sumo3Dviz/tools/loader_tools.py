@@ -16,6 +16,7 @@ from .trajectory_tools import (
     TrajectoryDFSchema,
     SmoothenedTrajectoryDFSchema,
 )
+import pkg_resources
 
 
 class TrafficLightBasicDFSchema(pa.DataFrameModel):
@@ -34,13 +35,15 @@ class LoaderTools:
 
     def __init__(self):
         """Initialize the LoaderTools and adjust model path on Windows."""
+        """
         if platform.system() == "Windows":
             windows_path = os.path.normpath(
                 os.path.join(os.path.dirname(__file__), "..", "data")
             )
             windows_path = Filename.fromOsSpecific(windows_path)
             get_model_path().append_directory(windows_path)
-
+        """
+        
     @pa.check_types
     def load_trajectory(
         self,
@@ -406,6 +409,23 @@ class LoaderTools:
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
 
+        # Get absolute OS path for the resource inside the package
+        car_path_bytes = pkg_resources.resource_filename(
+            "sumo3Dviz", "data/3d_models/cars/Low Poly Cars.glb"
+        )
+        # resource_filename already returns a real filesystem path string.
+        # Convert to Panda filename:
+        p3d_path = Filename.fromOsSpecific(car_path_bytes)
+        p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
+        car_collection: NodePath = context.loader.loadModel(p3d_path)
+        car_models = [car_collection.find("**/" + str(n)) for n in range(1, 10 + 1)]
+        #ego_car.reparentTo(context.render)
+        #ego_car.setPos(0, 5, 0.5)
+        #ego_car.setHpr(0, 90, 0)
+        #ego_car.setScale(0.5)
+        #ego_car.setTwoSided(True)
+        
+        """
         if platform.system() == "Windows":
             low_poly_cars_file = "3d_models/cars/Low Poly Cars.glb"
         else:
@@ -418,6 +438,7 @@ class LoaderTools:
         car_collection: NodePath = context.loader.loadModel(low_poly_cars_file)
         car_models = [car_collection.find("**/" + str(n)) for n in range(1, 10 + 1)]
         print("Car models loaded ✓")
+        """
         return car_models
 
     def load_ego_car_model(self, context: ShowBase) -> NodePath:
@@ -440,6 +461,23 @@ class LoaderTools:
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
 
+
+        # Get absolute OS path for the resource inside the package
+        car_path_bytes = pkg_resources.resource_filename(
+            "sumo3Dviz", "data/3d_models/cars/Car.glb"
+        )
+        # resource_filename already returns a real filesystem path string.
+        # Convert to Panda filename:
+        p3d_path = Filename.fromOsSpecific(car_path_bytes)
+        p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
+        ego_car = context.loader.loadModel(p3d_path)
+        ego_car.reparentTo(context.render)
+        #ego_car.setPos(0, 5, 0.5)
+        #ego_car.setHpr(0, 90, 0)
+        #ego_car.setScale(0.5)
+        ego_car.setTwoSided(True)
+
+        """
         if platform.system() == "Windows":
             car_file = "3d_models/cars/Car.glb"
         else:
@@ -452,6 +490,7 @@ class LoaderTools:
         ego_car: NodePath = context.loader.loadModel(car_file)
         ego_car.reparentTo(context.render)
         print("Ego car model loaded ✓")
+        """
         return ego_car
 
     @pa.check_types
