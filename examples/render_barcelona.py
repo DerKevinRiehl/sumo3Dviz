@@ -63,7 +63,7 @@ if __name__ == "__main__":
             "pos_y": 18261.92 + 0.0,
             "stop_line_a": 20224.71,
             "stop_line_b": 18264.87,
-            "stop_li110ne_c": 20226.77,
+            "stop_line_c": 20226.77,
             "stop_line_d": 18261.15,
         },
         "ramp_2": {
