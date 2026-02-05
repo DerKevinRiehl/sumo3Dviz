@@ -32,7 +32,7 @@ class TrafficLightDFSchema(pa.DataFrameModel):
 
 class LoaderTools:
     """Tools for loading and processing SUMO simulation data and 3D models."""
-        
+
     @pa.check_types
     def load_trajectory(
         self,
@@ -398,13 +398,14 @@ class LoaderTools:
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
 
-        # Get absolute OS path for the resource inside the package
+        # get absolute OS path for the resource inside the package
+        # resource_filename already returns a real filesystem path string.
+        print("Loading car models...")
         car_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", "data/3d_models/cars/Low Poly Cars.glb"
         )
-        # resource_filename already returns a real filesystem path string.
-        print("Loading car models...")
-        # Convert to Panda filename:
+
+        # convert to Panda3D filename
         p3d_path = Filename.fromOsSpecific(car_path_bytes)
         p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
         car_collection: NodePath = context.loader.loadModel(p3d_path)
@@ -432,7 +433,6 @@ class LoaderTools:
         if context.loader is None:
             raise ValueError("Panda3D context loader is not initialized.")
 
-
         # Get absolute OS path for the resource inside the package
         car_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", "data/3d_models/cars/Car.glb"
@@ -442,7 +442,7 @@ class LoaderTools:
         # Convert to Panda filename:
         p3d_path = Filename.fromOsSpecific(car_path_bytes)
         p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
-        ego_car = context.loader.loadModel(p3d_path)
+        ego_car: NodePath = context.loader.loadModel(p3d_path)
         ego_car.reparentTo(context.render)
         ego_car.setTwoSided(True)
         print("Ego car model loaded ✓")

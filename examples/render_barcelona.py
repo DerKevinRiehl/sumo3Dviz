@@ -51,7 +51,7 @@ if __name__ == "__main__":
     video_width_px = 1140
     video_height_px = 900
     output_file = os.path.join(
-        os.path.dirname(__file__), "barcelona_simulation.avi"
+        os.path.dirname(__file__), "../results/barcelona_simulation.avi"
     )
 
     # traffic signals
@@ -63,7 +63,7 @@ if __name__ == "__main__":
             "pos_y": 18261.92 + 0.0,
             "stop_line_a": 20224.71,
             "stop_line_b": 18264.87,
-            "stop_line_c": 20226.77,
+            "stop_li110ne_c": 20226.77,
             "stop_line_d": 18261.15,
         },
         "ramp_2": {
