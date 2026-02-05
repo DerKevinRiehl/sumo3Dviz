@@ -33,14 +33,18 @@ dev = [
   "git-cliff>=2.11.0,<3.0.0"
 ]
 
-[tool.setuptools]
-package-dir = { "" = "src" }
+[project.urls]
+Homepage = "https://github.com/DerKevinRiehl/sumo3Dviz"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-dir]
+"" = "src"
+
 [tool.setuptools.package-data]
-sumo3Dviz = [
-  "data/**/*",
-  "cli/config_schema.json",
-]
+"sumo3Dviz" = ["data/images/*.jpg", "data/**/*.jpg",
+			"data/3d_models/cars/*.obj", "data/**/*.obj",
+			"data/3d_models/cars/*.mtl", "data/**/*.mtl",
+			"data/3d_models/cars/*.glb", "data/**/*.glb",
+			"cli/config_schema.json", "data/**/*"]
