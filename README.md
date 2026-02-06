@@ -2,6 +2,30 @@ Commands to reproduce the video script as working on MacOS:
 
 DEFINETLY USE PYTHON 3.9 FOR NOW !!!
 
+# USAGE
+
+## Option 1: CLI usage (after installation through pip)
+
+```bash
+pip install sumo3Dviz
+sumo3Dviz --config path/to/your/configuration.yaml
+```
+
+To run the example provided in the repository, you can run
+
+```bash
+sumo3Dviz --config examples/config_barcelona.yaml
+```
+
+## Option 2: Module-based usage (after installation through pip)
+
+Import the relevant modules and run the rendering mechanism as demonstrated in the `render_barcelona.py` script:
+
+```bash
+pip install sumo3Dviz
+python examples/render_barcelona.py
+```
+
 # SOFTWARE SETUP OF SUMO3DVIZ
 
 Create a virtual environment and activate it:

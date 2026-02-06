@@ -48,3 +48,6 @@ where = ["src"]
 			"data/3d_models/cars/*.mtl", "data/**/*.mtl",
 			"data/3d_models/cars/*.glb", "data/**/*.glb",
 			"cli/config_schema.json", "data/**/*"]
+
+[project.scripts]
+sumo3Dviz = "sumo3Dviz.cli.render_cli:main"

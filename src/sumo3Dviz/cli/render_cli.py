@@ -28,7 +28,7 @@ from sumo3Dviz import (
 )
 
 
-if __name__ == "__main__":
+def main():
     # ! Get configuration parameters from specified file
     # region
     parser = argparse.ArgumentParser()
@@ -333,3 +333,7 @@ if __name__ == "__main__":
     if config["video_parameters"]["record_video"] and video_writer is not None:
         video_writer.release()
     # endregion
+
+
+if __name__ == "__main__":
+    main()
