@@ -131,34 +131,6 @@ def _load_positions(loader, configuration):
     }
 
 
-def _launch_lagrangian_mode(
-    context,
-    configuration,
-    trajectory_data,
-    car_instances,
-    rendering_tools,
-    video_writer,
-    signal_instances,
-):
-    simulation_manager = SimulationManager(
-        context=context,
-        configuration=configuration,
-        trajectory_data=trajectory_data,
-        car_instances=car_instances,
-        rendering_tools=rendering_tools,
-        video_writer=video_writer,
-        signal_instances=signal_instances,
-    )
-    context.taskMgr.doMethodLater(0.0, simulation_manager.update_world, "update_world")
-    context.run()
-
-
-def _terminate_lagrangian_mode(configuration, video_writer):
-    # once completed, release the video writer
-    if configuration["rendering"]["record_video"] and video_writer is not None:
-        video_writer.release()
-
-
 def _render_world_scene(context, loader, configuration, positions, trajectories):
     print("###############################")
     print("  ==>  Rendering World")
@@ -257,6 +229,34 @@ def _render_world_scene(context, loader, configuration, positions, trajectories)
         "text_node": text_node,
     }
     return cars, signals, rendering_tools
+
+
+def _launch_lagrangian_mode(
+    context,
+    configuration,
+    trajectory_data,
+    car_instances,
+    rendering_tools,
+    video_writer,
+    signal_instances,
+):
+    simulation_manager = SimulationManager(
+        context=context,
+        configuration=configuration,
+        trajectory_data=trajectory_data,
+        car_instances=car_instances,
+        rendering_tools=rendering_tools,
+        video_writer=video_writer,
+        signal_instances=signal_instances,
+    )
+    context.taskMgr.doMethodLater(0.0, simulation_manager.update_world, "update_world")
+    context.run()
+
+
+def _terminate_lagrangian_mode(configuration, video_writer):
+    # once completed, release the video writer
+    if configuration["rendering"]["record_video"] and video_writer is not None:
+        video_writer.release()
 
 
 ################ CONFIGURATION

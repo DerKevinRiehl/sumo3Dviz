@@ -79,6 +79,7 @@ class SimulationManager:
             self.mode = "EULERIAN"
         if self.cinematic_camera_trajectory is not None:
             self.mode = "CINEMATIC"
+        print("[sumo3Dviz mode]", self.mode)
 
     def _update_camera(self, x, y, angle, current_time):
         if self.mode == "LAGRANGIAN":

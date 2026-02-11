@@ -1,13 +1,25 @@
 <h1>
-    <center>
-  <img src="resources/Figure_Banner.PNG"
-       alt="sumo3Dviz"
-       style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
-  sumo3Dviz <img src="resources/Figure_Banner.PNG"
-       alt="sumo3Dviz"
-       style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
-  <br> A three dimensional traffic visualisation
-  </center>
+    <table width="100%">
+        <tr>
+            <td>
+                <center>
+                    <img src="resources/Figure_Banner.PNG"
+                        alt="sumo3Dviz"
+                        style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
+                    sumo3Dviz <img src="resources/Figure_Banner.PNG"
+                        alt="sumo3Dviz"
+                        style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <center>
+                A three dimensional traffic visualisation
+                </center>
+            </td>
+        </tr>
+    </table>
 </h1>
 
 **sumo3Dviz** is a lightweight, open-source 3D visualisation pipeline for SUMO traffic simulations.
