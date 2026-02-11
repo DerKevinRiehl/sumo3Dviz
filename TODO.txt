@@ -1,0 +1,14 @@
+JULIUS:
+- README:
+	check statement "Dependencies: On MacOS it might be required to install Panda3D through the corresponding installer provided on their website (instead of only using the Python package - not sure, should be tested, current setup has both the python package and the installed version)."
+	check trajectory_tools.py "# TODO: improve the efficiency of the code by including this filtering condition"
+
+- Unify Docstrings according to Sphinx notation (so we can auto-render pydocs)
+
+- Implement pydocs sphinx rendering in github workflow to create website
+
+- Enable Traffic Light with 3 heads and countdown timer as well
+
+- Why Traffic Light not visible?
+	
+- Render Lagrangian View Again

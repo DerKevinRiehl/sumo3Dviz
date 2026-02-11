@@ -3,11 +3,8 @@ Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <jschlapbach@ethz.ch>
 Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 """
 
-# This script renders a 3D visualization of a SUMO simulation scenario in Barcelona
-# using the available classes directly and configuring them through corresponding
-# properties. For an illustration on how to use this library through the CLI,
-# please refer to the render_barcelona_cli.py script and the corresponding
-# configuration file / command line arguments described there.
+# This script renders a 3D visualization of a SUMO simulation in the "Cinematic mode"
+# following the perspective of camera that flys through a smoothened trajectory of given points.
 import os
 import cv2
 from typing import cast
@@ -250,7 +247,7 @@ if __name__ == "__main__":
     fbprobs.setMultisamples(8)
 
     # add camera control
-    interaction_tools.addCameraControlKeyboard(context)
+    interaction_tools.add_camera_control_interactive_mode(context)
 
     # add the road network
     rendering_tools.create_road_network(

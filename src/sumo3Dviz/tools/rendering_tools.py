@@ -51,7 +51,7 @@ class RenderingTools:
         """
 
         # ambient light (fill light)
-        print("Rendering light sources...")
+        print("\tRendering light sources...")
         alight = AmbientLight("alight")
         alight.setColor(Vec4(1.0, 1.0, 1.0, 1))
         alnp = context.render.attachNewNode(alight)
@@ -64,7 +64,7 @@ class RenderingTools:
         dlnp.setPos(0, -100, 200)
         dlnp.setHpr(-30, -45, 0)  # pointing downward and forward
         context.render.setLight(dlnp)
-        print("Light sources rendered ✓")
+        print("\tLight sources rendered ✓")
 
     def create_sky(
         self,
@@ -138,7 +138,7 @@ class RenderingTools:
         texture.load(texture_image)
 
         # generate an inverted sphere model
-        print("Rendering sky...")
+        print("\tRendering sky...")
         sky_sphere: NodePath = context.loader.loadModel("models/smiley")
         sky_sphere.reparentTo(context.render)
         sky_sphere.setScale(horizon_distance)
@@ -149,7 +149,7 @@ class RenderingTools:
         sky_sphere.setBin("background", 0)
         sky_sphere.setDepthWrite(False)
         sky_sphere.setLightOff()
-        print("Sky rendered ✓")
+        print("\tSky rendered ✓")
 
     def create_ground(
         self,
@@ -216,9 +216,9 @@ class RenderingTools:
         texture.load(texture_image)
 
         # set ground parameters
-        print("Rendering ground floor...")
+        print("\tRendering ground floor...")
         cm_ground = CardMaker("ground")
-        cm_ground.setFrame(-100000, 100000, -100000, 100000)
+        cm_ground.setFrame(-INFINITY, INFINITY, -INFINITY, INFINITY)
         ground = context.render.attachNewNode(cm_ground.generate())
         ground.setPos(0, 0, -0.05)
         ground.setHpr(25, -90, 0)
@@ -230,7 +230,7 @@ class RenderingTools:
         ground.setTwoSided(True)
         ground.setTexScale(TextureStage.getDefault(), 40000, 40000)
         ground.setBin("ground", 0)
-        print("Ground floor rendered ✓")
+        print("\tGround floor rendered ✓")
 
     def create_trees(
         self,
@@ -288,7 +288,7 @@ class RenderingTools:
             tree_model_file_2 = "data/3d_models/trees/Hazelnut.obj"
 
         # load tree models
-        print("Rendering trees...")
+        print("\tRendering trees...")
         tree1_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", tree_model_file_1
         )
@@ -332,7 +332,7 @@ class RenderingTools:
             tree_instance.setHpr(np.random.random() * 360, 90, 0)
             tree_instances.append(tree_instance)
 
-        print("Trees rendered ✓")
+        print("\tTrees rendered ✓")
         return tree_instances
 
     def create_highway_fences(
@@ -370,7 +370,7 @@ class RenderingTools:
             warnings.warn("No fence lines provided. Skipping fence creation.")
             return
 
-        print("Rendering highway fences...")
+        print("\tRendering highway fences...")
         for line in fence_lines:
             all_posts = []  # collect all post positions
             for i in range(0, len(line) - 1):
@@ -418,7 +418,7 @@ class RenderingTools:
                     )
                 context.render.attachNewNode(lines.create())
 
-        print("Highway fences rendered ✓")
+        print("\tHighway fences rendered ✓")
 
     def create_building_shops(
         self,
@@ -463,7 +463,7 @@ class RenderingTools:
             )
 
         # load shop model
-        print("Rendering shops...")
+        print("\tRendering shops...")
         # building: NodePath = context.loader.loadModel(store_model_file)
         building_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", store_model_file
@@ -498,7 +498,7 @@ class RenderingTools:
             shop_instance.setHpr(0, 0, 0)
             shop_instances.append(shop_instance)
 
-        print("Shops rendered ✓")
+        print("\tShops rendered ✓")
         return shop_instances, scaled_depth
 
     def create_building_homes(
@@ -544,7 +544,7 @@ class RenderingTools:
             )
 
         # load home model
-        print("Rendering homes...")
+        print("\tRendering homes...")
         # building: NodePath = context.loader.loadModel(home_model_file)
         building_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", home_model_file
@@ -567,7 +567,7 @@ class RenderingTools:
             home_instance.setHpr(0, 0, 0)
             home_instances.append(home_instance)
 
-        print("Homes rendered ✓")
+        print("\tHomes rendered ✓")
 
     def create_building_blocks(
         self,
@@ -610,7 +610,7 @@ class RenderingTools:
             block_model_file = "data/3d_models/buildings/Residential Buildings 002.obj"
 
         # load block model
-        print("Rendering building blocks...")
+        print("\tRendering building blocks...")
         # building: NodePath = context.loader.loadModel(block_model_file)
         building_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", block_model_file
@@ -633,7 +633,7 @@ class RenderingTools:
             block_instance.setHpr(90, 90, 0)
             block_instances.append(block_instance)
 
-        print("Building blocks rendered ✓")
+        print("\tBuilding blocks rendered ✓")
 
     def create_traffic_light(
         self,
@@ -674,7 +674,7 @@ class RenderingTools:
                 - text_node: TextNode for countdown timer (None if no timer)
         """
 
-        print("Drawing traffic light...")
+        print("\tDrawing traffic light...")
         if design == "simple":  # RAMP METERING SIMPLE
             THREE_HEAD = False
             COUNTDOWN_TIMER = False
@@ -793,7 +793,7 @@ class RenderingTools:
         else:
             text_node = None
 
-        print("Traffic light drawn ✓")
+        print("\tTraffic light drawn ✓")
         return box_node1, box_node2, box_node3, text_node
 
     def _make_box(
@@ -971,7 +971,7 @@ class RenderingTools:
             z (float): Z coordinate (height) of the line. Defaults to 0.03.
         """
         # convert to numpy arrays
-        print("Drawing white signal line...")
+        print("\tDrawing white signal line...")
         pA = np.asarray([p1, p2])
         pB = np.asarray([p3, p4])
 
@@ -996,7 +996,7 @@ class RenderingTools:
         road.setPos(center_x, center_y, z)
         road.setHpr(angle_deg, -90, 0)
         road.setColor(LColor(*color))
-        print("White signal line drawn ✓")
+        print("\tWhite signal line drawn ✓")
 
     def update_traffic_light(
         self,
@@ -1112,7 +1112,7 @@ class RenderingTools:
                 lane markings. Defaults to (1.0, 1.0, 1.0, 1).
         """
         # load SUMO road network
-        print("Rendering road network...")
+        print("\tRendering road network...")
         net = sumolib.net.readNet(sumo_network_file)
 
         # draw road edges and lanes
@@ -1148,7 +1148,7 @@ class RenderingTools:
                     concrete_color=concrete_color,
                 )
 
-        print("Road network rendered ✓")
+        print("\tRoad network rendered ✓")
 
     def _create_road_edge_lane(
         self,
@@ -1394,7 +1394,6 @@ class RenderingTools:
         gap_length=1.0,
     ):
         """Create a dashed separator line on the right side of a lane.
-
         Currently not implemented due to rendering performance issues.
 
         Args:
@@ -1407,7 +1406,8 @@ class RenderingTools:
             dash_length (float): Length of each dash. Defaults to 1.0.
             gap_length (float): Length of gap between dashes. Defaults to 1.0.
         """
-
+        pass
+        """
         for i in range(len(lane_shape) - 1):
             pA = np.asarray(lane_shape[i])
             pB = np.asarray(lane_shape[i + 1])
@@ -1435,6 +1435,7 @@ class RenderingTools:
                 dash.setHpr(angle_deg, -90, 0)
                 dash.setColor(LColor(*color))
                 dash.setBin("ground", 12)
+        """
 
     def _create_polygon_fan(
         self,
@@ -1444,7 +1445,6 @@ class RenderingTools:
         z=0.01,
     ):
         """Create a filled polygon using a triangle fan geometry.
-
         Used for rendering junction areas in the road network.
 
         Args:
@@ -1487,16 +1487,18 @@ class RenderingTools:
         node.addGeom(geom)
         nodepath = context.render.attachNewNode(node)
         nodepath.setBin("ground", 10)
-        nodepath.setPolygonOffset(1, 1)
         nodepath.setTwoSided(True)
 
     def render_hud(self, context: ShowBase) -> None:
         """
-        Renders a HUD overlay with:
-        - Live camera position + orientation (top right)
-        - Camera control instructions (bottom left)
+        Renders a head up display (HUD) overlay with (i) live camera position
+        + orientation (top right), and (ii) camera control instructions (bottom left).
+        This is used for interactive mode only!
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
         """
-        # -------- CAMERA INFO TEXT (TOP RIGHT) --------
+        # camera position info text (upper right)
         cam_text = OnscreenText(
             text="",
             parent=context.aspect2d,
@@ -1508,7 +1510,7 @@ class RenderingTools:
             shadowOffset=(0.03, 0.03),
             mayChange=True,
         )
-        # -------- CONTROLS TEXT (BOTTOM LEFT) --------
+        # camera controls text (bottom left)
         controls_message = (
             "Camera Controls\n"
             "-----------------------------\n"
@@ -1517,7 +1519,7 @@ class RenderingTools:
             "Q / A       : Pitch Up / Down\n"
             "E / D       : Yaw Left / Right\n"
         )
-        controls_text = OnscreenText(
+        OnscreenText(
             text=controls_message,
             parent=context.aspect2d,
             align=TextNode.ALeft,
@@ -1528,8 +1530,8 @@ class RenderingTools:
             shadowOffset=(0.03, 0.03),
         )
 
-        # -------- UPDATE TASK --------
-        def update_camera_text(task):
+        # update task (used in interactive mode)
+        def update_camera_text_interactive(task):
             cam = context.camera
             pos = cam.getPos()
             hpr = cam.getHpr()
@@ -1540,7 +1542,7 @@ class RenderingTools:
             )
             return task.cont
 
-        context.taskMgr.add(update_camera_text, "UpdateCameraHUD")
+        context.taskMgr.add(update_camera_text_interactive, "UpdateCameraHUD")
 
     def generate_centered_box(
         self,
@@ -1555,18 +1557,18 @@ class RenderingTools:
         """
         Creates a box whose origin is at its center instead of a corner.
 
-        :param parent: NodePath to reparent the box to
-        :param width: X scale
-        :param length: Y scale
-        :param height: Z scale
-        :param color: (r,g,b,a)
-        :param pos: (x,y,z) world/local position of center
+        Args:
+            parent: NodePath to reparent the box to
+            width: X scale
+            length: Y scale
+            height: Z scale
+            color: (r,g,b,a)
+            pos: (x,y,z) world/local position of center
         :return: NodePath of the created box
         """
         root = parent.attachNewNode("centered_box")
         box = context.loader.loadModel("models/box")
         box.reparentTo(root)
-        # box.setColorOff(1)
         box.clearTexture()
         box.setTextureOff(1)
         box.setPos(-0.5, -0.5, -0.5)
@@ -1576,6 +1578,12 @@ class RenderingTools:
         return root
 
     def generate_simple_car_model(self, context):
+        """
+        Generates a simplified car model (for faster rendering at presence of multiple cars).
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+        """
         # car properties
         length = random.uniform(4.0, 5.0)
         width = random.uniform(1.8, 2.2)
@@ -1588,13 +1596,12 @@ class RenderingTools:
         )
         tire_size = width * 0.3
         y_offset = tire_size * 0.5
-
         # generate car nodepath
         car_root_instance = NodePath("simple_car")
         car_root = NodePath("simple_car")
         car_root.reparentTo(car_root_instance)
         # base body
-        base = self.generate_centered_box(
+        self.generate_centered_box(
             context=context,
             parent=car_root,
             width=width,
@@ -1603,9 +1610,8 @@ class RenderingTools:
             color=color,
             pos=(0, 0, y_offset + height * 0.25),
         )
-
         # cabin
-        cabin = self.generate_centered_box(
+        self.generate_centered_box(
             context=context,
             parent=car_root,
             width=width * 0.8,

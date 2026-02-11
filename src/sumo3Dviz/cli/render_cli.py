@@ -210,7 +210,7 @@ def main():
     fbprobs.setMultisamples(8)
 
     # add camera control
-    interaction_tools.addCameraControlKeyboard(context)
+    interaction_tools.add_camera_control_interactive_mode(context)
 
     # add the road network
     rendering_tools.create_road_network(

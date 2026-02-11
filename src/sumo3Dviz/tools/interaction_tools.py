@@ -11,7 +11,7 @@ from panda3d.core import Camera
 class InteractionTools:
     """Provides tools for handling user interaction with the 3D visualization."""
 
-    def addCameraControlKeyboard(self, context: ShowBase):
+    def add_camera_control_interactive_mode(self, context: ShowBase):
         """Configure keyboard controls for camera movement and rotation.
 
         Sets up arrow keys for camera position (left/right/forward/backward),
