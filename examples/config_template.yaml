@@ -1,5 +1,5 @@
 # ================================================================================
-# SUMO 3D Visualization Configuration Template
+# sumo3Dviz Visualization Configuration Template
 # ================================================================================
 # This template provides all configuration parameters needed to run a 3D
 # visualization of a SUMO traffic simulation. All file paths should be relative

@@ -26,9 +26,12 @@ from panda3d.core import (
     Vec4,
     PNMImage,
     StringStream,
-    get_model_path,
 )
 import pkg_resources
+from direct.gui.OnscreenText import OnscreenText
+from panda3d.core import TextNode
+import random
+from panda3d.core import NodePath, CardMaker, Vec4
 
 
 class RenderingTools:
@@ -212,7 +215,7 @@ class RenderingTools:
         # set ground parameters
         print("Rendering ground floor...")
         cm_ground = CardMaker("ground")
-        cm_ground.setFrame(-INFINITY, INFINITY, -INFINITY, INFINITY)
+        cm_ground.setFrame(-100000, 100000, -100000, 100000)
         ground = context.render.attachNewNode(cm_ground.generate())
         ground.setPos(0, 0, -0.05)
         ground.setHpr(25, -90, 0)
@@ -223,6 +226,7 @@ class RenderingTools:
         ground.setTexture(texture)
         ground.setTwoSided(True)
         ground.setTexScale(TextureStage.getDefault(), 40000, 40000)
+        ground.setBin("ground", 0)
         print("Ground floor rendered ✓")
 
     def create_trees(
@@ -1270,6 +1274,9 @@ class RenderingTools:
             road.setPos(center_x, center_y, z)
             road.setHpr(angle_deg, -90, 0)
             road.setColor(LColor(*color))
+            road.setBin("ground", 10)
+            road.setDepthTest(True)
+            road.setDepthWrite(True)
 
     def _create_white_seperator_line_left(
         self,
@@ -1278,7 +1285,7 @@ class RenderingTools:
         lane_width: float,
         sep_line_width: float,
         color: Tuple[float, float, float, float],
-        z=0.03,
+        z=0.05,
     ):
         """Create a solid separator line on the left side of a lane.
 
@@ -1319,6 +1326,7 @@ class RenderingTools:
             road.setPos(center_x, center_y, z)
             road.setHpr(angle_deg, -90, 0)
             road.setColor(LColor(*color))
+            road.setBin("ground", 12)
 
     def _create_white_seperator_line_right(
         self,
@@ -1327,7 +1335,7 @@ class RenderingTools:
         lane_width: float,
         sep_line_width: float,
         color: Tuple[float, float, float, float],
-        z=0.03,
+        z=0.05,
     ):
         """Create a solid separator line on the right side of a lane.
 
@@ -1368,6 +1376,7 @@ class RenderingTools:
             road.setPos(center_x, center_y, z)
             road.setHpr(angle_deg, -90, 0)
             road.setColor(LColor(*color))
+            road.setBin("ground", 12)
 
     # TODO - figure out why this function causes issues with rendering speed
     def _create_white_separator_line_right_dashed(
@@ -1396,31 +1405,33 @@ class RenderingTools:
             gap_length (float): Length of gap between dashes. Defaults to 1.0.
         """
 
-        pass
-        # for i in range(len(lane_shape) - 1):
-        #     pA = np.asarray(lane_shape[i])
-        #     pB = np.asarray(lane_shape[i + 1])
-        #     segment_vector = pB - pA
-        #     segment_length = np.linalg.norm(segment_vector)
-        #     if segment_length == 0:
-        #         continue
-        #     direction = segment_vector / segment_length
-        #     num_dashes = int(segment_length // (dash_length + gap_length))
-        #     angle_deg = np.degrees(np.arctan2(direction[1], direction[0])) - 90
-        #     for j in range(num_dashes):
-        #         start_offset = (dash_length + gap_length) * j
-        #         dash_center = pA + direction * (start_offset + dash_length / 2)
-        #         # Offset to the right side of the lane
-        #         normal = np.array([-direction[1], direction[0]])  # 90-degree rotation
-        #         offset = normal * (lane_width / 2 - sep_line_width / 2)
-        #         final_pos = dash_center + offset
-        #         # Create dashed card
-        #         cm_dash = CardMaker("dash")
-        #         cm_dash.setFrame(-sep_line_width / 2, sep_line_width / 2, 0, dash_length)
-        #         dash = context.render.attachNewNode(cm_dash.generate())
-        #         dash.setPos(final_pos[0], final_pos[1], z)
-        #         dash.setHpr(angle_deg, -90, 0)
-        #         dash.setColor(LColor(*color))
+        for i in range(len(lane_shape) - 1):
+            pA = np.asarray(lane_shape[i])
+            pB = np.asarray(lane_shape[i + 1])
+            segment_vector = pB - pA
+            segment_length = np.linalg.norm(segment_vector)
+            if segment_length == 0:
+                continue
+            direction = segment_vector / segment_length
+            num_dashes = int(segment_length // (dash_length + gap_length))
+            angle_deg = np.degrees(np.arctan2(direction[1], direction[0])) - 90
+            for j in range(num_dashes):
+                start_offset = (dash_length + gap_length) * j
+                dash_center = pA + direction * (start_offset + dash_length / 2)
+                # Offset to the right side of the lane
+                normal = np.array([-direction[1], direction[0]])  # 90-degree rotation
+                offset = normal * (lane_width / 2 - sep_line_width / 2)
+                final_pos = dash_center + offset
+                # Create dashed card
+                cm_dash = CardMaker("dash")
+                cm_dash.setFrame(
+                    -sep_line_width / 2, sep_line_width / 2, 0, dash_length
+                )
+                dash = context.render.attachNewNode(cm_dash.generate())
+                dash.setPos(final_pos[0], final_pos[1], z)
+                dash.setHpr(angle_deg, -90, 0)
+                dash.setColor(LColor(*color))
+                dash.setBin("ground", 12)
 
     def _create_polygon_fan(
         self,
@@ -1472,4 +1483,152 @@ class RenderingTools:
         node = GeomNode("polygon_fan")
         node.addGeom(geom)
         nodepath = context.render.attachNewNode(node)
+        nodepath.setBin("ground", 10)
+        nodepath.setPolygonOffset(1, 1)
         nodepath.setTwoSided(True)
+
+    def render_hud(self, context: ShowBase) -> None:
+        """
+        Renders a HUD overlay with:
+        - Live camera position + orientation (top right)
+        - Camera control instructions (bottom left)
+        """
+        # -------- CAMERA INFO TEXT (TOP RIGHT) --------
+        cam_text = OnscreenText(
+            text="",
+            parent=context.aspect2d,
+            align=TextNode.ARight,
+            pos=(1.0, 0.8),  # top-right corner
+            scale=0.04,
+            fg=(1, 1, 1, 1),  # white
+            shadow=(0, 0, 0, 1),  # black shadow
+            shadowOffset=(0.03, 0.03),
+            mayChange=True,
+        )
+        # -------- CONTROLS TEXT (BOTTOM LEFT) --------
+        controls_message = (
+            "Camera Controls\n"
+            "-----------------------------\n"
+            "Arrow Keys  : Move in X/Y plane\n"
+            "W / S       : Move Up / Down\n"
+            "Q / A       : Pitch Up / Down\n"
+            "E / D       : Yaw Left / Right\n"
+        )
+        controls_text = OnscreenText(
+            text=controls_message,
+            parent=context.aspect2d,
+            align=TextNode.ALeft,
+            pos=(-1.0, -0.6),  # bottom-left
+            scale=0.035,
+            fg=(1, 1, 1, 1),
+            shadow=(0, 0, 0, 1),
+            shadowOffset=(0.03, 0.03),
+        )
+
+        # -------- UPDATE TASK --------
+        def update_camera_text(task):
+            cam = context.camera
+            pos = cam.getPos()
+            hpr = cam.getHpr()
+            cam_text.setText(
+                f"Camera\n"
+                f"pos = ({pos.x:8.2f}, {pos.y:8.2f}, {pos.z:6.2f})\n"
+                f"hpr = ({hpr.x:6.2f}, {hpr.y:6.2f}, {hpr.z:6.2f})"
+            )
+            return task.cont
+
+        context.taskMgr.add(update_camera_text, "UpdateCameraHUD")
+
+    def generate_centered_box(
+        self,
+        context,
+        parent,
+        width=1,
+        length=1,
+        height=1,
+        color=(1, 1, 1, 1),
+        pos=(0, 0, 0),
+    ):
+        """
+        Creates a box whose origin is at its center instead of a corner.
+
+        :param parent: NodePath to reparent the box to
+        :param width: X scale
+        :param length: Y scale
+        :param height: Z scale
+        :param color: (r,g,b,a)
+        :param pos: (x,y,z) world/local position of center
+        :return: NodePath of the created box
+        """
+        root = parent.attachNewNode("centered_box")
+        box = context.loader.loadModel("models/box")
+        box.reparentTo(root)
+        # box.setColorOff(1)
+        box.clearTexture()
+        box.setTextureOff(1)
+        box.setPos(-0.5, -0.5, -0.5)
+        root.setScale(width, length, height)
+        root.setColor(color)
+        root.setPos(pos)
+        return root
+
+    def generate_simple_car_model(self, context):
+        # car properties
+        length = random.uniform(4.0, 5.0)
+        width = random.uniform(1.8, 2.2)
+        height = random.uniform(1.3, 1.8)
+        color = Vec4(
+            random.uniform(0.2, 1.0),
+            random.uniform(0.2, 1.0),
+            random.uniform(0.2, 1.0),
+            1.0,
+        )
+        tire_size = width * 0.3
+        y_offset = tire_size * 0.5
+
+        # generate car nodepath
+        car_root_instance = NodePath("simple_car")
+        car_root = NodePath("simple_car")
+        car_root.reparentTo(car_root_instance)
+        # base body
+        base = self.generate_centered_box(
+            context=context,
+            parent=car_root,
+            width=width,
+            length=length,
+            height=height * 0.5,
+            color=color,
+            pos=(0, 0, y_offset + height * 0.25),
+        )
+
+        # cabin
+        cabin = self.generate_centered_box(
+            context=context,
+            parent=car_root,
+            width=width * 0.8,
+            length=length * 0.6,
+            height=height * 0.4,
+            color=tuple(c * 0.9 for c in color),
+            pos=(0, length * 0.1, y_offset + height * 0.7),
+        )
+        # tires
+        tire_z = y_offset
+        tire_positions = [
+            (width * 0.55 - tire_size * 0.55, length * 0.35),
+            (-width * 0.55 + tire_size * 0.55, length * 0.35),
+            (width * 0.55 - tire_size * 0.55, -length * 0.35),
+            (-width * 0.55 + tire_size * 0.55, -length * 0.35),
+        ]
+        for tx, ty in tire_positions:
+            self.generate_centered_box(
+                context=context,
+                parent=car_root,
+                width=tire_size,
+                length=tire_size * 0.6,
+                height=tire_size,
+                color=(0, 0, 0, 1),
+                pos=(tx, ty, tire_z),
+            )
+        # final rotation
+        car_root.setP(-90)
+        return car_root_instance

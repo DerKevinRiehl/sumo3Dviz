@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import math
 import cv2
 import sys
@@ -36,6 +37,9 @@ class SimulationManager:
         box_node2: Optional[NodePath] = None,
         box_node3: Optional[NodePath] = None,
         text_node: Optional[Any] = None,
+        camera_position: Optional[dict] = None,
+        show_other_vehicles_simple: bool = False,
+        cinematic_camera_trajectory: pd.DataFrame = None,
     ):
         """
         Initialize the SimulationManager with all required parameters.
@@ -60,6 +64,9 @@ class SimulationManager:
             video_writer: OpenCV VideoWriter (optional)
             box_node1, box_node2, box_node3: Traffic light nodes (optional)
             text_node: Traffic light timer text node (optional)
+            camera_position: Eulerian camera position (optional)
+            show_other_vehicles_simple: Whether to render other vehicles as box or car 3D object (optional)
+            cinematic_camera_trajectory: Cinematic camera trajectory (optional)
         """
         self.context = context
         self.trajectory_points = trajectory_points
@@ -73,6 +80,7 @@ class SimulationManager:
         self.rendering_tools = rendering_tools
         self.viewer_height = viewer_height
         self.show_other_vehicles = show_other_vehicles
+        self.show_other_vehicles_simple = show_other_vehicles_simple
         self.ramp_metering = ramp_metering
         self.design = design
         self.video_width_px = video_width_px
@@ -82,6 +90,13 @@ class SimulationManager:
         self.box_node2 = box_node2
         self.box_node3 = box_node3
         self.text_node = text_node
+        self.camera_position = camera_position
+        self.cinematic_camera_trajectory = cinematic_camera_trajectory
+        self.mode = "LAGRANGIAN"
+        if self.camera_position is not None:
+            self.mode = "EULERIAN"
+        if self.cinematic_camera_trajectory is not None:
+            self.mode = "CINEMATIC"
 
         # state variables
         self.current_point = video_start_idx
@@ -109,8 +124,33 @@ class SimulationManager:
                 signal, timer = None, 0
 
             # set camera position and heading
-            cast(Camera, self.context.camera).setPos(x, y, self.viewer_height)
-            cast(Camera, self.context.camera).setHpr(-angle, 0, 0)
+            if self.mode == "LAGRANGIAN":
+                cast(Camera, self.context.camera).setPos(x, y, self.viewer_height)
+                cast(Camera, self.context.camera).setHpr(-angle, 0, 0)
+            elif self.mode == "EULERIAN":
+                cast(Camera, self.context.camera).setPos(
+                    self.camera_position["pos_x"],
+                    self.camera_position["pos_y"],
+                    self.camera_position["pos_z"],
+                )
+                cast(Camera, self.context.camera).setHpr(
+                    self.camera_position["ori_h"],
+                    self.camera_position["ori_p"],
+                    self.camera_position["ori_r"],
+                )
+            elif self.mode == "CINEMATIC":
+                closest_idx = (
+                    (self.cinematic_camera_trajectory["time"] - current_time)
+                    .abs()
+                    .idxmin()
+                )
+                row = self.cinematic_camera_trajectory.iloc[closest_idx]
+                cast(Camera, self.context.camera).setPos(
+                    row["pos_x"], row["pos_y"], row["pos_z"]
+                )
+                cast(Camera, self.context.camera).setHpr(
+                    row["ori_h"], row["ori_p"], row["ori_r"]
+                )
 
             # set ego car position
             distance = 1.6  # how far in front you want the car to be
@@ -138,9 +178,19 @@ class SimulationManager:
             if self.show_other_vehicles and self.smoothened_trajectory_data is not None:
                 # position all cars on the road
                 current_pos = [x, y]
-                neighborhood_vehicles = self.trajectory_tools.get_closest_vehicles(
-                    self.smoothened_trajectory_data, current_pos, current_time
-                )
+                if self.mode == "EULERIAN" or self.mode == "CINEMATIC":
+                    neighborhood_vehicles = self.trajectory_tools.get_closest_vehicles(
+                        self.smoothened_trajectory_data,
+                        current_pos,
+                        current_time,
+                        max_vehicles=-1,
+                    )
+                elif self.mode == "LAGRANGIAN":
+                    neighborhood_vehicles = self.trajectory_tools.get_closest_vehicles(
+                        self.smoothened_trajectory_data,
+                        current_pos,
+                        current_time,
+                    )
 
                 # create new instances
                 current_vehicle_ids = []
@@ -148,12 +198,22 @@ class SimulationManager:
                     vehicle_id = vehicle[-1]
                     current_vehicle_ids.append(vehicle_id)
                     if vehicle_id not in self.others_car_instances:
-                        available_choices = [i for i in range(1, 11) if i != 2]
-                        selected_model = np.random.choice(available_choices)
-                        new_vehicle_instance = self.car_models[
-                            selected_model - 1
-                        ].copyTo(self.context.render)
-                        new_vehicle_instance.setScale(5.0)
+                        if self.show_other_vehicles_simple:
+                            # Create simple box-based car
+                            new_vehicle_instance = (
+                                self.rendering_tools.generate_simple_car_model(
+                                    self.context
+                                )
+                            )
+                            new_vehicle_instance.reparentTo(self.context.render)
+                        else:
+                            # Original detailed models
+                            available_choices = [i for i in range(1, 11) if i != 2]
+                            selected_model = np.random.choice(available_choices)
+                            new_vehicle_instance = self.car_models[
+                                selected_model - 1
+                            ].copyTo(self.context.render)
+                            new_vehicle_instance.setScale(5.0)
                         self.others_car_instances[vehicle_id] = new_vehicle_instance
 
                 # delete unused instances
@@ -171,8 +231,7 @@ class SimulationManager:
                     car_instance.setPos(vehicle[0], vehicle[1], 0)
                     car_instance.setHpr(180 - vehicle[2], 90, 0)
 
-            self.current_point += 1
-            self.current_point += 1  # double render speed
+            self.current_point += 2
 
             # record video frame
             if self.video_writer is not None:

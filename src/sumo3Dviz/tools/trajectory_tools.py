@@ -198,6 +198,77 @@ class TrajectoryTools:
 
         return df_smoothed
 
+    def generate_camera_cinematic_trajectory(
+        self,
+        camera_position_trajectory: dict,
+        simtime_start: float,
+        simtime_end: float,
+        video_fps: float,
+    ):
+        """
+        Generate a smooth camera trajectory from keyframes.
+
+        Args:
+            camera_position_trajectory (dict): keyframes as {time: {"pos_x":..,"ori_h":..,...}}
+            simtime_start (float): start time
+            simtime_end (float): end time
+            video_fps (float): frames per second
+
+        Returns:
+            pd.DataFrame: smoothed camera trajectory with columns ["time", "pos_x", "pos_y", "pos_z", "ori_h", "ori_p", "ori_r"]
+        """
+
+        # 1. Prepare the time array
+        dt = 1.0 / video_fps
+        times = np.arange(simtime_start, simtime_end + dt, dt)
+
+        # 2. Extract keyframe times and sort
+        keyframe_times = np.array(sorted(camera_position_trajectory.keys()))
+
+        # 3. Prepare arrays for interpolation
+        keys = ["pos_x", "pos_y", "pos_z", "ori_h", "ori_p", "ori_r"]
+        interp_data = {}
+
+        for k in keys:
+            # Extract keyframe values
+            values = np.array(
+                [camera_position_trajectory[t][k] for t in keyframe_times], dtype=float
+            )
+
+            if k.startswith("ori_"):  # handle angular wrapping
+                # Convert to radians and unwrap
+                values_rad = np.deg2rad(values)
+                values_rad = np.unwrap(
+                    values_rad
+                )  # unwrap ensures smooth interpolation
+                # Interpolate
+                interp_values_rad = np.interp(times, keyframe_times, values_rad)
+                # Convert back to degrees
+                interp_data[k] = np.rad2deg(interp_values_rad) % 360
+            else:
+                # Linear interpolation with out-of-bounds clamping
+                interp_values = np.interp(
+                    times,
+                    keyframe_times,
+                    values,
+                    left=values[0],  # stable before first keyframe
+                    right=values[-1],  # stable after last keyframe
+                )
+                interp_data[k] = interp_values
+
+        # 4. Apply centered moving average smoothing (window=41)
+        window_size = 41
+
+        def moving_average(arr, window):
+            return np.convolve(arr, np.ones(window) / window, mode="same")
+
+        smoothed_data = {k: moving_average(interp_data[k], window_size) for k in keys}
+
+        # 5. Build the DataFrame
+        df_camera_trajectory_smoothed = pd.DataFrame({"time": times, **smoothed_data})
+
+        return df_camera_trajectory_smoothed
+
     @pa.check_types
     def load_smoothened_trajectories(
         self,
@@ -309,7 +380,7 @@ class TrajectoryTools:
             current_pos (list): Current position as [x, y] coordinates.
             current_time (float): Current simulation time to query vehicle positions.
             max_vehicles (int): Maximum number of closest vehicles to return.
-                Defaults to 200.
+                Defaults to 200. If set to -1, all vehicles are returned.
 
         Returns:
             list: List of vehicle data for the closest vehicles, where each entry
@@ -350,7 +421,8 @@ class TrajectoryTools:
         sorted_vehicles = sorted(vehicle_data, key=lambda x: x["distance"])
 
         # return list of [pos_x, pos_y, angle, veh_id] for closest vehicles
-        return [
-            [v["pos_x"], v["pos_y"], v["angle"], v["veh_id"]]
-            for v in sorted_vehicles[:max_vehicles]
-        ]
+        if max_vehicles == -1:
+            selected = sorted_vehicles
+        else:
+            selected = sorted_vehicles[:max_vehicles]
+        return [[v["pos_x"], v["pos_y"], v["angle"], v["veh_id"]] for v in selected]

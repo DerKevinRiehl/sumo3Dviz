@@ -1,59 +1,125 @@
-Commands to reproduce the video script as working on MacOS:
+<h1>
+    <center>
+  <img src="resources/Figure_Banner.png"
+       alt="sumo3Dviz"
+       style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
+  sumo3Dviz <img src="resources/Figure_Banner.png"
+       alt="sumo3Dviz"
+       style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
+  <br> A three dimensional traffic visualisation
+  </center>
+</h1>
 
-DEFINETLY USE PYTHON 3.9 FOR NOW !!!
+**sumo3Dviz** is a lightweight, open-source 3D visualisation pipeline for SUMO traffic simulations.
+It converts standard SUMO simulation outputs, such as vehicle trajectories and signal states, into high-quality 3D renderings using a Python-based framework. 
 
-# USAGE
+<table>
+    <tr>
+        <td><b>Features:</b></td>
+        <td><img src="resources/Figure_OSLogo.png" style="height: 2.5em"/></td>
+        <td>Major OS Support</td>
+        <td><img src="resources/Figure_PythonLogo.png" style="height: 2.5em"/></td>
+        <td>Python 3.9 Support</td>
+    </tr>
+</table>
 
-## Option 1: CLI usage (after installation through pip)
+<details>
+<summary><strong>Table of Contents</strong></summary>
 
+- [Highlights](#highlights)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Command Line Interface (CLI)](#command-line-interface-cli)
+  - [Python Code](#python-code)
+- [Case Study: Barcelona](#case-study-barcelona)
+  - [Step 1: Prepare Sumo Simulation](#step-1-prepare-sumo-simulation)
+  - [Step 2: Prepare Visualisation Configuration](#step-2-prepare-visualisation-configuration)
+  - [Step 3: Render Video Visualisation with sumo3Dviz](#step-3-render-video-visualisation-with-sumo3dviz)
+- [Citations](#citations)
+</details>
+
+## Highlights
+
+<table>
+    <tr>
+        <td colspan="4"><b><center>Visualisation Modes</center></b></td>
+    </tr>
+    <tr>
+        <td><center>(1) Eulerian</center></td>
+        <td><center>(2) Lagrangian</center></td>
+        <td><center>(3) Cinematic</center></td>
+        <td><center>(4) Interactive</center></td>
+    </tr>
+    <tr>
+        <td><img src="resources/Figure_DemoVis_Euler.png" style="height: 120px"/></td>
+        <td><img src="resources/Figure_DemoVis_Lagrang.png" style="height: 120px"/></td>
+        <td><img src="resources/Figure_DemoVis_Cinematic.png" style="height: 120px"/></td>
+        <td><img src="resources/Figure_DemoVis_Interactive.png" style="height: 120px"/></td>
+    </tr>
+    <tr>
+        <td colspan="1">
+            <center><video src="resources/video_eulerian.mp4"
+                   width="150px"
+                   autoplay
+                   muted
+                   loop
+                   playsinline>
+                Your browser does not support the video tag.
+            </video></center>
+        </td>
+        <td colspan="1">
+            <center><video src="resources/video_lagrangian.mp4"
+                   width="150px"
+                   autoplay
+                   muted
+                   loop
+                   playsinline>
+                Your browser does not support the video tag.
+            </video></center>
+        </td>
+        <td colspan="1">
+            <center><video src="resources/video_cinematic.mp4"
+                   width="150px"
+                   autoplay
+                   muted
+                   loop
+                   playsinline>
+                Your browser does not support the video tag.
+            </video></center>
+        </td>
+        <td colspan="1">
+            <center><video src="resources/video_interactive.mp4"
+                   width="150px"
+                   autoplay
+                   muted
+                   loop
+                   playsinline>
+                Your browser does not support the video tag.
+            </video></center>
+        </td>
+    </tr>
+</table>
+
+## Installation
+The python package **sumo3Dviz** can be installed using pip:
 ```bash
 pip install sumo3Dviz
-sumo3Dviz --config path/to/your/configuration.yaml
 ```
+**Please note:** 
+Currently only Python 3.9 is supported on all major operating systems (Windows, Mac iOS, Linux).
 
-To run the example provided in the repository, you can run
+!!! On MacOS it might be required to install Panda3D through the corresponding installer provided on their website (instead of only using the Python package - not sure, should be tested, current setup has both the python package and the installed version).
 
-```bash
-sumo3Dviz --config examples/config_barcelona.yaml
-```
+## Usage
 
-## Option 2: Module-based usage (after installation through pip)
+### Command Line Interface (CLI)
 
-Import the relevant modules and run the rendering mechanism as demonstrated in the `render_barcelona.py` script:
 
-```bash
-pip install sumo3Dviz
-python examples/render_barcelona.py
-```
+### Python Code
 
-# SOFTWARE SETUP OF SUMO3DVIZ
 
-Create a virtual environment and activate it:
-
-```bash
-python3 -m venv venv
-source venv/bin/activate # -> on Windows use correspondingly slightly different command
-```
-
-Install the required packages:
-
-```bash
-# Install package
-pip install -e .
-
-# For development (includes pytest)
-pip install -e ".[dev]"
-```
-
-Run the video rendering script from the root of the repository:
-
-```bash
-python code/render_video.py
-```
-
-Dependencies: On MacOS it might be required to install Panda3D through the corresponding installer provided on their website (instead of only using the Python package - not sure, should be tested, current setup has both the python package and the installed version).
-
-# PREPARE SIMULATION
+## Case Study: Barcelona
+### Step 1: Prepare Sumo Simulation
 
 You can run any SUMO simulation and render it to a video.
 Just make sure to log vehicle positions and traffic lights (if desired for rendering).
@@ -81,7 +147,7 @@ Moreover, we provide an example (barcelona_simulation) that demos all outlined i
 </configuration>
 ```
 
-(2) **Log Traffic Light States `Configuration.sumocfg`:**
+(2) (Optional) **Log Traffic Light States `Configuration.sumocfg`:**
 
 ```xml
 <!-- YOUR Configuration.sumocfg -->
@@ -110,7 +176,7 @@ And create the additional file `tls_logging.add.xml` in the same folder:
 </additional>
 ```
 
-(3) **Additional Objects (Fences, Trees, Buildings...):**
+(3) (Optional) **Additional Objects (Fences, Trees, Buildings...):**
 
 You can create polygon files (POIs) with Netedit, and store them, for example following `trees.add.xml`:
 
@@ -128,16 +194,61 @@ You can create polygon files (POIs) with Netedit, and store them, for example fo
     <!-- ... -->
 ```
 
-This is then loaded by our software.
+The simulation's input files (network, POIs), and the generated output log files are then processed by **sumo3Dviz** to generate the visualisation.
 
-# Tutorial: sumo3Dviz Usage
+### Step 2: Prepare Visualisation Configuration
 
-Example with the barcelona network.
+### Step 3: Render Video Visualisation with sumo3Dviz 
 
-## Via Command Line
+Run to generate image:
+```bash
+sumo3Dviz --config path/to/your/configuration.yaml
+```
 
-TODO
+Run to generate videos:
 
-## Via Python Script
+Run Mode 1 (Eulerian):
 
-TODO
+Run Mode 2 (Lagrangian):
+
+Run Mode 3 (Cinematic):
+
+Run Mode 4 (Interactive):
+
+
+
+# USAGE
+
+## Option 1: CLI usage (after installation through pip)
+
+```bash
+pip install sumo3Dviz
+sumo3Dviz --config path/to/your/configuration.yaml
+```
+
+To run the example provided in the repository, you can run
+
+```bash
+sumo3Dviz --config examples/config_barcelona.yaml
+```
+
+## Option 2: Module-based usage (after installation through pip)
+
+Import the relevant modules and run the rendering mechanism as demonstrated in the `render_barcelona.py` script:
+
+```bash
+pip install sumo3Dviz
+python examples/render_barcelona.py
+```
+
+## Citations
+Please cite our paper if you find sumo3Dviz useful:
+
+```
+@inproceedings{riehl2026sumo3Dviz,
+  title={sumo3Dviz: A three dimensional traffic visualisation},
+  author={Riehl, Kevin and Schlapbach, Julius and Kouvelas, Anastasios and Makridis, Michail A.},
+  booktitle={SUMO Conference Proceedings},
+  year={2026}
+}
+```
