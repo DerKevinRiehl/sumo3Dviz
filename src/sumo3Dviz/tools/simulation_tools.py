@@ -65,6 +65,12 @@ class SimulationManager:
             if self.trajectory_data["signal_states"] is not None
             else None
         )
+        # state variables
+        self.current_point = self.trajectory_data["video_start_idx"]
+        self.screenshot_counter = 0
+        self.others_car_instances: Dict[int, NodePath] = {}
+        # other settings
+        self.show_other_vehicles_simple = show_other_vehicles_simple
         # mode and position specific
         self.camera_position = camera_position
         self.cinematic_camera_trajectory = cinematic_camera_trajectory
@@ -73,12 +79,6 @@ class SimulationManager:
             self.mode = "EULERIAN"
         if self.cinematic_camera_trajectory is not None:
             self.mode = "CINEMATIC"
-        # state variables
-        self.current_point = self.trajectory_data["video_start_idx"]
-        self.screenshot_counter = 0
-        self.others_car_instances: Dict[int, NodePath] = {}
-        # other settings
-        self.show_other_vehicles_simple = show_other_vehicles_simple
 
     def _update_camera(self, x, y, angle, current_time):
         if self.mode == "LAGRANGIAN":
@@ -204,8 +204,8 @@ class SimulationManager:
             img_array = np.frombuffer(data, np.uint8)
             img_array = img_array.reshape(
                 (
-                    int(self.configuration["rendering"]["video_width_px"]),
                     int(self.configuration["rendering"]["video_height_px"]),
+                    int(self.configuration["rendering"]["video_width_px"]),
                     4,
                 )
             )

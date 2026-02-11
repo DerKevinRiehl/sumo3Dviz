@@ -1,9 +1,9 @@
 <h1>
     <center>
-  <img src="resources/Figure_Banner.png"
+  <img src="resources/Figure_Banner.PNG"
        alt="sumo3Dviz"
        style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
-  sumo3Dviz <img src="resources/Figure_Banner.png"
+  sumo3Dviz <img src="resources/Figure_Banner.PNG"
        alt="sumo3Dviz"
        style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
   <br> A three dimensional traffic visualisation
