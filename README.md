@@ -1,25 +1,23 @@
 <h1>
+    <center>
     <table width="100%">
         <tr>
-            <td>
-                <center>
-                    <img src="resources/Figure_Banner.PNG"
-                        alt="sumo3Dviz"
-                        style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
-                    sumo3Dviz <img src="resources/Figure_Banner.PNG"
-                        alt="sumo3Dviz"
-                        style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
-                </center>
+            <td align="center">
+                <img src="resources/Figure_Banner.PNG"
+                    alt="sumo3Dviz"
+                    style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
+                sumo3Dviz <img src="resources/Figure_Banner.PNG"
+                    alt="sumo3Dviz"
+                    style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
             </td>
         </tr>
         <tr>
-            <td>
-                <center>
+            <td align="center">
                 A three dimensional traffic visualisation
-                </center>
             </td>
         </tr>
     </table>
+    </center>
 </h1>
 
 **sumo3Dviz** is a lightweight, open-source 3D visualisation pipeline for SUMO traffic simulations.
@@ -69,46 +67,10 @@ It converts standard SUMO simulation outputs, such as vehicle trajectories and s
         <td><img src="resources/Figure_DemoVis_Interactive.png" style="height: 120px"/></td>
     </tr>
     <tr>
-        <td colspan="1">
-            <center><video src="resources/video_eulerian.mp4"
-                   width="150px"
-                   autoplay
-                   muted
-                   loop
-                   playsinline>
-                Your browser does not support the video tag.
-            </video></center>
-        </td>
-        <td colspan="1">
-            <center><video src="resources/video_lagrangian.mp4"
-                   width="150px"
-                   autoplay
-                   muted
-                   loop
-                   playsinline>
-                Your browser does not support the video tag.
-            </video></center>
-        </td>
-        <td colspan="1">
-            <center><video src="resources/video_cinematic.mp4"
-                   width="150px"
-                   autoplay
-                   muted
-                   loop
-                   playsinline>
-                Your browser does not support the video tag.
-            </video></center>
-        </td>
-        <td colspan="1">
-            <center><video src="resources/video_interactive.mp4"
-                   width="150px"
-                   autoplay
-                   muted
-                   loop
-                   playsinline>
-                Your browser does not support the video tag.
-            </video></center>
-        </td>
+        <td><img src="resources/video_eulerian.gif" style="height: 120px"/></td>
+        <td><img src="resources/video_lagrangian.gif" style="height: 120px"/></td>
+        <td><img src="resources/video_cinematic.gif" style="height: 120px"/></td>
+        <td><img src="resources/video_interactive.gif" style="height: 120px"/></td>
     </tr>
 </table>
 
