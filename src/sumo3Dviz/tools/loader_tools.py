@@ -121,11 +121,7 @@ class LoaderTools:
 
         # load raw trajectory of ego vehicle in preparation for processing
         trajectory_tools = TrajectoryTools()
-        (
-            df_ego_trajectory,
-            first_timestamp,
-            last_timestamp,
-        ) = trajectory_tools.get_vehicle_trajectory_raw(
+        df_ego_trajectory = trajectory_tools.get_vehicle_trajectory_raw(
             df_simulation_log_cars, ego_identifier
         )
 
@@ -166,8 +162,6 @@ class LoaderTools:
             smoothened_trajectory_data = trajectory_tools.load_smoothened_trajectories(
                 ego_identifier=ego_identifier,
                 df_simulation_log_cars=df_simulation_log_cars,
-                first_timestamp=first_timestamp,
-                last_timestamp=last_timestamp,
                 video_fps=video_fps,
             )
         else:

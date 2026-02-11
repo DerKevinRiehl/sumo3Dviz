@@ -4,11 +4,14 @@ Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 """
 
 import warnings
+from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import pandera.pandas as pa
 from typing import cast, Union
 from pandera.typing import DataFrame, Series
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Optional, Tuple
 
 
 class TrajectoryDFSchema(pa.DataFrameModel):
@@ -41,7 +44,7 @@ class TrajectoryTools:
         self,
         df_simulation_log_cars: DataFrame[TrajectoryDFSchema],
         ego_identifier: str,
-    ) -> tuple[DataFrame[TrajectoryDFSchema], float, float]:
+    ) -> DataFrame[TrajectoryDFSchema]:
         """Extract the raw trajectory for a specific vehicle from simulation data.
 
         Args:
@@ -51,10 +54,7 @@ class TrajectoryTools:
             ego_identifier (str): Vehicle ID to extract trajectory for.
 
         Returns:
-            tuple[DataFrame[TrajectoryDFSchema], float, float]: A tuple containing:
-                - DataFrame with the vehicle's trajectory
-                - First timestamp of the trajectory
-                - Last timestamp of the trajectory
+            DataFrame with the vehicle's trajectory
         """
         # extract the trajectory for the ego vehicle
         df_trajectory = TrajectoryDFSchema.validate(
@@ -66,11 +66,7 @@ class TrajectoryTools:
             )
         )
 
-        # get first and last timestamp of the ego vehicle trajectory
-        first_timestamp = df_trajectory["time"].iloc[0]
-        last_timestamp = df_trajectory["time"].iloc[-1]
-
-        return df_trajectory, first_timestamp, last_timestamp
+        return df_trajectory
 
     def normalize_angle(self, angle: float) -> float:
         """Normalize angle to be within [0, 360] degrees.
@@ -148,9 +144,9 @@ class TrajectoryTools:
         try:
             df_smoothed = df_smoothed.drop(df_smoothed.index[0])
         except Exception:
-            warnings.warn(
-                "Trajectory too short to interpolate (less than 2 data points). Skipping trajectory."
-            )
+            # warnings.warn(
+            #     "Trajectory too short to interpolate (less than 2 data points). Skipping trajectory."
+            # )
             return None
 
         # compute the movement direction (rad and deg) based on the position changes
@@ -279,86 +275,56 @@ class TrajectoryTools:
         self,
         ego_identifier: str,
         df_simulation_log_cars: DataFrame[TrajectoryDFSchema],
-        first_timestamp: float,
-        last_timestamp: float,
         video_fps: float,
     ) -> list[DataFrame[SmoothenedTrajectoryDFSchema]]:
-        """Process and smooth trajectories for all vehicles except the ego vehicle.
 
-        Iterates through all vehicles in the simulation log, normalizes angles,
-        and applies interpolation and smoothing to each trajectory.
-
-        Args:
-            ego_identifier (str): Vehicle ID of the ego vehicle to exclude from
-                processing.
-            df_simulation_log_cars (DataFrame[TrajectoryDFSchema]): Complete simulation
-                log containing trajectories for all vehicles.
-            first_timestamp (float): First timestamp of ego vehicle trajectory.
-            last_timestamp (float): Last timestamp of ego vehicle trajectory.
-            video_fps (float): Target video frames per second for resampling.
-
-        Returns:
-            list[DataFrame[SmoothenedTrajectoryDFSchema]]: List of smoothed trajectory
-                DataFrames for all vehicles except the ego vehicle.
-        """
-
-        # group the vehicle trajectories by their vehicle id
         grouped_trajectories = df_simulation_log_cars.groupby("veh_id")
-        num_vehicles = df_simulation_log_cars["veh_id"].nunique()
+        # materialize groups to a list so we can iterate multiple times
+        groups = [(veh_id, group) for veh_id, group in grouped_trajectories]
+        num_vehicles = len(groups)
+
+        def process_one(item: Tuple[str, pd.DataFrame]) -> Optional[DataFrame]:
+            veh_id, df_trajectory = item
+
+            if veh_id == ego_identifier:
+                return None
+            if len(df_trajectory) == 0:
+                return None
+
+            df_trajectory_valid = TrajectoryDFSchema.validate(
+                cast(pd.DataFrame, df_trajectory)
+            )
+
+            df_smoothed = self.interpolate_trajectory(
+                df_trajectory=df_trajectory_valid,
+                video_fps=video_fps,
+            )
+            if df_smoothed is None:
+                return None
+
+            df_smoothed["angle"] = [
+                self.normalize_angle(angle=angle) for angle in df_smoothed["angle"]
+            ]
+            df_smoothed["computed_angle_deg"] = [
+                self.normalize_angle(angle=angle)
+                for angle in df_smoothed["computed_angle_deg"]
+            ]
+
+            return df_smoothed
+
         smoothened_trajectory_data: list[DataFrame[SmoothenedTrajectoryDFSchema]] = []
-        counter = 0
 
-        # iterate over all vehicles and smoothen the corresponding trajectories
-        for veh_id, df_trajectory in grouped_trajectories:
-            if veh_id != ego_identifier:
-                counter += 1
-                if len(df_trajectory) > 0:
-                    # TODO: improve the efficiency of the code by including this filtering condition
-                    # if (
-                    #     df_trajectory["time"].iloc[0] >= first_timestamp
-                    #     and df_trajectory["time"].iloc[0] <= last_timestamp
-                    # ) or (
-                    #     df_trajectory["time"].iloc[-1] >= first_timestamp
-                    #     and df_trajectory["time"].iloc[-1] <= last_timestamp
-                    # ):
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(process_one, g) for g in groups]
 
-                    # validate that the trajectory DataFrame has the correct schema
-                    df_trajectory = TrajectoryDFSchema.validate(
-                        cast(pd.DataFrame, df_trajectory)
-                    )
-
-                    # interpolate the trajectory
-                    df_smoothed = self.interpolate_trajectory(
-                        df_trajectory=df_trajectory, video_fps=video_fps
-                    )
-
-                    if df_smoothed is not None:
-                        # apply the smoothening procedure to the trajectory
-                        df_smoothed["angle"] = [
-                            self.normalize_angle(angle=angle)
-                            for angle in df_smoothed["angle"]
-                        ]
-                        df_smoothed["computed_angle_deg"] = [
-                            self.normalize_angle(angle=angle)
-                            for angle in df_smoothed["computed_angle_deg"]
-                        ]
-
-                        smoothened_trajectory_data.append(df_smoothed)
-                        print(
-                            "Smoothening trajectory for vehicle",
-                            counter,
-                            "of",
-                            num_vehicles,
-                            "...",
-                        )
-                    else:
-                        print(
-                            "Skipping trajectory for vehicle",
-                            counter,
-                            "of",
-                            num_vehicles,
-                            "due to insufficient data points.",
-                        )
+            for f in tqdm(
+                as_completed(futures),
+                total=num_vehicles,
+                desc="Smoothening trajectories (parallel)",
+            ):
+                res = f.result()
+                if res is not None:
+                    smoothened_trajectory_data.append(res)
 
         # validate the correct data structure of the smoothened trajectories
         for df in smoothened_trajectory_data:

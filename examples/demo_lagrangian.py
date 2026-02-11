@@ -19,7 +19,6 @@ from panda3d.core import (
 from sumo3Dviz import (
     LoaderTools,
     RenderingTools,
-    TrajectoryTools,
     SimulationManager,
 )
 
@@ -130,6 +129,34 @@ def _load_positions(loader, configuration):
         "home": home_positions,
         "block": block_positions,
     }
+
+
+def _launch_lagrangian_mode(
+    context,
+    configuration,
+    trajectory_data,
+    car_instances,
+    rendering_tools,
+    video_writer,
+    signal_instances,
+):
+    simulation_manager = SimulationManager(
+        context=context,
+        configuration=configuration,
+        trajectory_data=trajectory_data,
+        car_instances=car_instances,
+        rendering_tools=rendering_tools,
+        video_writer=video_writer,
+        signal_instances=signal_instances,
+    )
+    context.taskMgr.doMethodLater(0.0, simulation_manager.update_world, "update_world")
+    context.run()
+
+
+def _terminate_lagrangian_mode(configuration, video_writer):
+    # once completed, release the video writer
+    if configuration["rendering"]["record_video"] and video_writer is not None:
+        video_writer.release()
 
 
 def _render_world_scene(context, loader, configuration, positions, trajectories):
@@ -320,51 +347,19 @@ configuration = {
 
 ################ MAIN
 if __name__ == "__main__":
-    trajectories, positions, loader = _load_data(configuration)
+    trajectory_data, positions, loader = _load_data(configuration)
     video_writer = _setup_video_writer(configuration)
     context, fbprobs = _setup_panda_3d(configuration)
-    cars, signals, rendering_tools = _render_world_scene(
-        context, loader, configuration, positions, trajectories
+    car_instances, signal_instances, rendering_tools = _render_world_scene(
+        context, loader, configuration, positions, trajectory_data
     )
-
-    # create the simulation manager
-    trajectory_tools = TrajectoryTools()
-    trajectory_points = trajectories["ego_trajectory"][
-        ["veh_id", "pos_x", "pos_y", "computed_angle_deg", "time"]
-    ].values
-    signal_points = (
-        trajectories["signal_states"][["time", "state", "timer"]].values
-        if trajectories["signal_states"] is not None
-        else None
+    _launch_lagrangian_mode(
+        context,
+        configuration,
+        trajectory_data,
+        car_instances,
+        rendering_tools,
+        video_writer,
+        signal_instances,
     )
-    simulation_manager = SimulationManager(
-        context=context,
-        trajectory_points=trajectory_points,
-        signal_points=signal_points,
-        video_start_idx=trajectories["video_start_idx"],
-        video_end_idx=trajectories["video_end_idx"],
-        car_models=cars["car_models"],
-        ego_car=cars["ego_car"],
-        smoothened_trajectory_data=trajectories["trajectory_data"],
-        trajectory_tools=trajectory_tools,
-        rendering_tools=rendering_tools,
-        viewer_height=configuration["visualization"]["viewer_height"],
-        show_other_vehicles=configuration["visualization"]["show_other_vehicles"],
-        ramp_metering=configuration["visualization"]["show_signals"],
-        design=configuration["signals"]["signal_design"],
-        video_width_px=configuration["rendering"]["video_width_px"],
-        video_height_px=configuration["rendering"]["video_height_px"],
-        video_writer=video_writer,
-        box_node1=signals["box_node1"],
-        box_node2=signals["box_node2"],
-        box_node3=signals["box_node3"],
-        text_node=signals["text_node"],
-    )
-
-    # assign the update function to the task manager
-    context.taskMgr.doMethodLater(0.0, simulation_manager.update_world, "update_world")
-    context.run()
-
-    # once completed, release the video writer
-    if configuration["rendering"]["record_video"] and video_writer is not None:
-        video_writer.release()
+    _terminate_lagrangian_mode(configuration, video_writer)

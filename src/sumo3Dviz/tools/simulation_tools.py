@@ -11,6 +11,7 @@ import sys
 from typing import cast, Optional, Dict, Any
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import NodePath, Camera, GraphicsOutput
+from .trajectory_tools import TrajectoryTools
 
 
 class SimulationManager:
@@ -21,29 +22,15 @@ class SimulationManager:
 
     def __init__(
         self,
+        configuration: Dict,
         context: ShowBase,
-        trajectory_points: np.ndarray,
-        signal_points: Optional[np.ndarray],
-        video_start_idx: int,
-        video_end_idx: int,
-        car_models: list,
-        ego_car: NodePath,
-        smoothened_trajectory_data: Optional[list],
-        trajectory_tools: Any,
+        trajectory_data: Dict,
+        car_instances: Dict,
         rendering_tools: Any,
-        viewer_height: float,
-        show_other_vehicles: bool,
-        ramp_metering: bool,
-        design: str,
-        video_width_px: float,
-        video_height_px: float,
         video_writer: Optional[cv2.VideoWriter] = None,
-        box_node1: Optional[NodePath] = None,
-        box_node2: Optional[NodePath] = None,
-        box_node3: Optional[NodePath] = None,
-        text_node: Optional[Any] = None,
-        camera_position: Optional[dict] = None,
         show_other_vehicles_simple: bool = False,
+        signal_instances: Dict = None,
+        camera_position: Optional[dict] = None,
         cinematic_camera_trajectory: pd.DataFrame = None,
     ):
         """
@@ -51,50 +38,34 @@ class SimulationManager:
 
         Args:
             context: The Panda3D ShowBase context
-            trajectory_points: Array of [veh_id, pos_x, pos_y, angle, time] for ego vehicle
-            signal_points: Array of [time, state, timer] for traffic signals (optional)
-            video_start_idx: Starting index in trajectory_points
-            video_end_idx: Ending index in trajectory_points
-            car_models: List of loaded car models for other vehicles
-            ego_car: The ego vehicle NodePath
-            smoothened_trajectory_data: List of smoothed trajectories for other vehicles
-            trajectory_tools: Instance of TrajectoryTools for vehicle positioning
+            configuration: Dict of configuration
+            trajectory_data: Trajectory Data
+            car_instances: Dict
             rendering_tools: Instance of RenderingTools for traffic light updates
-            viewer_height: Camera height above ground
-            show_other_vehicles: Whether to render other vehicles
-            ramp_metering: Whether ramp metering is enabled
-            design: Traffic light design type ("simple", "three_headed", "countdown_timer")
-            video_width_px: Width of the output video in pixels
-            video_height_px: Height of the output video in pixels
             video_writer: OpenCV VideoWriter (optional)
-            box_node1, box_node2, box_node3: Traffic light nodes (optional)
-            text_node: Traffic light timer text node (optional)
-            camera_position: Eulerian camera position (optional)
             show_other_vehicles_simple: Whether to render other vehicles as box or car 3D object (optional)
+            signal_instances: Dict Traffic light nodes (optional)
+            camera_position: Eulerian camera position (optional)
             cinematic_camera_trajectory: Cinematic camera trajectory (optional)
         """
         self.context = context
-        self.trajectory_points = trajectory_points
-        self.signal_points = signal_points
-        self.video_start_idx = video_start_idx
-        self.video_end_idx = video_end_idx
-        self.car_models = car_models
-        self.ego_car = ego_car
-        self.smoothened_trajectory_data = smoothened_trajectory_data
-        self.trajectory_tools = trajectory_tools
-        self.rendering_tools = rendering_tools
-        self.viewer_height = viewer_height
-        self.show_other_vehicles = show_other_vehicles
-        self.show_other_vehicles_simple = show_other_vehicles_simple
-        self.ramp_metering = ramp_metering
-        self.design = design
-        self.video_width_px = video_width_px
-        self.video_height_px = video_height_px
+        self.configuration = configuration
+        self.trajectory_data = trajectory_data
+        self.car_instances = car_instances
+        self.signal_instances = signal_instances
         self.video_writer = video_writer
-        self.box_node1 = box_node1
-        self.box_node2 = box_node2
-        self.box_node3 = box_node3
-        self.text_node = text_node
+        self.trajectory_tools = TrajectoryTools()
+        self.rendering_tools = rendering_tools
+        # trajectory data details
+        self.trajectory_points = self.trajectory_data["ego_trajectory"][
+            ["veh_id", "pos_x", "pos_y", "computed_angle_deg", "time"]
+        ].values
+        self.signal_points = (
+            self.trajectory_data["signal_states"][["time", "state", "timer"]].values
+            if self.trajectory_data["signal_states"] is not None
+            else None
+        )
+        # mode and position specific
         self.camera_position = camera_position
         self.cinematic_camera_trajectory = cinematic_camera_trajectory
         self.mode = "LAGRANGIAN"
@@ -102,15 +73,18 @@ class SimulationManager:
             self.mode = "EULERIAN"
         if self.cinematic_camera_trajectory is not None:
             self.mode = "CINEMATIC"
-
         # state variables
-        self.current_point = video_start_idx
+        self.current_point = self.trajectory_data["video_start_idx"]
         self.screenshot_counter = 0
         self.others_car_instances: Dict[int, NodePath] = {}
+        # other settings
+        self.show_other_vehicles_simple = show_other_vehicles_simple
 
     def _update_camera(self, x, y, angle, current_time):
         if self.mode == "LAGRANGIAN":
-            cast(Camera, self.context.camera).setPos(x, y, self.viewer_height)
+            cast(Camera, self.context.camera).setPos(
+                x, y, self.configuration["visualization"]["viewer_height"]
+            )
             cast(Camera, self.context.camera).setHpr(-angle, 0, 0)
         elif self.mode == "EULERIAN":
             cast(Camera, self.context.camera).setPos(
@@ -147,37 +121,40 @@ class SimulationManager:
         car_x = x + distance * math.cos(math.radians(90 - angle))
         car_y = y + distance * math.sin(math.radians(90 - angle))
         car_z = -0.5
-        self.ego_car.setPos(car_x, car_y, car_z)
-        self.ego_car.setHpr(-angle, 90, 0)
+        self.car_instances["ego_car"].setPos(car_x, car_y, car_z)
+        self.car_instances["ego_car"].setHpr(-angle, 90, 0)
 
     def _update_traffic_lights(self):
         signal, timer = self._get_signal_state()
-        if self.ramp_metering and signal is not None:
+        if self.configuration["visualization"]["show_signals"] and signal is not None:
             self.rendering_tools.update_traffic_light(
                 signal=signal,
-                design=self.design,
+                design=self.configuration["signals"]["signal_design"],
                 timer=timer,
-                box_node1=self.box_node1,
-                box_node2=self.box_node2,
-                box_node3=self.box_node3,
-                text_node=self.text_node,
+                box_node1=self.signal_instances["box_node1"],
+                box_node2=self.signal_instances["box_node2"],
+                box_node3=self.signal_instances["box_node3"],
+                text_node=self.signal_instances["text_node"],
             )
 
     def _update_car_positions(self, x, y, current_time):
         # set other cars position
-        if self.show_other_vehicles and self.smoothened_trajectory_data is not None:
+        if (
+            self.configuration["visualization"]["show_other_vehicles"]
+            and self.trajectory_data["trajectory_data"] is not None
+        ):
             # position all cars on the road
             current_pos = [x, y]
             if self.mode == "EULERIAN" or self.mode == "CINEMATIC":
                 neighborhood_vehicles = self.trajectory_tools.get_closest_vehicles(
-                    self.smoothened_trajectory_data,
+                    self.trajectory_data["trajectory_data"],
                     current_pos,
                     current_time,
                     max_vehicles=-1,
                 )
             elif self.mode == "LAGRANGIAN":
                 neighborhood_vehicles = self.trajectory_tools.get_closest_vehicles(
-                    self.smoothened_trajectory_data,
+                    self.trajectory_data["trajectory_data"],
                     current_pos,
                     current_time,
                 )
@@ -198,7 +175,7 @@ class SimulationManager:
                         # Original detailed models
                         available_choices = [i for i in range(1, 11) if i != 2]
                         selected_model = np.random.choice(available_choices)
-                        new_vehicle_instance = self.car_models[
+                        new_vehicle_instance = self.car_instances["car_models"][
                             selected_model - 1
                         ].copyTo(self.context.render)
                         new_vehicle_instance.setScale(5.0)
@@ -227,8 +204,8 @@ class SimulationManager:
             img_array = np.frombuffer(data, np.uint8)
             img_array = img_array.reshape(
                 (
-                    int(self.video_height_px),
-                    int(self.video_width_px),
+                    int(self.configuration["rendering"]["video_width_px"]),
+                    int(self.configuration["rendering"]["video_height_px"]),
                     4,
                 )
             )
@@ -244,7 +221,7 @@ class SimulationManager:
             "\t, Frame (",
             self.current_point,
             "/",
-            self.video_end_idx,
+            self.trajectory_data["video_end_idx"],
             ")",
         )
 
@@ -276,7 +253,7 @@ class SimulationManager:
             self._record_video_frame()
 
             # exit criterion
-            if self.current_point > self.video_end_idx:
+            if self.current_point > self.trajectory_data["video_end_idx"]:
                 if self.video_writer is not None:
                     self.video_writer.release()
                 sys.exit(0)
