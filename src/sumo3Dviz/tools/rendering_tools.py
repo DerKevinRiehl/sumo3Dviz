@@ -1,7 +1,10 @@
-import os
+"""sumo3Dviz: A three-dimensional traffic visualisation [2026]
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <jschlapbach@ethz.ch>
+Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
+"""
+
 import sumolib
 import warnings
-import platform
 import numpy as np
 from typing import Tuple, Union
 from direct.showbase.ShowBase import ShowBase

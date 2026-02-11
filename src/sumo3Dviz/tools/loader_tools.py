@@ -1,12 +1,16 @@
+"""sumo3Dviz: A three-dimensional traffic visualisation [2026]
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <jschlapbach@ethz.ch>
+Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
+"""
+
 import os
-import platform
 import warnings
 import sumolib
 import pandas as pd
 import numpy as np
 import pandera.pandas as pa
 import xml.etree.ElementTree as ET
-from panda3d.core import Filename, NodePath, get_model_path
+from panda3d.core import Filename, NodePath
 from direct.showbase.ShowBase import ShowBase
 from typing import cast, Tuple, Union
 from pandera.typing import DataFrame, Series

@@ -1,3 +1,8 @@
+"""sumo3Dviz: A three-dimensional traffic visualisation [2026]
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <jschlapbach@ethz.ch>
+Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
+"""
+
 # This script renders a 3D visualization of a SUMO simulation scenario in Barcelona
 # using the available classes directly and configuring them through corresponding
 # properties. For an illustration on how to use this library through the CLI,
