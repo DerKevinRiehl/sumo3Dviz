@@ -81,10 +81,10 @@ def _render_world_scene(context, configuration, positions):
     rendering_tools = RenderingTools()
     # camera
     cast(Camera, context.camera).setPos(
-        *configuration["rendering"]["initial_camera_position"]["position"]
+        *configuration["interactive"]["initial_camera_position"]["position"]
     )
     cast(Camera, context.camera).setHpr(
-        *configuration["rendering"]["initial_camera_position"]["orientation"]
+        *configuration["interactive"]["initial_camera_position"]["orientation"]
     )
     # head up display (HUD) to inform user in interactive mode
     rendering_tools.render_hud(context=context)
@@ -146,10 +146,6 @@ configuration = {
     "rendering": {
         "video_width_px": 1140,
         "video_height_px": 900,
-        "initial_camera_position": {
-            "position": (20000, 18000, 50),
-            "orientation": (120, -20, 0),
-        },
     },
     "visualization": {
         "lane_width": 3.2,
@@ -186,6 +182,12 @@ configuration = {
             os.path.dirname(__file__),
             "barcelona_simulation/viz_object_positions/buildings_blocks.add.xml",
         ),
+    },
+    "interactive": {
+        "initial_camera_position": {
+            "position": (20000, 18000, 50),
+            "orientation": (120, -20, 0),
+        },
     },
 }
 
