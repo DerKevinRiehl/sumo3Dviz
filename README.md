@@ -174,20 +174,33 @@ The simulation's input files (network, POIs), and the generated output log files
 
 ### Step 3: Render Video Visualisation with sumo3Dviz 
 
-Run to generate image:
+#### Command Line Interface (CLI)
 ```bash
 sumo3Dviz --config path/to/your/configuration.yaml
 ```
 
-Run to generate videos:
+#### Python Code
+In this repository we provide four example codes to run sumo3Dviz in the four different modes, that can be found in `.sumo3Dviz/examples/`. These examples visualize the aforementioned case study of Barcelona.
 
-Run Mode 1 (Eulerian):
+1. Run sumo3Dviz in Eulerian mode:
+```
+python demo_eulerian.py
+```
 
-Run Mode 2 (Lagrangian):
+2. Run sumo3Dviz in Lagrangian mode:
+```
+python demo_lagrangian.py
+```
 
-Run Mode 3 (Cinematic):
+3. Run sumo3Dviz in Cinematic mode:
+```
+python demo_cinematic.py
+```
 
-Run Mode 4 (Interactive):
+4. Run sumo3Dviz in Interactive mode:
+```
+python demo_interactive.py
+```
 
 
 

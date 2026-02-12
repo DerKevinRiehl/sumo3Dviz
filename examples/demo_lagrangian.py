@@ -146,8 +146,12 @@ def _render_world_scene(context, loader, configuration, positions, trajectories)
     # light
     rendering_tools.create_light(context=context)
     # sky and ground
-    rendering_tools.create_sky(context=context, sky_texture="sky_cloudy")
-    rendering_tools.create_ground(context=context, ground_texture="ground_grass")
+    rendering_tools.create_sky(
+        context=context, sky_texture=configuration["visualization"]["sky_texture"]
+    )
+    rendering_tools.create_ground(
+        context=context, ground_texture=configuration["visualization"]["ground_texture"]
+    )
     # road network
     rendering_tools.create_road_network(
         context=context,
@@ -275,6 +279,8 @@ configuration = {
         "tree_scale_2": 0.5,
         "tree_size_variability": 1,
         "tree_color_variability": 0.1,
+        "sky_texture": "sky_cloudy",
+        "ground_texture": "ground_grass",
         "show_other_vehicles": True,
         "viewer_height": 1.5,
         "show_signals": True,
