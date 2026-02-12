@@ -1,14 +1,18 @@
-JULIUS:
-- README:
-	check statement "Dependencies: On MacOS it might be required to install Panda3D through the corresponding installer provided on their website (instead of only using the Python package - not sure, should be tested, current setup has both the python package and the installed version)."
-	check trajectory_tools.py "# TODO: improve the efficiency of the code by including this filtering condition"
 
-- Unify Docstrings according to Sphinx notation (so we can auto-render pydocs)
-
-- Implement pydocs sphinx rendering in github workflow to create website
-
-- Enable Traffic Light with 3 heads and countdown timer as well
-
+Definitive:
+- refactor config_template to fit the four modes (orient yourself on the demos I wrote)
+- create cli that can do anything (all modes) and is callable like "sumo3Dviz --mode cinematic --config configuration.yaml --output video_cinematic.avi", as a merge of all four demos I wrote
+- README: check statement "Dependencies: On MacOS it might be required to install Panda3D through the corresponding installer provided on their website (instead of only using the Python package - not sure, should be tested, current setup has both the python package and the installed version)."
+- trajectory_tools.py "# TODO: improve the efficiency of the code by including this filtering condition"
+- Enable Traffic Light with 3 heads and countdown timer as well (no signal_style, but head_style and countdown_timer yes no)
 - Why Traffic Light not visible?
-	
 - Render Lagrangian View Again
+- Upload videos on youtube 
+- Finalize Readme 
+- Let it check by another student independently (e.g. Thomas, Krishna, Linghang)
+
+Nice to Have:
+- Unify Docstrings according to Sphinx notation (so we can auto-render pydocs)
+- Implement pydocs sphinx rendering in github workflow to create website
+- dashed line in mac issue?
+- multiple traffic lights
