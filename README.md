@@ -86,10 +86,27 @@ Currently only Python 3.9 is supported on all major operating systems (Windows, 
 
 ## Usage
 
-### Command Line Interface (CLI)
+ You can use sumo3Dviz as command line tool (CLI), configure a variety of parameters in the config yaml file, and the run four different visualization modes:
 
+1. Run sumo3Dviz in Eulerian mode:
+```
+sumo3Dviz --config config.yaml --mode eulerian --output vid_eul.avi
+```
 
-### Python Code
+2. Run sumo3Dviz in Lagrangian mode:
+```
+sumo3Dviz --config config.yaml --mode lagrangian --output vid_lag.avi
+```
+
+3. Run sumo3Dviz in Cinematic mode:
+```
+sumo3Dviz --config config.yaml --mode cinematic --output vid_cin.avi
+```
+
+4. Run sumo3Dviz in Interactive mode:
+```
+sumo3Dviz --config config.yaml --mode interactive --output vid_int.avi
+```
 
 
 ## Case Study: Barcelona
