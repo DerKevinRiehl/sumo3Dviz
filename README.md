@@ -8,7 +8,7 @@
                     style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
                 sumo3Dviz <img src="resources/Figure_Banner.PNG"
                     alt="sumo3Dviz"
-                    style="height: 3.5em; vertical-align: middle; margin-right: 0.4em;">
+                    style="height: 3.5em; vertical-align: middle; margin-left: 0.4em;">
             </td>
         </tr>
         <tr>
@@ -73,6 +73,11 @@ It converts standard SUMO simulation outputs, such as vehicle trajectories and s
         <td><img src="resources/video_interactive.gif" style="height: 120px"/></td>
     </tr>
 </table>
+
+Video Demos on Youtube:
+- https://www.youtube.com/watch?v=wEUbjlqigyg
+- https://www.youtube.com/watch?v=dq9pH1Cj7gA
+- https://www.youtube.com/watch?v=XvpG5cbv7Ig
 
 ## Installation
 The python package **sumo3Dviz** can be installed using pip:
