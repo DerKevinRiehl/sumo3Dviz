@@ -38,5 +38,5 @@ jobs:
                   pip install -e ".[dev]"
             - name: Run python linting for entire source directory
               run: pylint src --errors-only
-            - name: Run python linting for entire tests directory
-              run: pylint tests --errors-only
+            - name: Run python linting for entire examples directory
+              run: pylint examples --errors-only
