@@ -3,14 +3,14 @@ Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <juliussc@ethz.ch>
 Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 """
 
+import cv2
+import math
 import numpy as np
 import pandas as pd
-import math
-import cv2
-import sys
 from typing import cast, Optional, Dict, Any, Union
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import NodePath, Camera, GraphicsOutput
+
 from .trajectory_tools import TrajectoryTools
 
 
@@ -29,7 +29,7 @@ class SimulationManager:
         rendering_tools: Any,
         video_writer: Optional[cv2.VideoWriter] = None,
         show_other_vehicles_simple: bool = False,
-        signal_instances: Union[Dict, None] = None,
+        signal_instances: Optional[list[dict]] = None,
         camera_position: Optional[dict] = None,
         cinematic_camera_trajectory: Union[pd.DataFrame, None] = None,
     ):
@@ -44,7 +44,7 @@ class SimulationManager:
             rendering_tools: Instance of RenderingTools for traffic light updates
             video_writer: OpenCV VideoWriter (optional)
             show_other_vehicles_simple: Whether to render other vehicles as box or car 3D object (optional)
-            signal_instances: Dict Traffic light nodes (optional)
+            signal_instances: List of TrafficLightSchema objects (optional)
             camera_position: Eulerian camera position (optional)
             cinematic_camera_trajectory: Cinematic camera trajectory (optional)
         """
@@ -56,21 +56,28 @@ class SimulationManager:
         self.video_writer = video_writer
         self.trajectory_tools = TrajectoryTools()
         self.rendering_tools = rendering_tools
+
         # trajectory data details
         self.trajectory_points = self.trajectory_data["ego_trajectory"][
             ["veh_id", "pos_x", "pos_y", "computed_angle_deg", "time"]
         ].values
-        self.signal_points = (
-            self.trajectory_data["signal_states"][["time", "state", "timer"]].values
-            if self.trajectory_data["signal_states"] is not None
-            else None
-        )
+
+        # extract traffic light signal state data for all traffic lights
+        self.traffic_light_ids = list(self.trajectory_data["signal_states"].keys())
+        self.signal_points = {}
+        for traffic_light_id in self.traffic_light_ids:
+            self.signal_points[traffic_light_id] = self.trajectory_data[
+                "signal_states"
+            ][traffic_light_id][["time", "state", "timer"]].values
+
         # state variables
         self.current_point = self.trajectory_data["video_start_idx"]
         self.screenshot_counter = 0
         self.others_car_instances: Dict[int, NodePath] = {}
+
         # other settings
         self.show_other_vehicles_simple = show_other_vehicles_simple
+
         # mode and position specific
         self.camera_position = camera_position
         self.cinematic_camera_trajectory = cinematic_camera_trajectory
@@ -118,9 +125,14 @@ class SimulationManager:
                 row["ori_h"], row["ori_p"], row["ori_r"]
             )
 
-    def _get_signal_state(self):
+    def _get_signal_state(self, traffic_light_id: str):
         if self.signal_points is not None:
-            _, signal, timer = self.signal_points[self.current_point]
+            if traffic_light_id not in self.signal_points:
+                raise ValueError(
+                    f"Traffic light ID {traffic_light_id} not found in signal points"
+                )
+
+            _, signal, timer = self.signal_points[traffic_light_id][self.current_point]
         else:
             signal, timer = None, 0
         return signal, timer
@@ -134,22 +146,29 @@ class SimulationManager:
         self.car_instances["ego_car"].setHpr(-angle, 90, 0)
 
     def _update_traffic_lights(self):
-        signal, timer = self._get_signal_state()
-        if self.configuration["visualization"]["show_signals"] and signal is not None:
-            if self.signal_instances is None:
-                raise ValueError(
-                    "Signal instances are required for traffic light visualization"
-                )
+        if self.signal_instances is None:
+            return
 
-            self.rendering_tools.update_traffic_light(
-                signal=signal,
-                design=self.configuration["signals"]["signal_design"],
-                timer=timer,
-                box_node1=self.signal_instances["box_node1"],
-                box_node2=self.signal_instances["box_node2"],
-                box_node3=self.signal_instances["box_node3"],
-                text_node=self.signal_instances["text_node"],
-            )
+        for signal in self.signal_instances:
+            signal_state, timer = self._get_signal_state(traffic_light_id=signal["id"])
+            if (
+                self.configuration["visualization"]["show_signals"]
+                and signal is not None
+            ):
+                if self.signal_instances is None:
+                    raise ValueError(
+                        "Signal instances are required for traffic light visualization"
+                    )
+
+                self.rendering_tools.update_traffic_light(
+                    signal_state=signal_state,
+                    design=self.configuration["signals"]["signal_design"],
+                    timer=timer,
+                    box_node1=signal["box_node1"],
+                    box_node2=signal["box_node2"],
+                    box_node3=signal["box_node3"],
+                    text_node=signal["text_node"],
+                )
 
     def _update_car_positions(self, x, y, current_time):
         # set other cars position

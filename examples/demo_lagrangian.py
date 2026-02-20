@@ -95,25 +95,26 @@ mode_configuration = {
     },
     "signals": {
         "signal_design": "three_headed",  # DESIGN TYPES: simple, three_headed, countdown_timer
-        "traffic_light_positions": {
-            "ramp_1": {
-                "pos_x": 19315.13 - 0.0,
-                "pos_y": 17822.42 + 4.5,
+        "traffic_light_positions": [
+            {
+                "id": "JE3",
+                "pos_x": 19315.13,
+                "pos_y": 17826.92,
                 "stop_line_a": 20224.71,
                 "stop_line_b": 18264.87,
                 "stop_line_c": 20226.77,
                 "stop_line_d": 18261.15,
             },
-            "ramp_2": {
-                "pos_x": 20217.08 - 0.0,
-                "pos_y": 18261.92 + 0.0,
+            {
+                "id": "JE2",
+                "pos_x": 20217.08,
+                "pos_y": 18261.92,
                 "stop_line_a": 20224.71,
                 "stop_line_b": 18264.87,
                 "stop_line_c": 20226.77,
                 "stop_line_d": 18261.15,
             },
-        },
-        "traffic_light_id": "JE3",
+        ],
     },
     "modes": {
         "lagrangian": {
@@ -179,7 +180,10 @@ def main(config_override=None, output_file_override=None):
         traffic_signal_states_file=configuration["paths"]["traffic_signal_states_file"],
         start_time=ego_trajectory["time"].iloc[0] - 0.001,
         end_time=ego_trajectory["time"].iloc[-1] + 0.001,
-        traffic_light_id=configuration["signals"]["traffic_light_id"],
+        traffic_light_ids=[
+            signal["id"]
+            for signal in configuration["signals"]["traffic_light_positions"]
+        ],
         video_fps=configuration["rendering"]["video_fps"],
     )
     print(50 * "#")
@@ -331,46 +335,40 @@ def main(config_override=None, output_file_override=None):
     ego_car.setHpr(180, 90, 0)
 
     # create traffic light models and auxiliary stop lines when enabled
+    signals = []
     if configuration["visualization"]["show_signals"]:
-        box_node1, box_node2, box_node3, text_node = (
-            rendering_tools.create_traffic_light(
-                context=context,
-                design=configuration["signals"]["signal_design"],
-                x=configuration["signals"]["traffic_light_positions"]["ramp_1"][
-                    "pos_x"
-                ],
-                y=configuration["signals"]["traffic_light_positions"]["ramp_1"][
-                    "pos_y"
-                ],
-                z=0,
+        for signal in configuration["signals"]["traffic_light_positions"]:
+            print(f"Creating traffic light for signal ID: {signal['id']}")
+            box_node1, box_node2, box_node3, text_node = (
+                rendering_tools.create_traffic_light(
+                    context=context,
+                    design=configuration["signals"]["signal_design"],
+                    x=signal["pos_x"],
+                    y=signal["pos_y"],
+                    z=0,
+                )
             )
-        )
-        rendering_tools.create_white_signal_line(
-            context=context,
-            p1=configuration["signals"]["traffic_light_positions"]["ramp_1"][
-                "stop_line_a"
-            ],
-            p2=configuration["signals"]["traffic_light_positions"]["ramp_1"][
-                "stop_line_b"
-            ],
-            p3=configuration["signals"]["traffic_light_positions"]["ramp_1"][
-                "stop_line_c"
-            ],
-            p4=configuration["signals"]["traffic_light_positions"]["ramp_1"][
-                "stop_line_d"
-            ],
-            sep_line_width=configuration["visualization"]["sep_line_width"],
-        )
-    else:
-        box_node1, box_node2, box_node3, text_node = None, None, None, None
+            rendering_tools.create_white_signal_line(
+                context=context,
+                p1=signal["stop_line_a"],
+                p2=signal["stop_line_b"],
+                p3=signal["stop_line_c"],
+                p4=signal["stop_line_d"],
+                sep_line_width=configuration["visualization"]["sep_line_width"],
+            )
+
+            signals.append(
+                {
+                    "id": signal["id"],
+                    "box_node1": box_node1,
+                    "box_node2": box_node2,
+                    "box_node3": box_node3,
+                    "text_node": text_node,
+                }
+            )
+
     print(50 * "#")
     cars = {"ego_car": ego_car, "car_models": car_models}
-    signals = {
-        "box_node1": box_node1,
-        "box_node2": box_node2,
-        "box_node3": box_node3,
-        "text_node": text_node,
-    }
     # endregion
 
     # ! STEP 5: Launch the simulation in Lagrangian mode.
