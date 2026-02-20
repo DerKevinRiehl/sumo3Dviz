@@ -43,10 +43,28 @@ jobs:
               run: |
                   unzip -o examples/barcelona_simulation/simulation_logs/vehicle_positions_ci.zip -d examples/barcelona_simulation/simulation_logs/
 
-            - name: Run demo tests
+            - name: Test Lagrangian demo
               run: |
-                  python .github/scripts/test_demos.py
-              timeout-minutes: 15
+                  python .github/scripts/test_lagrangian.py
+              timeout-minutes: 5
+
+            - name: Test Eulerian demo
+              if: always()
+              run: |
+                  python .github/scripts/test_eulerian.py
+              timeout-minutes: 5
+
+            - name: Test Cinematic demo
+              if: always()
+              run: |
+                  python .github/scripts/test_cinematic.py
+              timeout-minutes: 5
+
+            - name: Test Interactive demo
+              if: always()
+              run: |
+                  python .github/scripts/test_interactive.py
+              timeout-minutes: 5
 
             - name: Run CLI tests
               if: always()
