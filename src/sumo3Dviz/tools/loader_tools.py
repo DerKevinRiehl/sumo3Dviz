@@ -1,16 +1,19 @@
+"""sumo3Dviz: A three-dimensional traffic visualisation [2026]
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <juliussc@ethz.ch>
+Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
+"""
+
 import os
-import platform
 import warnings
 import sumolib
 import pandas as pd
 import numpy as np
 import pandera.pandas as pa
 import xml.etree.ElementTree as ET
-from panda3d.core import Filename, NodePath, get_model_path
+from panda3d.core import Filename, NodePath
 from direct.showbase.ShowBase import ShowBase
 from typing import cast, Tuple, Union
 from pandera.typing import DataFrame, Series
-
 from .trajectory_tools import (
     TrajectoryTools,
     TrajectoryDFSchema,
@@ -118,11 +121,7 @@ class LoaderTools:
 
         # load raw trajectory of ego vehicle in preparation for processing
         trajectory_tools = TrajectoryTools()
-        (
-            df_ego_trajectory,
-            first_timestamp,
-            last_timestamp,
-        ) = trajectory_tools.get_vehicle_trajectory_raw(
+        df_ego_trajectory = trajectory_tools.get_vehicle_trajectory_raw(
             df_simulation_log_cars, ego_identifier
         )
 
@@ -163,8 +162,6 @@ class LoaderTools:
             smoothened_trajectory_data = trajectory_tools.load_smoothened_trajectories(
                 ego_identifier=ego_identifier,
                 df_simulation_log_cars=df_simulation_log_cars,
-                first_timestamp=first_timestamp,
-                last_timestamp=last_timestamp,
                 video_fps=video_fps,
             )
         else:
@@ -219,7 +216,7 @@ class LoaderTools:
             return None
 
         # load the traffic signal states from the SUMO simulation log
-        print("Loading traffic light signals...")
+        print("\tLoading traffic light signals...")
         tree = ET.parse(traffic_signal_states_file)
         root = tree.getroot()
 
@@ -267,7 +264,7 @@ class LoaderTools:
         # validate that the dataframe is consistent with the expected schema
         df_signals_log = TrafficLightDFSchema.validate(df_signals_log)
 
-        print("Traffic light signals loaded ✓")
+        print("\tTraffic light signals loaded ✓")
         return df_signals_log
 
     def load_tree_positions(
@@ -293,7 +290,7 @@ class LoaderTools:
             return None
 
         # load the tree positions from the SUMO map file
-        print("Loading tree positions...")
+        print("\tLoading tree positions...")
         tree_pois = sumolib.xml.parse(xml_file, "poi")
         tree_positions: list[list[float]] = []
         for poi in tree_pois:
@@ -301,7 +298,7 @@ class LoaderTools:
             y = float(poi.y)
             tree_positions.append([x, y])
 
-        print("Tree positions loaded ✓")
+        print("\tTree positions loaded ✓")
         return tree_positions
 
     def load_fence_lines(
@@ -328,7 +325,7 @@ class LoaderTools:
             return None
 
         # load the fence lines from the SUMO map file
-        print("Loading fence lines...")
+        print("\tLoading fence lines...")
         polys = sumolib.xml.parse(xml_file, "poly")
         poly_lines: list[list[list[float]]] = []
         for poly in polys:
@@ -340,7 +337,7 @@ class LoaderTools:
 
             poly_lines.append(points)
 
-        print("Fence lines loaded ✓")
+        print("\tFence lines loaded ✓")
         return poly_lines
 
     def load_shop_positions(
@@ -366,7 +363,7 @@ class LoaderTools:
             return None
 
         # load the shop positions from the SUMO map file
-        print("Loading shop positions...")
+        print("\tLoading shop positions...")
         shop_pois = sumolib.xml.parse(xml_file, "poi")
         shop_positions: list[list[float]] = []
         for poi in shop_pois:
@@ -374,7 +371,7 @@ class LoaderTools:
             y = float(poi.y)
             shop_positions.append([x, y])
 
-        print("Shop positions loaded ✓")
+        print("\tShop positions loaded ✓")
         return shop_positions
 
     def load_car_models(self, context: ShowBase) -> list[NodePath]:
@@ -400,7 +397,7 @@ class LoaderTools:
 
         # get absolute OS path for the resource inside the package
         # resource_filename already returns a real filesystem path string.
-        print("Loading car models...")
+        print("\tLoading car models...")
         car_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", "data/3d_models/cars/Low Poly Cars.glb"
         )
@@ -410,7 +407,7 @@ class LoaderTools:
         p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
         car_collection: NodePath = context.loader.loadModel(p3d_path)
         car_models = [car_collection.find("**/" + str(n)) for n in range(1, 10 + 1)]
-        print("Car models loaded ✓")
+        print("\tCar models loaded ✓")
         return car_models
 
     def load_ego_car_model(self, context: ShowBase) -> NodePath:
@@ -438,14 +435,14 @@ class LoaderTools:
             "sumo3Dviz", "data/3d_models/cars/Car.glb"
         )
         # resource_filename already returns a real filesystem path string.
-        print("Loading ego car model...")
+        print("\tLoading ego car model...")
         # Convert to Panda filename:
         p3d_path = Filename.fromOsSpecific(car_path_bytes)
         p3d_path.makeTrueCase()  # optional but helpful on case-sensitive systems
         ego_car: NodePath = context.loader.loadModel(p3d_path)
         ego_car.reparentTo(context.render)
         ego_car.setTwoSided(True)
-        print("Ego car model loaded ✓")
+        print("\tEgo car model loaded ✓")
         return ego_car
 
     @pa.check_types

@@ -1,7 +1,10 @@
-import os
+"""sumo3Dviz: A three-dimensional traffic visualisation [2026]
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <juliussc@ethz.ch>
+Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
+"""
+
 import sumolib
 import warnings
-import platform
 import numpy as np
 from typing import Tuple, Union
 from direct.showbase.ShowBase import ShowBase
@@ -26,9 +29,12 @@ from panda3d.core import (
     Vec4,
     PNMImage,
     StringStream,
-    get_model_path,
 )
 import pkg_resources
+from direct.gui.OnscreenText import OnscreenText
+from panda3d.core import TextNode
+import random
+from panda3d.core import NodePath, CardMaker, Vec4
 
 
 class RenderingTools:
@@ -45,7 +51,7 @@ class RenderingTools:
         """
 
         # ambient light (fill light)
-        print("Rendering light sources...")
+        print("\tRendering light sources...")
         alight = AmbientLight("alight")
         alight.setColor(Vec4(1.0, 1.0, 1.0, 1))
         alnp = context.render.attachNewNode(alight)
@@ -58,7 +64,7 @@ class RenderingTools:
         dlnp.setPos(0, -100, 200)
         dlnp.setHpr(-30, -45, 0)  # pointing downward and forward
         context.render.setLight(dlnp)
-        print("Light sources rendered ✓")
+        print("\tLight sources rendered ✓")
 
     def create_sky(
         self,
@@ -132,7 +138,7 @@ class RenderingTools:
         texture.load(texture_image)
 
         # generate an inverted sphere model
-        print("Rendering sky...")
+        print("\tRendering sky...")
         sky_sphere: NodePath = context.loader.loadModel("models/smiley")
         sky_sphere.reparentTo(context.render)
         sky_sphere.setScale(horizon_distance)
@@ -143,7 +149,7 @@ class RenderingTools:
         sky_sphere.setBin("background", 0)
         sky_sphere.setDepthWrite(False)
         sky_sphere.setLightOff()
-        print("Sky rendered ✓")
+        print("\tSky rendered ✓")
 
     def create_ground(
         self,
@@ -210,7 +216,7 @@ class RenderingTools:
         texture.load(texture_image)
 
         # set ground parameters
-        print("Rendering ground floor...")
+        print("\tRendering ground floor...")
         cm_ground = CardMaker("ground")
         cm_ground.setFrame(-INFINITY, INFINITY, -INFINITY, INFINITY)
         ground = context.render.attachNewNode(cm_ground.generate())
@@ -223,7 +229,8 @@ class RenderingTools:
         ground.setTexture(texture)
         ground.setTwoSided(True)
         ground.setTexScale(TextureStage.getDefault(), 40000, 40000)
-        print("Ground floor rendered ✓")
+        ground.setBin("ground", 0)
+        print("\tGround floor rendered ✓")
 
     def create_trees(
         self,
@@ -281,7 +288,7 @@ class RenderingTools:
             tree_model_file_2 = "data/3d_models/trees/Hazelnut.obj"
 
         # load tree models
-        print("Rendering trees...")
+        print("\tRendering trees...")
         tree1_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", tree_model_file_1
         )
@@ -325,7 +332,7 @@ class RenderingTools:
             tree_instance.setHpr(np.random.random() * 360, 90, 0)
             tree_instances.append(tree_instance)
 
-        print("Trees rendered ✓")
+        print("\tTrees rendered ✓")
         return tree_instances
 
     def create_highway_fences(
@@ -363,7 +370,7 @@ class RenderingTools:
             warnings.warn("No fence lines provided. Skipping fence creation.")
             return
 
-        print("Rendering highway fences...")
+        print("\tRendering highway fences...")
         for line in fence_lines:
             all_posts = []  # collect all post positions
             for i in range(0, len(line) - 1):
@@ -411,7 +418,7 @@ class RenderingTools:
                     )
                 context.render.attachNewNode(lines.create())
 
-        print("Highway fences rendered ✓")
+        print("\tHighway fences rendered ✓")
 
     def create_building_shops(
         self,
@@ -456,7 +463,7 @@ class RenderingTools:
             )
 
         # load shop model
-        print("Rendering shops...")
+        print("\tRendering shops...")
         # building: NodePath = context.loader.loadModel(store_model_file)
         building_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", store_model_file
@@ -491,7 +498,7 @@ class RenderingTools:
             shop_instance.setHpr(0, 0, 0)
             shop_instances.append(shop_instance)
 
-        print("Shops rendered ✓")
+        print("\tShops rendered ✓")
         return shop_instances, scaled_depth
 
     def create_building_homes(
@@ -537,7 +544,7 @@ class RenderingTools:
             )
 
         # load home model
-        print("Rendering homes...")
+        print("\tRendering homes...")
         # building: NodePath = context.loader.loadModel(home_model_file)
         building_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", home_model_file
@@ -560,7 +567,7 @@ class RenderingTools:
             home_instance.setHpr(0, 0, 0)
             home_instances.append(home_instance)
 
-        print("Homes rendered ✓")
+        print("\tHomes rendered ✓")
 
     def create_building_blocks(
         self,
@@ -603,7 +610,7 @@ class RenderingTools:
             block_model_file = "data/3d_models/buildings/Residential Buildings 002.obj"
 
         # load block model
-        print("Rendering building blocks...")
+        print("\tRendering building blocks...")
         # building: NodePath = context.loader.loadModel(block_model_file)
         building_path_bytes = pkg_resources.resource_filename(
             "sumo3Dviz", block_model_file
@@ -626,7 +633,7 @@ class RenderingTools:
             block_instance.setHpr(90, 90, 0)
             block_instances.append(block_instance)
 
-        print("Building blocks rendered ✓")
+        print("\tBuilding blocks rendered ✓")
 
     def create_traffic_light(
         self,
@@ -667,7 +674,7 @@ class RenderingTools:
                 - text_node: TextNode for countdown timer (None if no timer)
         """
 
-        print("Drawing traffic light...")
+        print("\tDrawing traffic light...")
         if design == "simple":  # RAMP METERING SIMPLE
             THREE_HEAD = False
             COUNTDOWN_TIMER = False
@@ -786,7 +793,7 @@ class RenderingTools:
         else:
             text_node = None
 
-        print("Traffic light drawn ✓")
+        print("\tTraffic light drawn ✓")
         return box_node1, box_node2, box_node3, text_node
 
     def _make_box(
@@ -964,7 +971,7 @@ class RenderingTools:
             z (float): Z coordinate (height) of the line. Defaults to 0.03.
         """
         # convert to numpy arrays
-        print("Drawing white signal line...")
+        print("\tDrawing white signal line...")
         pA = np.asarray([p1, p2])
         pB = np.asarray([p3, p4])
 
@@ -989,7 +996,7 @@ class RenderingTools:
         road.setPos(center_x, center_y, z)
         road.setHpr(angle_deg, -90, 0)
         road.setColor(LColor(*color))
-        print("White signal line drawn ✓")
+        print("\tWhite signal line drawn ✓")
 
     def update_traffic_light(
         self,
@@ -1105,7 +1112,7 @@ class RenderingTools:
                 lane markings. Defaults to (1.0, 1.0, 1.0, 1).
         """
         # load SUMO road network
-        print("Rendering road network...")
+        print("\tRendering road network...")
         net = sumolib.net.readNet(sumo_network_file)
 
         # draw road edges and lanes
@@ -1141,7 +1148,7 @@ class RenderingTools:
                     concrete_color=concrete_color,
                 )
 
-        print("Road network rendered ✓")
+        print("\tRoad network rendered ✓")
 
     def _create_road_edge_lane(
         self,
@@ -1270,6 +1277,9 @@ class RenderingTools:
             road.setPos(center_x, center_y, z)
             road.setHpr(angle_deg, -90, 0)
             road.setColor(LColor(*color))
+            road.setBin("ground", 10)
+            road.setDepthTest(True)
+            road.setDepthWrite(True)
 
     def _create_white_seperator_line_left(
         self,
@@ -1278,7 +1288,7 @@ class RenderingTools:
         lane_width: float,
         sep_line_width: float,
         color: Tuple[float, float, float, float],
-        z=0.03,
+        z=0.05,
     ):
         """Create a solid separator line on the left side of a lane.
 
@@ -1319,6 +1329,7 @@ class RenderingTools:
             road.setPos(center_x, center_y, z)
             road.setHpr(angle_deg, -90, 0)
             road.setColor(LColor(*color))
+            road.setBin("ground", 12)
 
     def _create_white_seperator_line_right(
         self,
@@ -1327,7 +1338,7 @@ class RenderingTools:
         lane_width: float,
         sep_line_width: float,
         color: Tuple[float, float, float, float],
-        z=0.03,
+        z=0.05,
     ):
         """Create a solid separator line on the right side of a lane.
 
@@ -1368,6 +1379,7 @@ class RenderingTools:
             road.setPos(center_x, center_y, z)
             road.setHpr(angle_deg, -90, 0)
             road.setColor(LColor(*color))
+            road.setBin("ground", 12)
 
     # TODO - figure out why this function causes issues with rendering speed
     def _create_white_separator_line_right_dashed(
@@ -1382,7 +1394,6 @@ class RenderingTools:
         gap_length=1.0,
     ):
         """Create a dashed separator line on the right side of a lane.
-
         Currently not implemented due to rendering performance issues.
 
         Args:
@@ -1395,32 +1406,36 @@ class RenderingTools:
             dash_length (float): Length of each dash. Defaults to 1.0.
             gap_length (float): Length of gap between dashes. Defaults to 1.0.
         """
-
         pass
-        # for i in range(len(lane_shape) - 1):
-        #     pA = np.asarray(lane_shape[i])
-        #     pB = np.asarray(lane_shape[i + 1])
-        #     segment_vector = pB - pA
-        #     segment_length = np.linalg.norm(segment_vector)
-        #     if segment_length == 0:
-        #         continue
-        #     direction = segment_vector / segment_length
-        #     num_dashes = int(segment_length // (dash_length + gap_length))
-        #     angle_deg = np.degrees(np.arctan2(direction[1], direction[0])) - 90
-        #     for j in range(num_dashes):
-        #         start_offset = (dash_length + gap_length) * j
-        #         dash_center = pA + direction * (start_offset + dash_length / 2)
-        #         # Offset to the right side of the lane
-        #         normal = np.array([-direction[1], direction[0]])  # 90-degree rotation
-        #         offset = normal * (lane_width / 2 - sep_line_width / 2)
-        #         final_pos = dash_center + offset
-        #         # Create dashed card
-        #         cm_dash = CardMaker("dash")
-        #         cm_dash.setFrame(-sep_line_width / 2, sep_line_width / 2, 0, dash_length)
-        #         dash = context.render.attachNewNode(cm_dash.generate())
-        #         dash.setPos(final_pos[0], final_pos[1], z)
-        #         dash.setHpr(angle_deg, -90, 0)
-        #         dash.setColor(LColor(*color))
+        """
+        for i in range(len(lane_shape) - 1):
+            pA = np.asarray(lane_shape[i])
+            pB = np.asarray(lane_shape[i + 1])
+            segment_vector = pB - pA
+            segment_length = np.linalg.norm(segment_vector)
+            if segment_length == 0:
+                continue
+            direction = segment_vector / segment_length
+            num_dashes = int(segment_length // (dash_length + gap_length))
+            angle_deg = np.degrees(np.arctan2(direction[1], direction[0])) - 90
+            for j in range(num_dashes):
+                start_offset = (dash_length + gap_length) * j
+                dash_center = pA + direction * (start_offset + dash_length / 2)
+                # Offset to the right side of the lane
+                normal = np.array([-direction[1], direction[0]])  # 90-degree rotation
+                offset = normal * (lane_width / 2 - sep_line_width / 2)
+                final_pos = dash_center + offset
+                # Create dashed card
+                cm_dash = CardMaker("dash")
+                cm_dash.setFrame(
+                    -sep_line_width / 2, sep_line_width / 2, 0, dash_length
+                )
+                dash = context.render.attachNewNode(cm_dash.generate())
+                dash.setPos(final_pos[0], final_pos[1], z)
+                dash.setHpr(angle_deg, -90, 0)
+                dash.setColor(LColor(*color))
+                dash.setBin("ground", 12)
+        """
 
     def _create_polygon_fan(
         self,
@@ -1430,7 +1445,6 @@ class RenderingTools:
         z=0.01,
     ):
         """Create a filled polygon using a triangle fan geometry.
-
         Used for rendering junction areas in the road network.
 
         Args:
@@ -1472,4 +1486,158 @@ class RenderingTools:
         node = GeomNode("polygon_fan")
         node.addGeom(geom)
         nodepath = context.render.attachNewNode(node)
+        nodepath.setBin("ground", 10)
         nodepath.setTwoSided(True)
+
+    def render_hud(self, context: ShowBase) -> None:
+        """
+        Renders a head up display (HUD) overlay with (i) live camera position
+        + orientation (top right), and (ii) camera control instructions (bottom left).
+        This is used for interactive mode only!
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+        """
+        # camera position info text (upper right)
+        cam_text = OnscreenText(
+            text="",
+            parent=context.aspect2d,
+            align=TextNode.ARight,
+            pos=(1.0, 0.8),  # top-right corner
+            scale=0.04,
+            fg=(1, 1, 1, 1),  # white
+            shadow=(0, 0, 0, 1),  # black shadow
+            shadowOffset=(0.03, 0.03),
+            mayChange=True,
+        )
+        # camera controls text (bottom left)
+        controls_message = (
+            "Camera Controls\n"
+            "-----------------------------\n"
+            "Arrow Keys  : Move in X/Y plane\n"
+            "W / S       : Move Up / Down\n"
+            "Q / A       : Pitch Up / Down\n"
+            "E / D       : Yaw Left / Right\n"
+        )
+        OnscreenText(
+            text=controls_message,
+            parent=context.aspect2d,
+            align=TextNode.ALeft,
+            pos=(-1.0, -0.6),  # bottom-left
+            scale=0.035,
+            fg=(1, 1, 1, 1),
+            shadow=(0, 0, 0, 1),
+            shadowOffset=(0.03, 0.03),
+        )
+
+        # update task (used in interactive mode)
+        def update_camera_text_interactive(task):
+            cam = context.camera
+            pos = cam.getPos()
+            hpr = cam.getHpr()
+            cam_text.setText(
+                f"Camera\n"
+                f"pos = ({pos.x:8.2f}, {pos.y:8.2f}, {pos.z:6.2f})\n"
+                f"hpr = ({hpr.x:6.2f}, {hpr.y:6.2f}, {hpr.z:6.2f})"
+            )
+            return task.cont
+
+        context.taskMgr.add(update_camera_text_interactive, "UpdateCameraHUD")
+
+    def generate_centered_box(
+        self,
+        context,
+        parent,
+        width=1,
+        length=1,
+        height=1,
+        color=(1, 1, 1, 1),
+        pos=(0, 0, 0),
+    ):
+        """
+        Creates a box whose origin is at its center instead of a corner.
+
+        Args:
+            parent: NodePath to reparent the box to
+            width: X scale
+            length: Y scale
+            height: Z scale
+            color: (r,g,b,a)
+            pos: (x,y,z) world/local position of center
+        :return: NodePath of the created box
+        """
+        root = parent.attachNewNode("centered_box")
+        box = context.loader.loadModel("models/box")
+        box.reparentTo(root)
+        box.clearTexture()
+        box.setTextureOff(1)
+        box.setPos(-0.5, -0.5, -0.5)
+        root.setScale(width, length, height)
+        root.setColor(color)
+        root.setPos(pos)
+        return root
+
+    def generate_simple_car_model(self, context):
+        """
+        Generates a simplified car model (for faster rendering at presence of multiple cars).
+
+        Args:
+            context (ShowBase): The Panda3D ShowBase context.
+        """
+        # car properties
+        length = random.uniform(4.0, 5.0)
+        width = random.uniform(1.8, 2.2)
+        height = random.uniform(1.3, 1.8)
+        color = Vec4(
+            random.uniform(0.2, 1.0),
+            random.uniform(0.2, 1.0),
+            random.uniform(0.2, 1.0),
+            1.0,
+        )
+        tire_size = width * 0.3
+        y_offset = tire_size * 0.5
+        # generate car nodepath
+        car_root_instance = NodePath("simple_car")
+        car_root = NodePath("simple_car")
+        car_root.reparentTo(car_root_instance)
+        # base body
+        self.generate_centered_box(
+            context=context,
+            parent=car_root,
+            width=width,
+            length=length,
+            height=height * 0.5,
+            color=color,
+            pos=(0, 0, y_offset + height * 0.25),
+        )
+        # cabin
+        self.generate_centered_box(
+            context=context,
+            parent=car_root,
+            width=width * 0.8,
+            length=length * 0.6,
+            height=height * 0.4,
+            color=tuple(c * 0.9 for c in color),
+            pos=(0, length * 0.1, y_offset + height * 0.7),
+        )
+        # tires
+        tire_z = y_offset
+        tire_positions = [
+            (width * 0.55 - tire_size * 0.55, length * 0.35),
+            (-width * 0.55 + tire_size * 0.55, length * 0.35),
+            (width * 0.55 - tire_size * 0.55, -length * 0.35),
+            (-width * 0.55 + tire_size * 0.55, -length * 0.35),
+        ]
+        for tx, ty in tire_positions:
+            self.generate_centered_box(
+                context=context,
+                parent=car_root,
+                width=tire_size,
+                length=tire_size * 0.6,
+                height=tire_size,
+                color=(0, 0, 0, 1),
+                pos=(tx, ty, tire_z),
+            )
+        # final rotation
+        car_root.setP(-90)
+        return car_root_instance

@@ -1,171 +1,74 @@
 {
   "type": "object",
   "properties": {
-    "trajectory_parameters": {
-      "type": "object",
-      "properties": {
-        "trajectory_file": {
-          "type": "string"
-        },
-        "ego_identifier": {
-          "type": "string"
-        },
-        "sumo_network_file": {
-          "type": "string"
-        },
-        "lane_width": {
-          "type": "number",
-          "minimum": 0
-        },
-        "sep_line_width": {
-          "type": "number",
-          "minimum": 0
-        },
-        "simtime_start": {
-          "type": "number",
-          "minimum": 0
-        },
-        "simtime_end": {
-          "type": "number",
-          "minimum": 0
-        }
-      },
-      "required": [
-        "trajectory_file",
-        "ego_identifier",
-        "sumo_network_file",
-        "lane_width",
-        "sep_line_width",
-        "simtime_start",
-        "simtime_end"
-      ],
-      "additionalProperties": false
+    "_validation_mode": {
+      "type": "string",
+      "enum": ["interactive", "eulerian", "lagrangian", "cinematic"],
+      "description": "Internal field used for mode-specific validation"
     },
-    "video_parameters": {
+    "rendering": {
       "type": "object",
       "properties": {
         "record_video": {
-          "type": "boolean"
+          "type": "boolean",
+          "default": true
         },
-        "output_file": {
-          "type": "string"
-        },
-        "video_fps": {
-          "type": "number",
-          "minimum": 1
+        "headless": {
+          "type": "boolean",
+          "default": false
         },
         "video_width_px": {
           "type": "integer",
-          "minimum": 1
+          "default": 1140
         },
         "video_height_px": {
           "type": "integer",
-          "minimum": 1
+          "default": 900
+        },
+        "video_fps": {
+          "type": "number",
+          "default": 25.0,
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         }
-      },
-      "required": ["record_video", "video_fps"],
-      "if": {
-        "properties": {
-          "record_video": {
-            "const": true
-          }
-        }
-      },
-      "then": {
-        "required": ["output_file", "video_width_px", "video_height_px"]
       },
       "additionalProperties": false
     },
-    "traffic_signals": {
-      "type": "object",
-      "properties": {
-        "ramp_metering": {
-          "type": "boolean"
-        },
-        "design": {
-          "type": "string",
-          "enum": ["simple", "three_headed", "countdown_timer"]
-        },
-        "ramp": {
-          "type": "object",
-          "properties": {
-            "pos_x": {
-              "type": "number"
-            },
-            "pos_y": {
-              "type": "number"
-            },
-            "stop_line_a": {
-              "type": "number"
-            },
-            "stop_line_b": {
-              "type": "number"
-            },
-            "stop_line_c": {
-              "type": "number"
-            },
-            "stop_line_d": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "pos_x",
-            "pos_y",
-            "stop_line_a",
-            "stop_line_b",
-            "stop_line_c",
-            "stop_line_d"
-          ],
-          "additionalProperties": false
-        },
-        "traffic_signal_states_file": {
-          "type": "string"
-        },
-        "traffic_light_id": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "ramp_metering",
-        "traffic_signal_states_file",
-        "traffic_light_id"
-      ],
-      "if": {
-        "properties": {
-          "ramp_metering": {
-            "const": true
-          }
-        }
-      },
-      "then": {
-        "required": ["design", "ramp"]
-      },
-      "additionalProperties": false
-    },
-    "visualization_parameters": {
+    "visualization": {
       "type": "object",
       "properties": {
         "show_other_vehicles": {
-          "type": "boolean"
+          "type": "boolean",
+          "default": true,
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         },
-        "viewer_height": {
+        "show_signals": {
+          "type": "boolean",
+          "default": true,
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
+        },
+        "lane_width": {
           "type": "number",
-          "minimum": 0
+          "default": 3.2
         },
-        "tree_positions_file": {
-          "type": "string"
+        "sep_line_width": {
+          "type": "number",
+          "default": 0.2
         },
-        "fence_lines_file": {
-          "type": "string"
+        "tree_scale_1": {
+          "type": "number",
+          "default": 0.2
         },
-        "shops_positions_file": {
-          "type": "string"
+        "tree_scale_2": {
+          "type": "number",
+          "default": 0.5
         },
-        "homes_positions_file": {
-          "type": "string"
+        "tree_size_variability": {
+          "type": "number",
+          "default": 1.0
         },
-        "blocks_positions_file": {
-          "type": "string"
+        "tree_color_variability": {
+          "type": "number",
+          "default": 0.1
         },
         "sky_texture": {
           "type": "string",
@@ -179,7 +82,8 @@
             "sky_night_forest",
             "sky_night_desert",
             "sky_halloween"
-          ]
+          ],
+          "default": "sky_cloudy"
         },
         "ground_texture": {
           "type": "string",
@@ -190,23 +94,246 @@
             "ground_chess",
             "ground_chesslarge",
             "ground_halloween"
-          ]
+          ],
+          "default": "ground_grass"
+        },
+        "viewer_height": {
+          "type": "number",
+          "default": 1.5,
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         }
       },
-      "required": [
-        "show_other_vehicles",
-        "viewer_height",
-        "sky_texture",
-        "ground_texture"
-      ],
+      "additionalProperties": false
+    },
+    "paths": {
+      "type": "object",
+      "properties": {
+        "trajectory_file": {
+          "type": "string",
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
+        },
+        "sumo_network_file": {
+          "type": "string"
+        },
+        "output_file": {
+          "type": "string",
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
+        },
+        "traffic_signal_states_file": {
+          "type": "string",
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
+        },
+        "fence_lines_file": {
+          "type": "string"
+        },
+        "shops_positions_file": {
+          "type": "string"
+        },
+        "homes_positions_file": {
+          "type": "string"
+        },
+        "blocks_positions_file": {
+          "type": "string"
+        },
+        "tree_positions_file": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "signals": {
+      "type": "object",
+      "description": "Required for non-interactive modes when 'show_signals' is enabled",
+      "properties": {
+        "signal_design": {
+          "type": "string",
+          "enum": ["simple", "three_headed", "countdown_timer"],
+          "default": "three_headed"
+        },
+        "traffic_light_id": {
+          "type": "string"
+        },
+        "traffic_light_positions": {
+          "type": "object",
+          "properties": {
+            "ramps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "pos_x": { "type": "number" },
+                  "pos_y": { "type": "number" },
+                  "stop_line_a": { "type": "number" },
+                  "stop_line_b": { "type": "number" },
+                  "stop_line_c": { "type": "number" },
+                  "stop_line_d": { "type": "number" }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "modes": {
+      "type": "object",
+      "description": "At least one mode must be defined (eulerian, lagrangian, cinematic, or interactive). Non-interactive modes require additional fields in paths, rendering, visualization, and signals sections.",
+      "minProperties": 1,
+      "properties": {
+        "eulerian": {
+          "type": "object",
+          "properties": {
+            "simtime_start": {
+              "type": "number"
+            },
+            "simtime_end": {
+              "type": "number"
+            },
+            "ego_identifier": {
+              "type": "string"
+            },
+            "camera_position": {
+              "type": "object",
+              "properties": {
+                "pos_x": { "type": "number" },
+                "pos_y": { "type": "number" },
+                "pos_z": { "type": "number" },
+                "ori_h": { "type": "number" },
+                "ori_p": { "type": "number" },
+                "ori_r": { "type": "number" }
+              }
+            }
+          }
+        },
+        "lagrangian": {
+          "type": "object",
+          "properties": {
+            "simtime_start": {
+              "type": "number"
+            },
+            "simtime_end": {
+              "type": "number"
+            },
+            "ego_identifier": {
+              "type": "string"
+            }
+          }
+        },
+        "cinematic": {
+          "type": "object",
+          "properties": {
+            "simtime_start": {
+              "type": "number"
+            },
+            "simtime_end": {
+              "type": "number"
+            },
+            "ego_identifier": {
+              "type": "string"
+            },
+            "camera_position_trajectory": {
+              "type": "object",
+              "patternProperties": {
+                "^[0-9]+(?:\\.[0-9]+)?$": {
+                  "type": "object",
+                  "properties": {
+                    "pos_x": { "type": "number" },
+                    "pos_y": { "type": "number" },
+                    "pos_z": { "type": "number" },
+                    "ori_h": { "type": "number" },
+                    "ori_p": { "type": "number" },
+                    "ori_r": { "type": "number" }
+                  },
+                  "required": [
+                    "pos_x",
+                    "pos_y",
+                    "pos_z",
+                    "ori_h",
+                    "ori_p",
+                    "ori_r"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "interactive": {
+          "type": "object",
+          "properties": {
+            "initial_camera_position": {
+              "type": "object",
+              "properties": {
+                "position": {
+                  "type": "array",
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "description": "Camera position as [x, y, z]",
+                  "default": [120, -20, 0]
+                },
+                "orientation": {
+                  "type": "array",
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "description": "Camera orientation as [heading, pitch, roll]",
+                  "default": [180, 0, 0]
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
       "additionalProperties": false
     }
   },
-  "required": [
-    "trajectory_parameters",
-    "video_parameters",
-    "traffic_signals",
-    "visualization_parameters"
-  ],
-  "additionalProperties": false
+  "required": ["modes", "paths", "rendering", "visualization"],
+  "if": {
+    "properties": {
+      "_validation_mode": {
+        "const": "interactive"
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "paths": {
+        "required": ["sumo_network_file"]
+      },
+      "rendering": {
+        "required": ["video_width_px", "video_height_px"]
+      },
+      "visualization": {
+        "required": ["lane_width", "sky_texture", "ground_texture"]
+      }
+    }
+  },
+  "else": {
+    "properties": {
+      "paths": {
+        "required": [
+          "trajectory_file",
+          "output_file",
+          "traffic_signal_states_file",
+          "sumo_network_file"
+        ]
+      },
+      "rendering": {
+        "required": ["video_fps", "video_width_px", "video_height_px"]
+      },
+      "visualization": {
+        "required": [
+          "show_other_vehicles",
+          "show_signals",
+          "viewer_height",
+          "lane_width",
+          "sky_texture",
+          "ground_texture"
+        ]
+      }
+    }
+  }
 }

@@ -1,0 +1,18 @@
+
+Definitive:
+- create cli that can do anything (all modes) and is callable like "sumo3Dviz --mode cinematic --config configuration.yaml --output video_cinematic.avi", as a merge of all four demos I wrote
+- trajectory_tools.py "# TODO: improve the efficiency of the code by including this filtering condition"
+- Enable Traffic Light with 3 heads and countdown timer as well (no signal_style, but head_style and countdown_timer yes no)
+- Why Traffic Light not visible?
+- Render Lagrangian View Again
+- Upload videos on youtube 
+- Finalize Readme 
+- Let it check by another student independently (e.g. Thomas, Krishna, Linghang)
+
+Nice to Have:
+- Unify Docstrings according to Sphinx notation (so we can auto-render pydocs)
+- Implement pydocs sphinx rendering in github workflow to create website
+- dashed line in mac issue?
+- multiple traffic lights
+- rendering issue road and grass
+- trajectory smoothing: still spinning vehicles, especially visible in cinematic mode
