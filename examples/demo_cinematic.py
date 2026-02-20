@@ -39,7 +39,7 @@ from sumo3Dviz import (
 # - If you prefer, replace this dictionary by loading a yaml file using
 #   the CLI helper `load_configuration(...)` and then validate it with
 #   `validate_configuration(...)`.
-configuration = {
+mode_configuration = {
     "rendering": {
         "video_width_px": 1140,
         "video_height_px": 900,
@@ -180,7 +180,23 @@ output_file = os.path.join(
     os.path.dirname(__file__), "barcelona_simulation_cinematic.avi"
 )
 
-if __name__ == "__main__":
+
+def main(config_override=None, output_file_override=None):
+    """Main function to run the Cinematic demo. CI-only parameters: config_override, output_file_override."""
+    # CI-only: Apply configuration overrides (not needed for normal usage)
+    configuration = mode_configuration.copy()
+    if config_override:
+        for key, value in config_override.items():
+            if (
+                key in configuration
+                and isinstance(configuration[key], dict)
+                and isinstance(value, dict)
+            ):
+                configuration[key].update(value)
+            else:
+                configuration[key] = value
+    output = output_file_override if output_file_override else output_file
+
     # ! STEP 1: Validate the configuration file
     # region
     # alternatively, you may also load a yaml configuration file (as for the CLI-version)
@@ -264,7 +280,7 @@ if __name__ == "__main__":
     # region
     if configuration["rendering"]["record_video"]:
         video_writer = cv2.VideoWriter(
-            filename=output_file,
+            filename=output,
             fourcc=cv2.VideoWriter.fourcc(*"MJPG"),
             fps=configuration["rendering"]["video_fps"],
             frameSize=(
@@ -445,3 +461,7 @@ if __name__ == "__main__":
     if configuration["rendering"]["record_video"] and video_writer is not None:
         video_writer.release()
     # endregion
+
+
+if __name__ == "__main__":
+    main()

@@ -38,7 +38,7 @@ from sumo3Dviz import (
 # - If you prefer, replace this dictionary by loading a yaml file using
 #   the CLI helper `load_configuration(...)` and then validate it with
 #   `validate_configuration(...)`.
-configuration = {
+mode_configuration = {
     "rendering": {
         "video_width_px": 1140,
         "video_height_px": 900,
@@ -89,7 +89,22 @@ configuration = {
     },
 }
 
-if __name__ == "__main__":
+
+def main(config_override=None, max_frames=None):
+    """Main function to run the Interactive demo. CI-only parameters: config_override, max_frames."""
+    # CI-only: Apply configuration overrides (not needed for normal usage)
+    configuration = mode_configuration.copy()
+    if config_override:
+        for key, value in config_override.items():
+            if (
+                key in configuration
+                and isinstance(configuration[key], dict)
+                and isinstance(value, dict)
+            ):
+                configuration[key].update(value)
+            else:
+                configuration[key] = value
+
     # ! STEP 1: Validate the configuration file
     # region
     # alternatively, you may also load a yaml configuration file (as for the CLI-version)
@@ -136,6 +151,9 @@ if __name__ == "__main__":
 
     # ! STEP 3: Set up Panda3D
     # region
+    if configuration["rendering"].get("headless", False):
+        loadPrcFileData("", "window-type offscreen")
+
     loadPrcFileData(
         "",
         "win-size "
@@ -230,5 +248,27 @@ if __name__ == "__main__":
     print(50 * "#")
     print("  ==>  Launch Interactive Mode")
     print(50 * "#")
+
+    # If max_frames is set (CI mode), add a task to limit the number of frames
+    if max_frames is not None:
+        frame_count = [0]  # Use list to allow modification in nested function
+
+        def frame_counter_task(task):
+            """Task to count frames and exit after max_frames."""
+            frame_count[0] += 1
+            if frame_count[0] >= max_frames:
+                print(f"\n  ==>  Reached max frames ({max_frames}), exiting...")
+                context.userExit()
+                return task.done
+            return task.cont
+
+        # add the frame counter task
+        context.taskMgr.add(frame_counter_task, "frame_counter")
+        print(f"  ==>  CI Mode: Will exit after {max_frames} frames")
+
     context.run()
     # endregion
+
+
+if __name__ == "__main__":
+    main()

@@ -256,10 +256,16 @@ class TrajectoryTools:
                 )
                 interp_data[k] = interp_values
 
-        # 4. Apply centered moving average smoothing (window=41)
-        window_size = 41
+        # 4. Apply centered moving average smoothing (window=41, or smaller for short sequences)
+        # Ensure window size is odd and doesn't exceed data length
+        window_size = min(41, len(times))
+        if window_size % 2 == 0:
+            window_size -= 1  # Make it odd for centered smoothing
+        window_size = max(1, window_size)  # At least 1
 
         def moving_average(arr, window):
+            if window == 1:
+                return arr  # No smoothing for very short sequences
             return np.convolve(arr, np.ones(window) / window, mode="same")
 
         smoothed_data = {k: moving_average(interp_data[k], window_size) for k in keys}

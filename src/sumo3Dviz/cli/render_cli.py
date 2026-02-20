@@ -11,6 +11,7 @@ Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 # sumo3Dviz --config examples/config_barcelona.yaml --mode eulerian --output results/output_eulerian.avi
 # sumo3Dviz --config examples/config_barcelona.yaml --mode cinematic --output results/output_cinematic.avi
 # sumo3Dviz --config examples/config_barcelona.yaml --mode interactive
+# sumo3Dviz --config examples/config_ci.yaml --mode interactive --headless --max-frames 50  # CI mode
 
 import cv2
 import argparse
@@ -65,10 +66,18 @@ def main():
         action="store_true",
         help="If set, the rendering will be done in headless mode without opening a window.",
     )
+    parser.add_argument(
+        "--max-frames",
+        type=int,
+        required=False,
+        default=None,
+        help="Maximum number of frames to render before exiting. Useful for CI testing in interactive mode. If not specified, runs until user closes the window.",
+    )
     args = parser.parse_args()
     config_path = args.config
     mode = args.mode
     headless = args.headless
+    max_frames = args.max_frames
 
     # enforce conditional requirement: --output is required for non-interactive modes
     if mode != "interactive" and not args.output:
@@ -356,6 +365,24 @@ def main():
         print(50 * "#")
         print("  ==>  Launch Interactive Mode")
         print(50 * "#")
+
+        # If max_frames is set (CI mode), add a task to limit the number of frames
+        if max_frames is not None:
+            frame_count = [0]  # Use list to allow modification in nested function
+
+            def frame_counter_task(task):
+                """Task to count frames and exit after max_frames."""
+                frame_count[0] += 1
+                if frame_count[0] >= max_frames:
+                    print(f"\n  ==>  Reached max frames ({max_frames}), exiting...")
+                    context.userExit()
+                    return task.done
+                return task.cont
+
+            # Add the frame counter task
+            context.taskMgr.add(frame_counter_task, "frame_counter")
+            print(f"  ==>  CI Mode: Will exit after {max_frames} frames")
+
         context.run()
     elif mode == "lagrangian":
         # Lagrangian mode: camera follows the ego vehicle
