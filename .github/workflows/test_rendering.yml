@@ -2,10 +2,11 @@ name: Test Rendering Pipeline
 
 on:
     push:
-        branches: [main, master, develop]
+        branches:
+            - main
+            - dev
     pull_request:
-        branches: [main, master, develop]
-    workflow_dispatch: # Allow manual triggering
+        types: [opened, synchronize]
 
 jobs:
     test-rendering:
@@ -37,6 +38,10 @@ jobs:
               run: |
                   python -c "import sumo3Dviz; print(f'sumo3Dviz version: {sumo3Dviz.__version__ if hasattr(sumo3Dviz, \"__version__\") else \"unknown\"}')"
                   sumo3Dviz --help
+
+            - name: Extract simulation data
+              run: |
+                  unzip -o examples/barcelona_simulation/simulation_logs/vehicle_positions.zip -d examples/barcelona_simulation/simulation_logs/
 
             - name: Run demo tests
               run: |
