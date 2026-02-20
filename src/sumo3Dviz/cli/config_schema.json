@@ -115,10 +115,6 @@
         "sumo_network_file": {
           "type": "string"
         },
-        "output_file": {
-          "type": "string",
-          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
-        },
         "traffic_signal_states_file": {
           "type": "string",
           "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
@@ -316,7 +312,6 @@
       "paths": {
         "required": [
           "trajectory_file",
-          "output_file",
           "traffic_signal_states_file",
           "sumo_network_file"
         ]

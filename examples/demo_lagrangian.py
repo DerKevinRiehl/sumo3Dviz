@@ -68,9 +68,6 @@ configuration = {
             os.path.dirname(__file__),
             "barcelona_simulation/Network.net.xml",
         ),
-        "output_file": os.path.join(
-            os.path.dirname(__file__), "barcelona_simulation_lagrangian.avi"
-        ),
         "traffic_signal_states_file": os.path.join(
             os.path.dirname(__file__),
             "barcelona_simulation/simulation_logs/signal_states.xml",
@@ -126,6 +123,11 @@ configuration = {
         },
     },
 }
+
+# Specification of the output file
+output_file = os.path.join(
+    os.path.dirname(__file__), "barcelona_simulation_lagrangian.avi"
+)
 
 if __name__ == "__main__":
     # ! STEP 1: Validate the configuration file
@@ -211,7 +213,7 @@ if __name__ == "__main__":
     # region
     if configuration["rendering"]["record_video"]:
         video_writer = cv2.VideoWriter(
-            filename=configuration["paths"]["output_file"],
+            filename=output_file,
             fourcc=cv2.VideoWriter.fourcc(*"MJPG"),
             fps=configuration["rendering"]["video_fps"],
             frameSize=(
