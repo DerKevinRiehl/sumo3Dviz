@@ -1,0 +1,126 @@
+# ================================================================================
+# sumo3Dviz CI Test Configuration
+# ================================================================================
+# This configuration is optimized for fast CI testing with minimal resource usage.
+# - Headless rendering (no display required)
+# - Low resolution (640x480)
+# - Low FPS (10)
+# - Short simulation windows (3-5 seconds)
+# ================================================================================
+
+# ================================================================================
+# RENDERING PARAMETERS (REQUIRED)
+# ================================================================================
+rendering:
+  # Whether to record the visualization as a video file
+  record_video: true
+  # Headless mode for CI environment (no window displayed)
+  headless: true
+  # Reduced resolution for faster rendering
+  video_width_px: 640
+  video_height_px: 480
+  # Lower frame rate for faster rendering
+  video_fps: 10.0
+
+# ================================================================================
+# VISUALIZATION PARAMETERS (REQUIRED)
+# ================================================================================
+visualization:
+  # Settings
+  show_other_vehicles: True
+  show_signals: True
+  # Lane related
+  lane_width: 3.2
+  sep_line_width: 0.2
+  # Tree related
+  tree_scale_1: 0.2
+  tree_scale_2: 0.5
+  tree_size_variability: 1.0
+  tree_color_variability: 0.1
+  # Textures
+  sky_texture: "sky_cloudy"
+  ground_texture: "ground_grass"
+  # Perspective (relevant for Lagrangian Mode)
+  viewer_height: 1.5
+
+# ================================================================================
+# PATH PARAMETERS (REQUIRED)
+# ================================================================================
+paths:
+  trajectory_file: "examples/barcelona_simulation/simulation_logs/vehicle_positions.xml"
+  sumo_network_file: "examples/barcelona_simulation/Network.net.xml"
+  traffic_signal_states_file: "examples/barcelona_simulation/simulation_logs/signal_states.xml"
+  fence_lines_file: "examples/barcelona_simulation/viz_object_positions/fences.add.xml"
+  shops_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"
+  homes_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml"
+  blocks_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"
+  tree_positions_file: "examples/barcelona_simulation/viz_object_positions/trees.add.xml"
+
+# ================================================================================
+# SIGNAL PARAMETERS (OPTIONAL)
+# ================================================================================
+signals:
+  signal_design: "three_headed" # DESIGN TYPES: simple, three_headed, countdown_timer
+  traffic_light_positions:
+    "ramp_1":
+      "pos_x": 20217.08
+      "pos_y": 18261.92
+      "stop_line_a": 20224.71
+      "stop_line_b": 18264.87
+      "stop_line_c": 20226.77
+      "stop_line_d": 18261.15
+    "ramp_2":
+      "pos_x": 19315.13
+      "pos_y": 17826.92
+      "stop_line_a": 20224.71
+      "stop_line_b": 18264.87
+      "stop_line_c": 20226.77
+      "stop_line_d": 18261.15
+  "traffic_light_id": "JE3"
+
+# ================================================================================
+# MODE SPECIFIC PARAMETERS (REQUIRED)
+# Short simulation windows optimized for CI (3-5 seconds each)
+# ================================================================================
+modes:
+  eulerian:
+    # 5 second simulation window (50 frames at 10fps)
+    simtime_start: 40.0
+    simtime_end: 45.0
+    ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
+    camera_position:
+      pos_x: 19357.74
+      pos_y: 17808.70
+      pos_z: 11.95
+      ori_h: 90.0
+      ori_p: -10.0
+      ori_r: 0.0
+  lagrangian:
+    # 5 second simulation window (50 frames at 10fps)
+    simtime_start: 40.0
+    simtime_end: 45.0
+    ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
+  cinematic:
+    # 3 second simulation window with simplified trajectory (30 frames at 10fps)
+    simtime_start: 142.0
+    simtime_end: 145.0
+    ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
+    camera_position_trajectory:
+      "142.0":
+        "pos_x": 19517.38
+        "pos_y": 17889.49
+        "pos_z": 37.38
+        "ori_h": 50.0
+        "ori_p": -10.0
+        "ori_r": 0.0
+      "145.0":
+        "pos_x": 19493.39
+        "pos_y": 17880.76
+        "pos_z": 26.78
+        "ori_h": 110.0
+        "ori_p": -10.0
+        "ori_r": 0.0
+  interactive:
+    initial_camera_position:
+      position: [20000, 18000, 50]
+      orientation: [120, -20, 0]

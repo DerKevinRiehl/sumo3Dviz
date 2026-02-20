@@ -1,0 +1,74 @@
+name: Test Rendering Pipeline
+
+on:
+    push:
+        branches: [main, master, develop]
+    pull_request:
+        branches: [main, master, develop]
+    workflow_dispatch: # Allow manual triggering
+
+jobs:
+    test-rendering:
+        name: Test Demo Scripts and CLI
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.9"
+                  cache: "pip"
+
+            - name: Install system dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                    xvfb \
+                    libgl1-mesa-glx \
+                    libegl1 \
+                    libglib2.0-0 \
+                    libsm6 \
+                    libxext6 \
+                    libxrender1 \
+                    libgomp1 \
+                    libglu1-mesa
+
+            - name: Install Python package
+              run: |
+                  pip install --upgrade pip
+                  pip install -e .
+
+            - name: Verify installation
+              run: |
+                  python -c "import sumo3Dviz; print(f'sumo3Dviz version: {sumo3Dviz.__version__ if hasattr(sumo3Dviz, \"__version__\") else \"unknown\"}')"
+                  sumo3Dviz --help
+
+            - name: Make test scripts executable
+              run: |
+                  chmod +x .github/scripts/test_demos.py
+                  chmod +x .github/scripts/test_cli.py
+
+            - name: Run demo tests
+              run: |
+                  python .github/scripts/test_demos.py
+              timeout-minutes: 15
+
+            - name: Run CLI tests
+              run: |
+                  python .github/scripts/test_cli.py
+              timeout-minutes: 15
+
+            - name: Upload test artifacts (on failure)
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-outputs
+                  path: |
+                      /tmp/ci_test_*.avi
+                      /tmp/cli_test_*.avi
+                  retention-days: 7
+                  if-no-files-found: ignore
