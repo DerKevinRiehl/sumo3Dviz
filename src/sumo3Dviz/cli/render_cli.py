@@ -368,8 +368,6 @@ def main():
 
         # If max_frames is set (CI mode), add a task to limit the number of frames
         if max_frames is not None:
-            import sys
-
             frame_count = [0]  # Use list to allow modification in nested function
 
             def frame_counter_task(task):
@@ -377,7 +375,8 @@ def main():
                 frame_count[0] += 1
                 if frame_count[0] >= max_frames:
                     print(f"\n  ==>  Reached max frames ({max_frames}), exiting...")
-                    sys.exit(0)
+                    context.userExit()
+                    return task.done
                 return task.cont
 
             # Add the frame counter task

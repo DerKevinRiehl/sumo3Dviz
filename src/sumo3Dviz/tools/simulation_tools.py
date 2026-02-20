@@ -271,11 +271,11 @@ class SimulationManager:
             if self.current_point > self.trajectory_data["video_end_idx"]:
                 if self.video_writer is not None:
                     self.video_writer.release()
-                sys.exit(0)
+                self.context.userExit()
                 return task.done  # stop task when trajectory is complete
             return task.again  # run again after interval
         else:
             if self.video_writer is not None:
                 self.video_writer.release()
-            sys.exit(0)
+            self.context.userExit()
             return task.done  # stop task when trajectory is complete
