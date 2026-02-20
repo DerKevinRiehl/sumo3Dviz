@@ -52,7 +52,3 @@ where = ["src"]
 
 [project.scripts]
 sumo3Dviz = "sumo3Dviz.cli.render_cli:main"
-
-[tool.pylint.typecheck]
-# Disable pylint errors for C-extension modules that don't have type stubs
-extension-pkg-allow-list = ["panda3d.core", "cv2"]

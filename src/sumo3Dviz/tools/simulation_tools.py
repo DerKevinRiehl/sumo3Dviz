@@ -8,7 +8,7 @@ import pandas as pd
 import math
 import cv2
 import sys
-from typing import cast, Optional, Dict, Any
+from typing import cast, Optional, Dict, Any, Union
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import NodePath, Camera, GraphicsOutput
 from .trajectory_tools import TrajectoryTools
@@ -29,9 +29,9 @@ class SimulationManager:
         rendering_tools: Any,
         video_writer: Optional[cv2.VideoWriter] = None,
         show_other_vehicles_simple: bool = False,
-        signal_instances: Dict = None,
+        signal_instances: Union[Dict, None] = None,
         camera_position: Optional[dict] = None,
-        cinematic_camera_trajectory: pd.DataFrame = None,
+        cinematic_camera_trajectory: Union[pd.DataFrame, None] = None,
     ):
         """
         Initialize the SimulationManager with all required parameters.
@@ -88,6 +88,9 @@ class SimulationManager:
             )
             cast(Camera, self.context.camera).setHpr(-angle, 0, 0)
         elif self.mode == "EULERIAN":
+            if self.camera_position is None:
+                raise ValueError("Camera position data is required for Eulerian mode")
+
             cast(Camera, self.context.camera).setPos(
                 self.camera_position["pos_x"],
                 self.camera_position["pos_y"],
@@ -99,6 +102,11 @@ class SimulationManager:
                 self.camera_position["ori_r"],
             )
         elif self.mode == "CINEMATIC":
+            if self.cinematic_camera_trajectory is None:
+                raise ValueError(
+                    "Cinematic camera trajectory data is required for cinematic mode"
+                )
+
             closest_idx = (
                 (self.cinematic_camera_trajectory["time"] - current_time).abs().idxmin()
             )
@@ -128,6 +136,11 @@ class SimulationManager:
     def _update_traffic_lights(self):
         signal, timer = self._get_signal_state()
         if self.configuration["visualization"]["show_signals"] and signal is not None:
+            if self.signal_instances is None:
+                raise ValueError(
+                    "Signal instances are required for traffic light visualization"
+                )
+
             self.rendering_tools.update_traffic_light(
                 signal=signal,
                 design=self.configuration["signals"]["signal_design"],
@@ -146,6 +159,7 @@ class SimulationManager:
         ):
             # position all cars on the road
             current_pos = [x, y]
+            neighborhood_vehicles = []
             if self.mode == "EULERIAN" or self.mode == "CINEMATIC":
                 neighborhood_vehicles = self.trajectory_tools.get_closest_vehicles(
                     self.trajectory_data["trajectory_data"],

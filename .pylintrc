@@ -1,0 +1,13 @@
+[MASTER]
+# List of plugins (as comma-separated values of python module names) to load
+extension-pkg-allow-list=panda3d.core,cv2
+
+[TYPECHECK]
+# List of members which are set dynamically and missed by pylint inference
+generated-members=cv2.*
+
+# Ignore missing members on certain modules
+ignored-modules=panda3d.core,cv2,panda3d
+
+# Ignore certain import errors
+ignored-classes=panda3d.core,cv2
