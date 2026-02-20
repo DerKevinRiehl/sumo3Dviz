@@ -41,7 +41,7 @@ jobs:
 
             - name: Extract simulation data
               run: |
-                  unzip -o examples/barcelona_simulation/simulation_logs/vehicle_positions.zip -d examples/barcelona_simulation/simulation_logs/
+                  unzip -o examples/barcelona_simulation/simulation_logs/vehicle_positions_ci.zip -d examples/barcelona_simulation/simulation_logs/
 
             - name: Run demo tests
               run: |
