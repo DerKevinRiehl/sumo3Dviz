@@ -26,16 +26,7 @@ jobs:
             - name: Install system dependencies
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y \
-                    xvfb \
-                    libgl1-mesa-glx \
-                    libegl1 \
-                    libglib2.0-0 \
-                    libsm6 \
-                    libxext6 \
-                    libxrender1 \
-                    libgomp1 \
-                    libglu1-mesa
+                  sudo apt-get install -y libgl1 libegl1
 
             - name: Install Python package
               run: |
@@ -46,11 +37,6 @@ jobs:
               run: |
                   python -c "import sumo3Dviz; print(f'sumo3Dviz version: {sumo3Dviz.__version__ if hasattr(sumo3Dviz, \"__version__\") else \"unknown\"}')"
                   sumo3Dviz --help
-
-            - name: Make test scripts executable
-              run: |
-                  chmod +x .github/scripts/test_demos.py
-                  chmod +x .github/scripts/test_cli.py
 
             - name: Run demo tests
               run: |
