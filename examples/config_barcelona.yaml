@@ -9,7 +9,7 @@
 # ================================================================================
 # RENDERING PARAMETERS (REQUIRED)
 # ================================================================================
-rendering_parameters:
+rendering:
   # Whether to record the visualization as a video file
   record_video: true
   # Whether a Window should be shown during rendering (set to false for headless and faster rendering)
@@ -24,7 +24,7 @@ rendering_parameters:
 # ================================================================================
 # VISUALIZATION PARAMETERS (REQUIRED)
 # ================================================================================
-visualization_parameters:
+visualization:
   # Settings
   show_other_vehicles: True
   show_signals: True
@@ -45,105 +45,106 @@ visualization_parameters:
 # ================================================================================
 # PATH PARAMETERS (REQUIRED)
 # ================================================================================
-path_parameters:
-  trajectory_file: "barcelona_simulation/simulation_logs/vehicle_positions.xml"
-  sumo_network_file: "barcelona_simulation/Network.net.xml"
-  traffic_signal_states_file: "barcelona_simulation/simulation_logs/signal_states.xml"
-  fence_lines_file: "barcelona_simulation/viz_object_positions/fences.add.xml"
-  shops_positions_file: "barcelona_simulation/viz_object_positions/buildings_shops.add.xml"
-  homes_positions_file: "barcelona_simulation/viz_object_positions/buildings_homes.add.xml"
-  blocks_positions_file: "barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"
-  tree_positions_file: "barcelona_simulation/viz_object_positions/trees.add.xml"
+paths:
+  output_file: "results/barcelona_simulation.mp4"
+  trajectory_file: "examples/barcelona_simulation/simulation_logs/vehicle_positions.xml"
+  sumo_network_file: "examples/barcelona_simulation/Network.net.xml"
+  traffic_signal_states_file: "examples/barcelona_simulation/simulation_logs/signal_states.xml"
+  fence_lines_file: "examples/barcelona_simulation/viz_object_positions/fences.add.xml"
+  shops_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_shops.add.xml"
+  homes_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_homes.add.xml"
+  blocks_positions_file: "examples/barcelona_simulation/viz_object_positions/buildings_blocks.add.xml"
+  tree_positions_file: "examples/barcelona_simulation/viz_object_positions/trees.add.xml"
 
 # ================================================================================
 # SIGNAL PARAMETERS (OPTIONAL)
 # ================================================================================
-signal_parameters:
+signals:
   signal_design: "three_headed" # DESIGN TYPES: simple, three_headed, countdown_timer
-  traffic_light_positions: 
-    "ramp_1": 
-        "pos_x": 20217.08
-        "pos_y": 18261.92
-        "stop_line_a": 20224.71
-        "stop_line_b": 18264.87
-        "stop_line_c": 20226.77
-        "stop_line_d": 18261.15
+  traffic_light_positions:
+    "ramp_1":
+      "pos_x": 20217.08
+      "pos_y": 18261.92
+      "stop_line_a": 20224.71
+      "stop_line_b": 18264.87
+      "stop_line_c": 20226.77
+      "stop_line_d": 18261.15
     "ramp_2":
-        "pos_x": 19315.13
-        "pos_y": 17826.92
-        "stop_line_a": 20224.71
-        "stop_line_b": 18264.87
-        "stop_line_c": 20226.77
-        "stop_line_d": 18261.15
+      "pos_x": 19315.13
+      "pos_y": 17826.92
+      "stop_line_a": 20224.71
+      "stop_line_b": 18264.87
+      "stop_line_c": 20226.77
+      "stop_line_d": 18261.15
   "traffic_light_id": "JE3"
 
 # ================================================================================
 # MODE SPECIFIC PARAMETERS (REQUIRED)
 # ================================================================================
-mode_parameters:
-  eulerian: 
+modes:
+  eulerian:
     simtime_start: 39.0
     simtime_end: 369.0
     ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
-    camera_position: 
+    camera_position:
       pos_x: 19357.74
       pos_y: 17808.70
       pos_z: 11.95
       ori_h: 90.0
       ori_p: -10.0
       ori_r: 0.0
-  lagrangian: 
+  lagrangian:
     simtime_start: 39.0
     simtime_end: 369.0
     ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
-  cinematic: 
+  cinematic:
     simtime_start: 139.0
     simtime_end: 369.0
     ego_identifier: "flow_0_car_aggr1_route_E3_AEnd_lane0.0"
-    camera_position_trajectory: 
-      139.0: 
-          "pos_x": 19517.38
-          "pos_y": 17889.49
-          "pos_z": 37.38
-          "ori_h": 50.0
-          "ori_p": -10.0
-          "ori_r": 0.0
-      160.0: 
-          "pos_x": 19493.39
-          "pos_y": 17880.76
-          "pos_z": 26.78
-          "ori_h": 110.0
-          "ori_p": -10.0
-          "ori_r": 0.0
-      190.0: 
-          "pos_x": 19229.93
-          "pos_y": 17758.21
-          "pos_z": 10.49
-          "ori_h": 100.0
-          "ori_p": 0.0
-          "ori_r": 0.0
-      250.0: 
-          "pos_x": 19042.54
-          "pos_y": 17722.10
-          "pos_z": 83.70
-          "ori_h": 100.0
-          "ori_p": -20.0
-          "ori_r": 0.0
-      350.0: 
-          "pos_x": 19042.54
-          "pos_y": 17722.10
-          "pos_z": 43.70
-          "ori_h": 100.0
-          "ori_p": -15.0
-          "ori_r": 0.0
-      369.0: 
-          "pos_x": 19100.90
-          "pos_y": 17895.91
-          "pos_z": 3.30
-          "ori_h": 0.0
-          "ori_p": 0.0
-          "ori_r": 0.0
+    camera_position_trajectory:
+      "139.0":
+        "pos_x": 19517.38
+        "pos_y": 17889.49
+        "pos_z": 37.38
+        "ori_h": 50.0
+        "ori_p": -10.0
+        "ori_r": 0.0
+      "160.0":
+        "pos_x": 19493.39
+        "pos_y": 17880.76
+        "pos_z": 26.78
+        "ori_h": 110.0
+        "ori_p": -10.0
+        "ori_r": 0.0
+      "190.0":
+        "pos_x": 19229.93
+        "pos_y": 17758.21
+        "pos_z": 10.49
+        "ori_h": 100.0
+        "ori_p": 0.0
+        "ori_r": 0.0
+      "250.0":
+        "pos_x": 19042.54
+        "pos_y": 17722.10
+        "pos_z": 83.70
+        "ori_h": 100.0
+        "ori_p": -20.0
+        "ori_r": 0.0
+      "350.0":
+        "pos_x": 19042.54
+        "pos_y": 17722.10
+        "pos_z": 43.70
+        "ori_h": 100.0
+        "ori_p": -15.0
+        "ori_r": 0.0
+      "369.0":
+        "pos_x": 19100.90
+        "pos_y": 17895.91
+        "pos_z": 3.30
+        "ori_h": 0.0
+        "ori_p": 0.0
+        "ori_r": 0.0
   interactive:
     initial_camera_position:
-      position: (20000, 18000, 50)
-      orientation: (120, -20, 0)
+      position: [20000, 18000, 50]
+      orientation: [120, -20, 0]

@@ -21,7 +21,7 @@
 </h1>
 
 **sumo3Dviz** is a lightweight, open-source 3D visualisation pipeline for SUMO traffic simulations.
-It converts standard SUMO simulation outputs, such as vehicle trajectories and signal states, into high-quality 3D renderings using a Python-based framework. 
+It converts standard SUMO simulation outputs, such as vehicle trajectories and signal states, into high-quality 3D renderings using a Python-based framework.
 
 <table>
     <tr>
@@ -74,47 +74,53 @@ It converts standard SUMO simulation outputs, such as vehicle trajectories and s
     </tr>
 </table>
 
-Video Demos on Youtube:
+Video Demos on YouTube:
+
 - https://www.youtube.com/watch?v=wEUbjlqigyg
 - https://www.youtube.com/watch?v=dq9pH1Cj7gA
 - https://www.youtube.com/watch?v=XvpG5cbv7Ig
 
 ## Installation
+
 The python package **sumo3Dviz** can be installed using pip:
+
 ```bash
 pip install sumo3Dviz
 ```
-**Please note:** 
-Currently only Python 3.9 is supported on all major operating systems (Windows, Mac iOS, Linux).
 
-!!! On MacOS it might be required to install Panda3D through the corresponding installer provided on their website (instead of only using the Python package - not sure, should be tested, current setup has both the python package and the installed version).
+**Please note:**
+Currently only Python 3.9 is supported on all major operating systems (Windows, Mac iOS, Linux).
 
 ## Usage
 
- You can use sumo3Dviz as command line tool (CLI), configure a variety of parameters in the config yaml file, and the run four different visualization modes:
+You can use sumo3Dviz as command line tool (CLI), configure a variety of parameters in the config YAML file, and the run four different visualisation modes:
 
 1. Run sumo3Dviz in Eulerian mode:
+
 ```
 sumo3Dviz --config config.yaml --mode eulerian --output vid_eul.avi
 ```
 
 2. Run sumo3Dviz in Lagrangian mode:
+
 ```
 sumo3Dviz --config config.yaml --mode lagrangian --output vid_lag.avi
 ```
 
 3. Run sumo3Dviz in Cinematic mode:
+
 ```
 sumo3Dviz --config config.yaml --mode cinematic --output vid_cin.avi
 ```
 
 4. Run sumo3Dviz in Interactive mode:
+
 ```
 sumo3Dviz --config config.yaml --mode interactive --output vid_int.avi
 ```
 
-
 ## Case Study: Barcelona
+
 ### Step 1: Prepare Sumo Simulation
 
 You can run any SUMO simulation and render it to a video.
@@ -194,37 +200,41 @@ The simulation's input files (network, POIs), and the generated output log files
 
 ### Step 2: Prepare Visualisation Configuration
 
-### Step 3: Render Video Visualisation with sumo3Dviz 
+### Step 3: Render Video Visualisation with sumo3Dviz
 
 #### Command Line Interface (CLI)
+
 ```bash
 sumo3Dviz --config path/to/your/configuration.yaml
 ```
 
 #### Python Code
-In this repository we provide four example codes to run sumo3Dviz in the four different modes, that can be found in `.sumo3Dviz/examples/`. These examples visualize the aforementioned case study of Barcelona.
+
+In this repository we provide four example codes to run sumo3Dviz in the four different modes, that can be found in `.examples/`. These examples visualize the aforementioned case study of Barcelona.
 
 1. Run sumo3Dviz in Eulerian mode:
+
 ```
-python demo_eulerian.py
+python examples/demo_eulerian.py
 ```
 
 2. Run sumo3Dviz in Lagrangian mode:
+
 ```
-python demo_lagrangian.py
+python examples/demo_lagrangian.py
 ```
 
 3. Run sumo3Dviz in Cinematic mode:
+
 ```
-python demo_cinematic.py
+python examples/demo_cinematic.py
 ```
 
 4. Run sumo3Dviz in Interactive mode:
-```
-python demo_interactive.py
-```
 
-
+```
+python examples/demo_interactive.py
+```
 
 # USAGE
 
@@ -251,6 +261,7 @@ python examples/render_barcelona.py
 ```
 
 ## Citations
+
 Please cite our paper if you find sumo3Dviz useful:
 
 ```

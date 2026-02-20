@@ -1,5 +1,5 @@
 """sumo3Dviz: A three-dimensional traffic visualisation [2026]
-Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <jschlapbach@ethz.ch>
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <juliussc@ethz.ch>
 Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 """
 
@@ -11,11 +11,8 @@ Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 
 import os
 import cv2
-import yaml
-import json
 import argparse
 from typing import cast
-from jsonschema import validate, ValidationError
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import (
     Camera,
@@ -31,6 +28,10 @@ from sumo3Dviz import (
     TrajectoryTools,
     SimulationManager,
 )
+from sumo3Dviz.cli.configuration_helpers import (
+    load_configuration,
+    validate_configuration,
+)
 
 
 def main():
@@ -44,6 +45,13 @@ def main():
         help="Path to the configuration file containing all necessary parameters to run the video generation pipeline.",
     )
     parser.add_argument(
+        "--mode",
+        type=str,
+        choices=["lagrangian", "cinematic", "eulerian", "cinematic"],
+        default="lagrangian",
+        help="The mode in which the visualization should be rendered. Options are: 'lagrangian', 'cinematic', 'eulerian', 'cinematic'. Default is 'lagrangian'.",
+    )
+    parser.add_argument(
         "--headless",
         action="store_true",
         help="If set, the rendering will be done in headless mode without opening a window.",
@@ -52,67 +60,11 @@ def main():
     config_path = args.config
     headless = args.headless
 
-    if not config_path:
-        raise ValueError(
-            "Configuration file path must be specified using --config argument."
-        )
-
-    try:
-        # use the full loader to get the yaml file content as a python dictionary
-        with open(config_path) as file:
-            config = yaml.load(file, Loader=yaml.FullLoader)
-            assert type(config) is dict
-
-    except:
-        print(
-            f"Could not load the configuration file, please make sure it exists at: {config_path}"
-        )
-        exit(1)
+    # load the configuration from the specified YAML file
+    config = load_configuration(config_path)
 
     # validate the configuration against the schema
-    _schema_path = os.path.join(os.path.dirname(__file__), "config_schema.json")
-    with open(_schema_path, "r") as f:
-        schema = json.load(f)
-    try:
-        validate(instance=config, schema=schema)
-        print("✓ Configuration file validated successfully")
-    except ValidationError as e:
-        print(f"Configuration validation error: {e.message}")
-        print(f"Failed at: {' -> '.join(str(p) for p in e.path)}")
-        exit(1)
-
-    # load visualization components that are configurable from a selection of files
-    available_sky_textures = [
-        "sky_blue",
-        "sky_cloudy",
-        "sky_overcast",
-        "sky_dawn",
-        "sky_night_stars",
-        "sky_night_clear",
-        "sky_night_forest",
-        "sky_night_desert",
-        "sky_halloween",
-    ]
-    available_ground_textures = [
-        "ground_grass",
-        "ground_stone",
-        "ground_sand",
-        "ground_chess",
-        "ground_chesslarge",
-        "ground_halloween",
-    ]
-    sky_texture = config["visualization_parameters"]["sky_texture"]
-    ground_texture = config["visualization_parameters"]["ground_texture"]
-
-    if sky_texture not in available_sky_textures:
-        raise ValueError(
-            f"Sky texture '{sky_texture}' is not available. Please choose from: {available_sky_textures}"
-        )
-
-    if ground_texture not in available_ground_textures:
-        raise ValueError(
-            f"Ground texture '{ground_texture}' is not available. Please choose from: {available_ground_textures}"
-        )
+    validate_configuration(config)
     # endregion
 
     # ! LOADER FUNCTIONS
@@ -129,18 +81,16 @@ def main():
         video_start_idx,
         video_end_idx,
     ) = loader.load_trajectory(
-        trajectory_file=os.path.join(
-            os.getcwd(), config["trajectory_parameters"]["trajectory_file"]
-        ),
-        ego_identifier=config["trajectory_parameters"]["ego_identifier"],
-        simtime_start=config["trajectory_parameters"]["simtime_start"],
-        simtime_end=config["trajectory_parameters"]["simtime_end"],
+        trajectory_file=os.path.join(os.getcwd(), config["paths"]["trajectory_file"]),
+        ego_identifier=config["paths"]["ego_identifier"],
+        simtime_start=config["paths"]["simtime_start"],
+        simtime_end=config["paths"]["simtime_end"],
         video_fps=config["video_parameters"]["video_fps"],
-        show_other_vehicles=config["visualization_parameters"]["show_other_vehicles"],
+        show_other_vehicles=config["visualization"]["show_other_vehicles"],
     )
 
     # add veh_id column to df_ego_smoothed for compatibility
-    df_ego_smoothed["veh_id"] = config["trajectory_parameters"]["ego_identifier"]
+    df_ego_smoothed["veh_id"] = config["paths"]["ego_identifier"]
 
     # load traffic light signal
     df_traffic_light = loader.load_traffic_light_signals(
@@ -155,24 +105,24 @@ def main():
 
     # load the tree positions
     tree_positions = loader.load_tree_positions(
-        xml_file=config["visualization_parameters"]["tree_positions_file"]
+        xml_file=config["visualization"]["tree_positions_file"]
     )
 
     # load the fence lines
     fence_lines = loader.load_fence_lines(
-        xml_file=config["visualization_parameters"]["fence_lines_file"]
+        xml_file=config["visualization"]["fence_lines_file"]
     )
 
     # load shop, home, block positions
     # (using the same function as for shops for simplicity)
     shop_positions = loader.load_shop_positions(
-        xml_file=config["visualization_parameters"]["shops_positions_file"]
+        xml_file=config["visualization"]["shops_positions_file"]
     )
     homes_positions = loader.load_shop_positions(
-        xml_file=config["visualization_parameters"]["homes_positions_file"]
+        xml_file=config["visualization"]["homes_positions_file"]
     )
     block_positions = loader.load_shop_positions(
-        xml_file=config["visualization_parameters"]["blocks_positions_file"]
+        xml_file=config["visualization"]["blocks_positions_file"]
     )
     # endregion
 
@@ -216,10 +166,10 @@ def main():
     rendering_tools.create_road_network(
         context=context,
         sumo_network_file=os.path.join(
-            os.getcwd(), config["trajectory_parameters"]["sumo_network_file"]
+            os.getcwd(), config["paths"]["sumo_network_file"]
         ),
-        lane_width=config["trajectory_parameters"]["lane_width"],
-        sep_line_width=config["trajectory_parameters"]["sep_line_width"],
+        lane_width=config["paths"]["lane_width"],
+        sep_line_width=config["paths"]["sep_line_width"],
     )  # roads / sumo network
 
     # add scenery elements
@@ -227,10 +177,14 @@ def main():
     rendering_tools.create_light(context=context)
 
     # skybox / skydome
-    rendering_tools.create_sky(context=context, sky_texture=sky_texture)
+    rendering_tools.create_sky(
+        context=context, sky_texture=config["visualization"]["sky_texture"]
+    )
 
     # grass floor
-    rendering_tools.create_ground(context=context, ground_texture=ground_texture)
+    rendering_tools.create_ground(
+        context=context, ground_texture=config["visualization"]["ground_texture"]
+    )
 
     # trees
     rendering_tools.create_trees(
@@ -258,7 +212,7 @@ def main():
     # load cars and ego vehicle car
     car_models = loader.load_car_models(context=context)
     ego_car = loader.load_ego_car_model(context=context)
-    ego_car.setPos(config["trajectory_parameters"]["lane_width"] / 2, 25, 0)
+    ego_car.setPos(config["paths"]["lane_width"] / 2, 25, 0)
     ego_car.setHpr(180, 90, 0)
 
     # traffic light and ramp metering
@@ -279,7 +233,7 @@ def main():
             p2=config["traffic_signals"]["ramp"]["stop_line_b"],
             p3=config["traffic_signals"]["ramp"]["stop_line_c"],
             p4=config["traffic_signals"]["ramp"]["stop_line_d"],
-            sep_line_width=config["trajectory_parameters"]["sep_line_width"],
+            sep_line_width=config["paths"]["sep_line_width"],
         )
     else:
         box_node1, box_node2, box_node3, text_node = None, None, None, None
@@ -288,7 +242,7 @@ def main():
     cast(Camera, context.camera).setPos(
         df_ego_smoothed["pos_x"].iloc[video_start_idx],
         df_ego_smoothed["pos_y"].iloc[video_start_idx],
-        config["visualization_parameters"]["viewer_height"],
+        config["visualization"]["viewer_height"],
     )
     cast(Camera, context.camera).setHpr(120, 0, 0)
     # endregion
@@ -317,8 +271,8 @@ def main():
         smoothened_trajectory_data=smoothened_trajectory_data,
         trajectory_tools=trajectory_tools,
         rendering_tools=rendering_tools,
-        viewer_height=config["visualization_parameters"]["viewer_height"],
-        show_other_vehicles=config["visualization_parameters"]["show_other_vehicles"],
+        viewer_height=config["visualization"]["viewer_height"],
+        show_other_vehicles=config["visualization"]["show_other_vehicles"],
         ramp_metering=config["traffic_signals"]["ramp_metering"],
         design=config["traffic_signals"]["design"],
         video_width_px=config["video_parameters"]["video_width_px"],

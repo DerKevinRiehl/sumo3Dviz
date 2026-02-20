@@ -1,5 +1,5 @@
 """sumo3Dviz: A three-dimensional traffic visualisation [2026]
-Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <jschlapbach@ethz.ch>
+Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <juliussc@ethz.ch>
 Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 """
 
@@ -210,7 +210,7 @@ class TrajectoryTools:
         Generate a smooth camera trajectory from keyframes.
 
         Args:
-            camera_position_trajectory (dict): keyframes as {time: {"pos_x":..,"ori_h":..,...}}
+            camera_position_trajectory (dict): keyframes as {"time": {"pos_x":..,"ori_h":..,...}}
             simtime_start (float): start time
             simtime_end (float): end time
             video_fps (float): frames per second
@@ -224,7 +224,9 @@ class TrajectoryTools:
         times = np.arange(simtime_start, simtime_end + dt, dt)
 
         # 2. Extract keyframe times and sort
-        keyframe_times = np.array(sorted(camera_position_trajectory.keys()))
+        keyframe_times = np.array(
+            sorted(float(time) for time in camera_position_trajectory.keys())
+        )
 
         # 3. Prepare arrays for interpolation
         keys = ["pos_x", "pos_y", "pos_z", "ori_h", "ori_p", "ori_r"]
@@ -233,7 +235,8 @@ class TrajectoryTools:
         for k in keys:
             # Extract keyframe values
             values = np.array(
-                [camera_position_trajectory[t][k] for t in keyframe_times], dtype=float
+                [camera_position_trajectory[str(t)][k] for t in keyframe_times],
+                dtype=float,
             )
 
             if k.startswith("ori_"):  # handle angular wrapping

@@ -1,7 +1,12 @@
 {
   "type": "object",
   "properties": {
-    "rendering_parameters": {
+    "_validation_mode": {
+      "type": "string",
+      "enum": ["interactive", "eulerian", "lagrangian", "cinematic"],
+      "description": "Internal field used for mode-specific validation"
+    },
+    "rendering": {
       "type": "object",
       "properties": {
         "record_video": {
@@ -22,21 +27,24 @@
         },
         "video_fps": {
           "type": "number",
-          "default": 25.0
+          "default": 25.0,
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         }
       },
       "additionalProperties": false
     },
-    "visualization_parameters": {
+    "visualization": {
       "type": "object",
       "properties": {
         "show_other_vehicles": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         },
         "show_signals": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         },
         "lane_width": {
           "type": "number",
@@ -64,32 +72,56 @@
         },
         "sky_texture": {
           "type": "string",
-          "enum": ["sky_blue", "sky_cloudy", "sky_overcast", "sky_dawn", "sky_night_stars", "sky_night_clear", "sky_night_forest", "sky_night_desert", "sky_halloween"],
+          "enum": [
+            "sky_blue",
+            "sky_cloudy",
+            "sky_overcast",
+            "sky_dawn",
+            "sky_night_stars",
+            "sky_night_clear",
+            "sky_night_forest",
+            "sky_night_desert",
+            "sky_halloween"
+          ],
           "default": "sky_cloudy"
         },
         "ground_texture": {
           "type": "string",
-          "enum": ["ground_grass", "ground_stone", "ground_sand", "ground_chess", "ground_chesslarge", "ground_halloween"],
+          "enum": [
+            "ground_grass",
+            "ground_stone",
+            "ground_sand",
+            "ground_chess",
+            "ground_chesslarge",
+            "ground_halloween"
+          ],
           "default": "ground_grass"
         },
         "viewer_height": {
           "type": "number",
-          "default": 1.5
+          "default": 1.5,
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         }
       },
       "additionalProperties": false
     },
-    "path_parameters": {
+    "paths": {
       "type": "object",
       "properties": {
         "trajectory_file": {
-          "type": "string"
+          "type": "string",
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         },
         "sumo_network_file": {
           "type": "string"
         },
+        "output_file": {
+          "type": "string",
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
+        },
         "traffic_signal_states_file": {
-          "type": "string"
+          "type": "string",
+          "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
         },
         "fence_lines_file": {
           "type": "string"
@@ -109,8 +141,9 @@
       },
       "additionalProperties": false
     },
-    "signal_parameters": {
+    "signals": {
       "type": "object",
+      "description": "Required for non-interactive modes when 'show_signals' is enabled",
       "properties": {
         "signal_design": {
           "type": "string",
@@ -142,102 +175,111 @@
         }
       }
     },
-    "mode_parameters": {
+    "modes": {
       "type": "object",
-        "properties": {
-          "eulerian": {
-            "type": "object",
-            "properties": {
-              "simtime_start": {
-                "type": "number"
-              },
-              "simtime_end": {
-                "type": "number"
-              },
-              "ego_identifier": {
-                "type": "string"
-              },
-              "camera_position": {
-                "type": "object",
-                "properties": {
-                  "pos_x": { "type": "number" },
-                  "pos_y": { "type": "number" },
-                  "pos_z": { "type": "number" },
-                  "ori_h": { "type": "number" },
-                  "ori_p": { "type": "number" },
-                  "ori_r": { "type": "number" }
-                }
+      "description": "At least one mode must be defined (eulerian, lagrangian, cinematic, or interactive). Non-interactive modes require additional fields in paths, rendering, visualization, and signals sections.",
+      "minProperties": 1,
+      "properties": {
+        "eulerian": {
+          "type": "object",
+          "properties": {
+            "simtime_start": {
+              "type": "number"
+            },
+            "simtime_end": {
+              "type": "number"
+            },
+            "ego_identifier": {
+              "type": "string"
+            },
+            "camera_position": {
+              "type": "object",
+              "properties": {
+                "pos_x": { "type": "number" },
+                "pos_y": { "type": "number" },
+                "pos_z": { "type": "number" },
+                "ori_h": { "type": "number" },
+                "ori_p": { "type": "number" },
+                "ori_r": { "type": "number" }
               }
             }
-          },
-          "lagrangian": {
-            "type": "object",
-            "properties": {
-              "simtime_start": {
-                "type": "number"
-              },
-              "simtime_end": {
-                "type": "number"
-              },
-              "ego_identifier": {
-                "type": "string"
-              }
+          }
+        },
+        "lagrangian": {
+          "type": "object",
+          "properties": {
+            "simtime_start": {
+              "type": "number"
+            },
+            "simtime_end": {
+              "type": "number"
+            },
+            "ego_identifier": {
+              "type": "string"
             }
-          },
-          "cinematic": {
-            "type": "object",
-            "properties": {
-              "simtime_start": {
-                "type": "number"
-              },
-              "simtime_end": {
-                "type": "number"
-              },
-              "ego_identifier": {
-                "type": "string"
-              },
-              "camera_position_trajectory": {
-                "type": "object",
-                "patternProperties": {
-                  "^[0-9]+(?:\\.[0-9]+)?$": {
-                    "type": "object",
-                    "properties": {
-                      "pos_x": { "type": "number" },
-                      "pos_y": { "type": "number" },
-                      "pos_z": { "type": "number" },
-                      "ori_h": { "type": "number" },
-                      "ori_p": { "type": "number" },
-                      "ori_r": { "type": "number" }
-                    },
-                    "required": ["pos_x", "pos_y", "pos_z", "ori_h", "ori_p", "ori_r"],
-                    "additionalProperties": false
-                  }
-                },
-                "additionalProperties": false
-              }
-            }
-          },
-          "interactive": {
-            "type": "object",
-            "properties": {
-              "initial_camera_position": {
-                "type": "object",
-                "properties": {
-                  "position": {
-                    "type": "array",
-                    "items": { "type": "number" },
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "description": "Camera position as [x, y, z]",
-                    "default": [120, -20, 0]
+          }
+        },
+        "cinematic": {
+          "type": "object",
+          "properties": {
+            "simtime_start": {
+              "type": "number"
+            },
+            "simtime_end": {
+              "type": "number"
+            },
+            "ego_identifier": {
+              "type": "string"
+            },
+            "camera_position_trajectory": {
+              "type": "object",
+              "patternProperties": {
+                "^[0-9]+(?:\\.[0-9]+)?$": {
+                  "type": "object",
+                  "properties": {
+                    "pos_x": { "type": "number" },
+                    "pos_y": { "type": "number" },
+                    "pos_z": { "type": "number" },
+                    "ori_h": { "type": "number" },
+                    "ori_p": { "type": "number" },
+                    "ori_r": { "type": "number" }
                   },
-                  "orientation": {
-                    "type": "array",
-                    "items": { "type": "number" },
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "description": "Camera orientation as [heading, pitch, roll]",
-                    "default": [180, 0, 0]
+                  "required": [
+                    "pos_x",
+                    "pos_y",
+                    "pos_z",
+                    "ori_h",
+                    "ori_p",
+                    "ori_r"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "interactive": {
+          "type": "object",
+          "properties": {
+            "initial_camera_position": {
+              "type": "object",
+              "properties": {
+                "position": {
+                  "type": "array",
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "description": "Camera position as [x, y, z]",
+                  "default": [120, -20, 0]
+                },
+                "orientation": {
+                  "type": "array",
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "description": "Camera orientation as [heading, pitch, roll]",
+                  "default": [180, 0, 0]
                 }
               }
             }
@@ -246,6 +288,52 @@
         }
       },
       "additionalProperties": false
+    }
+  },
+  "required": ["modes", "paths", "rendering", "visualization"],
+  "if": {
+    "properties": {
+      "_validation_mode": {
+        "const": "interactive"
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "paths": {
+        "required": ["sumo_network_file"]
+      },
+      "rendering": {
+        "required": ["video_width_px", "video_height_px"]
+      },
+      "visualization": {
+        "required": ["lane_width", "sky_texture", "ground_texture"]
+      }
+    }
+  },
+  "else": {
+    "properties": {
+      "paths": {
+        "required": [
+          "trajectory_file",
+          "output_file",
+          "traffic_signal_states_file",
+          "sumo_network_file"
+        ]
+      },
+      "rendering": {
+        "required": ["video_fps", "video_width_px", "video_height_px"]
+      },
+      "visualization": {
+        "required": [
+          "show_other_vehicles",
+          "show_signals",
+          "viewer_height",
+          "lane_width",
+          "sky_texture",
+          "ground_texture"
+        ]
+      }
     }
   }
 }
