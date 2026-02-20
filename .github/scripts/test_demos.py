@@ -28,12 +28,10 @@ sys.path.insert(0, str(repo_root / "examples"))
 
 # Import demo modules
 try:
-    from examples import (
-        demo_lagrangian,
-        demo_eulerian,
-        demo_cinematic,
-        demo_interactive,
-    )
+    import demo_lagrangian
+    import demo_eulerian
+    import demo_cinematic
+    import demo_interactive
 except ImportError as e:
     print(f"❌ Failed to import demo modules: {e}")
     print("Make sure sumo3Dviz is installed: pip install -e .")
