@@ -1,84 +1,88 @@
 name: CLI & Rendering Pipeline
 
 on:
-    push:
-        branches:
-            - main
-            - dev
-    pull_request:
-        types: [opened, synchronize]
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
-    test-rendering:
-        name: Test Demo Scripts and CLI
-        runs-on: ubuntu-latest
-        timeout-minutes: 30
+  test-rendering:
+    name: Test Demo Scripts and CLI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.9"
-                  cache: "pip"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "pip"
 
-            - name: Install system dependencies
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y libgl1 libegl1
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1 libegl1
 
-            - name: Install Python package
-              run: |
-                  pip install --upgrade pip
-                  pip install -e .
+      - name: Install Python package
+        run: |
+          pip install --upgrade pip
+          pip install -e .
 
-            - name: Verify installation
-              run: |
-                  python -c "import sumo3Dviz; print(f'sumo3Dviz version: {sumo3Dviz.__version__ if hasattr(sumo3Dviz, \"__version__\") else \"unknown\"}')"
-                  sumo3Dviz --help
+      - name: Verify installation
+        run: |
+          python -c "import sumo3Dviz; print(f'sumo3Dviz version: {sumo3Dviz.__version__ if hasattr(sumo3Dviz, \"__version__\") else \"unknown\"}')"
+          sumo3Dviz --help
 
-            - name: Extract simulation data
-              run: |
-                  unzip -o examples/barcelona_simulation/simulation_logs/vehicle_positions_ci.zip -d examples/barcelona_simulation/simulation_logs/
+      - name: Extract simulation data
+        run: |
+          unzip -o examples/barcelona_simulation/simulation_logs/vehicle_positions_ci.zip -d examples/barcelona_simulation/simulation_logs/
 
-            - name: Test Lagrangian demo
-              run: |
-                  python .github/scripts/test_lagrangian.py
-              timeout-minutes: 5
+      - name: Test Lagrangian demo
+        run: |
+          python .github/scripts/test_lagrangian.py
+        timeout-minutes: 5
 
-            - name: Test Eulerian demo
-              if: always()
-              run: |
-                  python .github/scripts/test_eulerian.py
-              timeout-minutes: 5
+      - name: Test Eulerian demo
+        if: always()
+        run: |
+          python .github/scripts/test_eulerian.py
+        timeout-minutes: 5
 
-            - name: Test Cinematic demo
-              if: always()
-              run: |
-                  python .github/scripts/test_cinematic.py
-              timeout-minutes: 5
+      - name: Test Cinematic demo
+        if: always()
+        run: |
+          python .github/scripts/test_cinematic.py
+        timeout-minutes: 5
 
-            - name: Test Interactive demo
-              if: always()
-              run: |
-                  python .github/scripts/test_interactive.py
-              timeout-minutes: 5
+      - name: Test Interactive demo
+        if: always()
+        run: |
+          python .github/scripts/test_interactive.py
+        timeout-minutes: 5
 
-            - name: Run CLI tests
-              if: always()
-              run: |
-                  python .github/scripts/test_cli.py
-              timeout-minutes: 15
+      - name: Run CLI tests
+        if: always()
+        run: |
+          python .github/scripts/test_cli.py
+        timeout-minutes: 15
 
-            - name: Upload test artifacts (on failure)
-              if: failure()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: test-outputs
-                  path: |
-                      /tmp/ci_test_*.avi
-                      /tmp/cli_test_*.avi
-                  retention-days: 7
-                  if-no-files-found: ignore
+      - name: Upload test artifacts (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-outputs
+          path: |
+            /tmp/ci_test_*.avi
+            /tmp/cli_test_*.avi
+          retention-days: 7
+          if-no-files-found: ignore
