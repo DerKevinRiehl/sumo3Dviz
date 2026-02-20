@@ -1550,9 +1550,9 @@ class RenderingTools:
         self,
         context,
         parent,
-        width=1,
-        length=1,
-        height=1,
+        width: float = 1.0,
+        length: float = 1.0,
+        height: float = 1.0,
         color=(1, 1, 1, 1),
         pos=(0, 0, 0),
     ):
@@ -1606,9 +1606,9 @@ class RenderingTools:
         self.generate_centered_box(
             context=context,
             parent=car_root,
-            width=int(width),
-            length=int(length),
-            height=int(height * 0.5),
+            width=width,
+            length=length,
+            height=height * 0.5,
             color=color,
             pos=(0, 0, y_offset + height * 0.25),
         )
@@ -1616,9 +1616,9 @@ class RenderingTools:
         self.generate_centered_box(
             context=context,
             parent=car_root,
-            width=int(width * 0.8),
-            length=int(length * 0.6),
-            height=int(height * 0.4),
+            width=width * 0.8,
+            length=length * 0.6,
+            height=height * 0.4,
             color=tuple(c * 0.9 for c in color),
             pos=(0, length * 0.1, y_offset + height * 0.7),
         )
@@ -1634,9 +1634,9 @@ class RenderingTools:
             self.generate_centered_box(
                 context=context,
                 parent=car_root,
-                width=int(tire_size),
-                length=int(tire_size * 0.6),
-                height=int(tire_size),
+                width=tire_size,
+                length=tire_size * 0.6,
+                height=tire_size,
                 color=(0, 0, 0, 1),
                 pos=(tx, ty, tire_z),
             )
