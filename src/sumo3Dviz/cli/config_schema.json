@@ -146,27 +146,29 @@
           "enum": ["simple", "three_headed", "countdown_timer"],
           "default": "three_headed"
         },
-        "traffic_light_id": {
-          "type": "string"
-        },
         "traffic_light_positions": {
-          "type": "object",
-          "properties": {
-            "ramps": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "pos_x": { "type": "number" },
-                  "pos_y": { "type": "number" },
-                  "stop_line_a": { "type": "number" },
-                  "stop_line_b": { "type": "number" },
-                  "stop_line_c": { "type": "number" },
-                  "stop_line_d": { "type": "number" }
-                },
-                "additionalProperties": false
-              }
-            }
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "pos_x": { "type": "number" },
+              "pos_y": { "type": "number" },
+              "stop_line_a": { "type": "number" },
+              "stop_line_b": { "type": "number" },
+              "stop_line_c": { "type": "number" },
+              "stop_line_d": { "type": "number" }
+            },
+            "required": [
+              "id",
+              "pos_x",
+              "pos_y",
+              "stop_line_a",
+              "stop_line_b",
+              "stop_line_c",
+              "stop_line_d"
+            ],
+            "additionalProperties": false
           }
         }
       }

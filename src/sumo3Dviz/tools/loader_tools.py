@@ -181,9 +181,9 @@ class LoaderTools:
         traffic_signal_states_file: Union[str, None],
         start_time: float,
         end_time: float,
-        traffic_light_id: str,
+        traffic_light_ids: list[str],
         video_fps: float,
-    ) -> Union[DataFrame[TrafficLightDFSchema], None]:
+    ) -> Union[dict[str, DataFrame[TrafficLightDFSchema]], None]:
         """Load and process traffic light signal states from SUMO log.
 
         Parses a SUMO traffic light states XML file, resamples to match video FPS,
@@ -194,11 +194,12 @@ class LoaderTools:
                 XML file. If None, returns None.
             start_time (float): Start time to crop signal data.
             end_time (float): End time to crop signal data.
-            traffic_light_id (str): ID of the traffic light to extract states for.
+            traffic_light_ids (list[str]): IDs of the traffic lights to extract states for.
             video_fps (float): Target video frames per second for resampling.
 
         Returns:
-            DataFrame[TrafficLightDFSchema] | None: DataFrame with columns time, state,
+            dict[str, DataFrame[TrafficLightDFSchema]] | None: Dictionary
+                mapping traffic light IDs to DataFrames with columns time, state,
                 and timer, or None if file doesn't exist or is not provided.
 
         Raises:
@@ -220,52 +221,57 @@ class LoaderTools:
         tree = ET.parse(traffic_signal_states_file)
         root = tree.getroot()
 
-        # extract the traffic light state changes for the specified traffic light
-        records = []
-        for ts in root.findall("tlsState"):
-            if ts.get("id") == traffic_light_id:
-                # extract the current timestamp
-                if (
-                    "time" not in ts.attrib
-                    or ts.get("time") is None
-                    or ts.get("state") is None
-                ):
-                    raise ValueError(
-                        "SUMO log entry missing 'time' or 'state' attribute."
-                    )
+        # initialize a dictionary to hold the processed signal data for each traffic light
+        df_signals_log_dict: dict[str, DataFrame[TrafficLightDFSchema]] = {}
 
-                time = float(cast(str, ts.get("time")))
-                state = ts.get("state")
-                records.append({"time": time, "state": state})
+        for traffic_light_id in traffic_light_ids:
+            # extract the traffic light state changes for the specified traffic light
+            records = []
+            for ts in root.findall("tlsState"):
+                if ts.get("id") == traffic_light_id:
+                    # extract the current timestamp
+                    if (
+                        "time" not in ts.attrib
+                        or ts.get("time") is None
+                        or ts.get("state") is None
+                    ):
+                        raise ValueError(
+                            "SUMO log entry missing 'time' or 'state' attribute."
+                        )
 
-        # store the time series data in a pandas DataFrame
-        df_signals_log = pd.DataFrame(records, columns=["time", "state"])
-        TrafficLightBasicDFSchema.validate(df_signals_log)
+                    time = float(cast(str, ts.get("time")))
+                    state = ts.get("state")
+                    records.append({"time": time, "state": state})
 
-        # convert the traffic light state time series to specified video fps rate
-        df_signals_log = self._convert_to_fps_rate(
-            df=cast(DataFrame[TrafficLightBasicDFSchema], df_signals_log),
-            video_fps=video_fps,
-        )
+            # store the time series data in a pandas DataFrame
+            df_signals_log = pd.DataFrame(records, columns=["time", "state"])
+            TrafficLightBasicDFSchema.validate(df_signals_log)
 
-        # shorten the data series to the specified start and end times
-        df_signals_log = df_signals_log[df_signals_log["time"] <= end_time]
-        df_signals_log = df_signals_log[df_signals_log["time"] >= start_time]
+            # convert the traffic light state time series to specified video fps rate
+            df_signals_log = self._convert_to_fps_rate(
+                df=cast(DataFrame[TrafficLightBasicDFSchema], df_signals_log),
+                video_fps=video_fps,
+            )
 
-        # add yellow phases between red-green transitions and map the state to descriptive strings
-        df_signals_log = self._add_yellow_transition(df_signals_log=df_signals_log)
-        df_signals_log["state"] = df_signals_log["state"].replace(
-            {"G": "green", "y": "yellow", "y2": "yellow2", "r": "red"}
-        )
+            # shorten the data series to the specified start and end times
+            df_signals_log = df_signals_log[df_signals_log["time"] <= end_time]
+            df_signals_log = df_signals_log[df_signals_log["time"] >= start_time]
 
-        # compute countdowns between current time and next green phase
-        df_signals_log = self._add_countdown_timer(df_signals_log=df_signals_log)
+            # add yellow phases between red-green transitions and map the state to descriptive strings
+            df_signals_log = self._add_yellow_transition(df_signals_log=df_signals_log)
+            df_signals_log["state"] = df_signals_log["state"].replace(
+                {"G": "green", "y": "yellow", "y2": "yellow2", "r": "red"}
+            )
 
-        # validate that the dataframe is consistent with the expected schema
-        df_signals_log = TrafficLightDFSchema.validate(df_signals_log)
+            # compute countdowns between current time and next green phase
+            df_signals_log = self._add_countdown_timer(df_signals_log=df_signals_log)
+
+            # validate that the dataframe is consistent with the expected schema
+            df_signals_log = TrafficLightDFSchema.validate(df_signals_log)
+            df_signals_log_dict[traffic_light_id] = df_signals_log
 
         print("\tTraffic light signals loaded ✓")
-        return df_signals_log
+        return df_signals_log_dict
 
     def load_tree_positions(
         self, xml_file: Union[str, None]

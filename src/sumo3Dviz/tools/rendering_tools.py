@@ -1002,7 +1002,7 @@ class RenderingTools:
 
     def update_traffic_light(
         self,
-        signal: str,
+        signal_state: str,
         design: str,
         timer: float,
         box_node1: NodePath,
@@ -1040,15 +1040,15 @@ class RenderingTools:
         full_color = 1.0
         dark_color = 0.2
 
-        if signal == "green":
+        if signal_state == "green":
             color_green = full_color
             color_red = dark_color
             color_yellow = dark_color
-        elif signal == "red":
+        elif signal_state == "red":
             color_green = dark_color
             color_red = full_color
             color_yellow = dark_color
-        elif signal == "yellow":
+        elif signal_state == "yellow":
             if THREE_HEAD:
                 color_green = dark_color
                 color_red = full_color
@@ -1057,7 +1057,7 @@ class RenderingTools:
                 color_green = dark_color
                 color_red = full_color
                 color_yellow = dark_color
-        elif signal == "yellow2":
+        elif signal_state == "yellow2":
             if THREE_HEAD:
                 color_green = dark_color
                 color_red = dark_color
