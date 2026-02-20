@@ -1,6 +1,5 @@
 
 Definitive:
-- create cli that can do anything (all modes) and is callable like "sumo3Dviz --mode cinematic --config configuration.yaml --output video_cinematic.avi", as a merge of all four demos I wrote
 - trajectory_tools.py "# TODO: improve the efficiency of the code by including this filtering condition"
 - Enable Traffic Light with 3 heads and countdown timer as well (no signal_style, but head_style and countdown_timer yes no)
 - Why Traffic Light not visible?

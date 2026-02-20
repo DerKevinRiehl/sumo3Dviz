@@ -98,19 +98,19 @@ You can use sumo3Dviz as command line tool (CLI), configure a variety of paramet
 1. Run sumo3Dviz in Eulerian mode:
 
 ```
-sumo3Dviz --config config.yaml --mode eulerian --output vid_eul.avi
+sumo3Dviz --config config.yaml --mode eulerian --output results/vid_eul.avi
 ```
 
 2. Run sumo3Dviz in Lagrangian mode:
 
 ```
-sumo3Dviz --config config.yaml --mode lagrangian --output vid_lag.avi
+sumo3Dviz --config config.yaml --mode lagrangian --output results/vid_lag.avi
 ```
 
 3. Run sumo3Dviz in Cinematic mode:
 
 ```
-sumo3Dviz --config config.yaml --mode cinematic --output vid_cin.avi
+sumo3Dviz --config config.yaml --mode cinematic --output results/vid_cin.avi
 ```
 
 4. Run sumo3Dviz in Interactive mode:

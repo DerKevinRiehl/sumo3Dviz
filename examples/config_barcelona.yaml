@@ -46,7 +46,6 @@ visualization:
 # PATH PARAMETERS (REQUIRED)
 # ================================================================================
 paths:
-  output_file: "results/barcelona_simulation.mp4"
   trajectory_file: "examples/barcelona_simulation/simulation_logs/vehicle_positions.xml"
   sumo_network_file: "examples/barcelona_simulation/Network.net.xml"
   traffic_signal_states_file: "examples/barcelona_simulation/simulation_logs/signal_states.xml"

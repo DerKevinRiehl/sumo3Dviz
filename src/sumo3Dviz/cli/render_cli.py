@@ -7,9 +7,9 @@ Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 # the configuration parameters in the corresponding configuration script.
 #
 # Example commands (using the entry-point script):
-# sumo3Dviz --config examples/config_barcelona.yaml --mode lagrangian
-# sumo3Dviz --config examples/config_barcelona.yaml --mode eulerian
-# sumo3Dviz --config examples/config_barcelona.yaml --mode cinematic
+# sumo3Dviz --config examples/config_barcelona.yaml --mode lagrangian --output results/output_lagrangian.avi
+# sumo3Dviz --config examples/config_barcelona.yaml --mode eulerian --output results/output_eulerian.avi
+# sumo3Dviz --config examples/config_barcelona.yaml --mode cinematic --output results/output_cinematic.avi
 # sumo3Dviz --config examples/config_barcelona.yaml --mode interactive
 
 import cv2
@@ -47,6 +47,13 @@ def main():
         help="Path to the configuration file containing all necessary parameters to run the video generation pipeline.",
     )
     parser.add_argument(
+        "--output",
+        type=str,
+        required=False,
+        default=None,
+        help="Path to the output video file (.avi) where the rendered visualization will be saved. Required if --mode is not 'interactive'.",
+    )
+    parser.add_argument(
         "--mode",
         type=str,
         choices=["lagrangian", "eulerian", "cinematic", "interactive"],
@@ -62,6 +69,10 @@ def main():
     config_path = args.config
     mode = args.mode
     headless = args.headless
+
+    # enforce conditional requirement: --output is required for non-interactive modes
+    if mode != "interactive" and not args.output:
+        parser.error("--output is required when --mode is not 'interactive'.")
 
     # load the configuration from the specified YAML file
     configuration = load_configuration(config_path)
@@ -157,7 +168,7 @@ def main():
     # Create video writer (only for non-interactive modes)
     if mode != "interactive" and configuration["rendering"].get("record_video", False):
         video_writer = cv2.VideoWriter(
-            filename=configuration["paths"]["output_file"],
+            filename=args.output,
             fourcc=cv2.VideoWriter.fourcc(*"MJPG"),
             fps=configuration["rendering"]["video_fps"],
             frameSize=(
