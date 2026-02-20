@@ -6,10 +6,12 @@ Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 # This script renders a 3D visualization of a SUMO simulation scenario using
 # the configuration parameters in the corresponding configuration script.
 #
-# Example command:
-# python src/sumo3Dviz/cli/render_cli.py --config examples/config_barcelona.yaml
+# Example commands (using the entry-point script):
+# sumo3Dviz --config examples/config_barcelona.yaml --mode lagrangian
+# sumo3Dviz --config examples/config_barcelona.yaml --mode eulerian
+# sumo3Dviz --config examples/config_barcelona.yaml --mode cinematic
+# sumo3Dviz --config examples/config_barcelona.yaml --mode interactive
 
-import os
 import cv2
 import argparse
 from typing import cast
@@ -35,7 +37,7 @@ from sumo3Dviz.cli.configuration_helpers import (
 
 
 def main():
-    # ! Get configuration parameters from specified file
+    # ! STEP 1: Get configuration parameters from specified file and validate
     # region
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -47,9 +49,9 @@ def main():
     parser.add_argument(
         "--mode",
         type=str,
-        choices=["lagrangian", "cinematic", "eulerian", "cinematic"],
+        choices=["lagrangian", "eulerian", "cinematic", "interactive"],
         default="lagrangian",
-        help="The mode in which the visualization should be rendered. Options are: 'lagrangian', 'cinematic', 'eulerian', 'cinematic'. Default is 'lagrangian'.",
+        help="The mode in which the visualization should be rendered. Options are: 'lagrangian', 'eulerian', 'cinematic', 'interactive'. Default is 'lagrangian'.",
     )
     parser.add_argument(
         "--headless",
@@ -58,239 +60,399 @@ def main():
     )
     args = parser.parse_args()
     config_path = args.config
+    mode = args.mode
     headless = args.headless
 
     # load the configuration from the specified YAML file
-    config = load_configuration(config_path)
+    configuration = load_configuration(config_path)
 
-    # validate the configuration against the schema
-    validate_configuration(config)
+    # validate the configuration against the schema for the specified mode
+    validate_configuration(configuration, mode=mode)
     # endregion
 
-    # ! LOADER FUNCTIONS
+    # ! STEP 2: Load the data (trajectories, positions of static objects, etc.) using the helper functions
     # region
     loader = LoaderTools()
-    interaction_tools = InteractionTools()
-    rendering_tools = RenderingTools()
-    trajectory_tools = TrajectoryTools()
 
-    # load the trajectories from the SUMO log and apply trajectory smoothing to them
-    (
-        df_ego_smoothed,
-        smoothened_trajectory_data,
-        video_start_idx,
-        video_end_idx,
-    ) = loader.load_trajectory(
-        trajectory_file=os.path.join(os.getcwd(), config["paths"]["trajectory_file"]),
-        ego_identifier=config["paths"]["ego_identifier"],
-        simtime_start=config["paths"]["simtime_start"],
-        simtime_end=config["paths"]["simtime_end"],
-        video_fps=config["video_parameters"]["video_fps"],
-        show_other_vehicles=config["visualization"]["show_other_vehicles"],
-    )
+    # Initialize variables for type checker
+    trajectories = None
+    cars = None
+    signals = None
 
-    # add veh_id column to df_ego_smoothed for compatibility
-    df_ego_smoothed["veh_id"] = config["paths"]["ego_identifier"]
+    # Load trajectories and traffic signals (only for non-interactive modes)
+    if mode != "interactive":
+        print(50 * "#")
+        print("  ==>  Loading Trajectories")
+        print(50 * "#")
+        (
+            ego_trajectory,
+            trajectory_data,
+            video_start_idx,
+            video_end_idx,
+        ) = loader.load_trajectory(
+            trajectory_file=configuration["paths"]["trajectory_file"],
+            ego_identifier=configuration["modes"][mode]["ego_identifier"],
+            simtime_start=configuration["modes"][mode]["simtime_start"],
+            simtime_end=configuration["modes"][mode]["simtime_end"],
+            video_fps=configuration["rendering"]["video_fps"],
+            show_other_vehicles=configuration["visualization"]["show_other_vehicles"],
+        )
+        ego_trajectory["veh_id"] = configuration["modes"][mode]["ego_identifier"]
 
-    # load traffic light signal
-    df_traffic_light = loader.load_traffic_light_signals(
-        traffic_signal_states_file=config["traffic_signals"][
-            "traffic_signal_states_file"
-        ],
-        start_time=df_ego_smoothed["time"].iloc[0] - 0.001,
-        end_time=df_ego_smoothed["time"].iloc[-1] + 0.001,
-        traffic_light_id=config["traffic_signals"]["traffic_light_id"],
-        video_fps=config["video_parameters"]["video_fps"],
-    )
+        # load traffic light signal
+        signal_states = loader.load_traffic_light_signals(
+            traffic_signal_states_file=configuration["paths"][
+                "traffic_signal_states_file"
+            ],
+            start_time=ego_trajectory["time"].iloc[0] - 0.001,
+            end_time=ego_trajectory["time"].iloc[-1] + 0.001,
+            traffic_light_id=configuration["signals"]["traffic_light_id"],
+            video_fps=configuration["rendering"]["video_fps"],
+        )
+        print(50 * "#")
+        trajectories = {
+            "ego_trajectory": ego_trajectory,
+            "trajectory_data": trajectory_data,
+            "video_start_idx": video_start_idx,
+            "video_end_idx": video_end_idx,
+            "signal_states": signal_states,
+        }
 
-    # load the tree positions
+    print(50 * "#")
+    print("  ==>  Loading Resources")
+    print(50 * "#")
+    # load the tree positions from the provided XML file (used to place
+    # decorative tree models in the scene)
     tree_positions = loader.load_tree_positions(
-        xml_file=config["visualization"]["tree_positions_file"]
+        xml_file=configuration["paths"]["tree_positions_file"]
     )
-
-    # load the fence lines
+    # load the fence line definitions (highway barriers / guard rails)
     fence_lines = loader.load_fence_lines(
-        xml_file=config["visualization"]["fence_lines_file"]
+        xml_file=configuration["paths"]["fence_lines_file"]
     )
-
-    # load shop, home, block positions
-    # (using the same function as for shops for simplicity)
+    # load shop positions (building placements for commercial structures)
     shop_positions = loader.load_shop_positions(
-        xml_file=config["visualization"]["shops_positions_file"]
+        xml_file=configuration["paths"]["shops_positions_file"]
     )
-    homes_positions = loader.load_shop_positions(
-        xml_file=config["visualization"]["homes_positions_file"]
+    # load home positions (residential building placements)
+    home_positions = loader.load_shop_positions(
+        xml_file=configuration["paths"]["homes_positions_file"]
     )
+    # load block positions (larger building blocks / apartment clusters)
     block_positions = loader.load_shop_positions(
-        xml_file=config["visualization"]["blocks_positions_file"]
+        xml_file=configuration["paths"]["blocks_positions_file"]
     )
+    print(50 * "#")
+    positions = {
+        "tree": tree_positions,
+        "fence": fence_lines,
+        "shop": shop_positions,
+        "home": home_positions,
+        "block": block_positions,
+    }
     # endregion
 
-    # ! RENDERING CALLS
+    # ! STEP 3: Set up Panda3D and the video writer (if video recording is enabled in the configuration)
     # region
-    # if the video should be stored, initialize the video writer
-    if config["video_parameters"]["record_video"]:
+    # Create video writer (only for non-interactive modes)
+    if mode != "interactive" and configuration["rendering"].get("record_video", False):
         video_writer = cv2.VideoWriter(
-            filename=config["video_parameters"]["output_file"],
+            filename=configuration["paths"]["output_file"],
             fourcc=cv2.VideoWriter.fourcc(*"MJPG"),
-            fps=config["video_parameters"]["video_fps"],
+            fps=configuration["rendering"]["video_fps"],
             frameSize=(
-                config["video_parameters"]["video_width_px"],
-                config["video_parameters"]["video_height_px"],
+                configuration["rendering"]["video_width_px"],
+                configuration["rendering"]["video_height_px"],
             ),
             isColor=True,
         )
     else:
         video_writer = None
 
-    # create 3D rendering context
-    if headless:
+    # Setup headless mode if specified via CLI or config
+    if headless or configuration["rendering"].get("headless", False):
         loadPrcFileData("", "window-type offscreen")
+
     loadPrcFileData(
         "",
         "win-size "
-        + str(config["video_parameters"]["video_width_px"])
+        + str(configuration["rendering"]["video_width_px"])
         + " "
-        + str(config["video_parameters"]["video_height_px"]),
+        + str(configuration["rendering"]["video_height_px"]),
     )
     loadPrcFileData("", "framebuffer-multisample 1")
     context = ShowBase()
     context.render.setAntialias(AntialiasAttrib.MAuto)
     fbprobs = FrameBufferProperties()
     fbprobs.setMultisamples(8)
+    # endregion
 
-    # add camera control
-    interaction_tools.add_camera_control_interactive_mode(context)
+    # ! STEP 4: Create the world scene (road, lane markings, trees, sky, etc.) using the rendering tools and the loaded data
+    # region
+    print(50 * "#")
+    print("  ==>  Rendering World")
+    print(50 * "#")
+    rendering_tools = RenderingTools()
 
-    # add the road network
-    rendering_tools.create_road_network(
-        context=context,
-        sumo_network_file=os.path.join(
-            os.getcwd(), config["paths"]["sumo_network_file"]
-        ),
-        lane_width=config["paths"]["lane_width"],
-        sep_line_width=config["paths"]["sep_line_width"],
-    )  # roads / sumo network
+    # set initial camera position based on mode
+    if mode == "interactive":
+        # set initial camera position from config
+        cast(Camera, context.camera).setPos(
+            *configuration["modes"]["interactive"]["initial_camera_position"][
+                "position"
+            ]
+        )
+        cast(Camera, context.camera).setHpr(
+            *configuration["modes"]["interactive"]["initial_camera_position"][
+                "orientation"
+            ]
+        )
+    else:
+        # set initial camera position to ego vehicle start pose
+        # (for lagrangian, eulerian, and cinematic modes)
+        assert (
+            trajectories is not None
+        ), "Trajectories must be loaded for non-interactive modes"
+        cast(Camera, context.camera).setPos(
+            trajectories["ego_trajectory"]["pos_x"].iloc[
+                trajectories["video_start_idx"]
+            ],
+            trajectories["ego_trajectory"]["pos_y"].iloc[
+                trajectories["video_start_idx"]
+            ],
+            configuration["visualization"]["viewer_height"],
+        )
+        cast(Camera, context.camera).setHpr(120, 0, 0)
 
-    # add scenery elements
-    # light source (otherwise all will be dark)
+    # setup interactive mode controls and HUD if in interactive mode
+    if mode == "interactive":
+        # head up display (HUD) to inform user in interactive mode
+        rendering_tools.render_hud(context=context)
+
+        # setup interactive camera controls
+        interaction_tools = InteractionTools()
+        interaction_tools.add_camera_control_interactive_mode(context)
+
+    # create a light source to ensure scene objects are visible
     rendering_tools.create_light(context=context)
 
-    # skybox / skydome
+    # create skybox / skydome and ground plane with configured textures
     rendering_tools.create_sky(
-        context=context, sky_texture=config["visualization"]["sky_texture"]
+        context=context,
+        sky_texture=configuration["visualization"]["sky_texture"],
     )
-
-    # grass floor
     rendering_tools.create_ground(
-        context=context, ground_texture=config["visualization"]["ground_texture"]
+        context=context,
+        ground_texture=configuration["visualization"]["ground_texture"],
     )
 
-    # trees
+    # create the road network from the SUMO network file (lanes and markings)
+    rendering_tools.create_road_network(
+        context=context,
+        sumo_network_file=configuration["paths"]["sumo_network_file"],
+        lane_width=configuration["visualization"]["lane_width"],
+        sep_line_width=configuration["visualization"]["sep_line_width"],
+    )
+
+    # instantiate tree models at the loaded tree positions
     rendering_tools.create_trees(
         context=context,
-        tree_positions=tree_positions,
+        tree_positions=positions["tree"],
+        tree_scale_1=configuration["visualization"].get("tree_scale_1", 0.2),
+        tree_scale_2=configuration["visualization"].get("tree_scale_2", 0.5),
+        tree_size_variability=configuration["visualization"].get(
+            "tree_size_variability", 1.0
+        ),
+        tree_color_variability=configuration["visualization"].get(
+            "tree_color_variability", 0.1
+        ),
     )
 
-    # highway fences
-    rendering_tools.create_highway_fences(context=context, fence_lines=fence_lines)
+    # create highway fences / guard rails using the fence line definitions
+    rendering_tools.create_highway_fences(
+        context=context,
+        fence_lines=positions["fence"],
+    )
 
-    # buildings: shops, homes, blocks
+    # create building models (shops, homes, blocks) at their positions
     rendering_tools.create_building_shops(
         context=context,
-        shop_positions=shop_positions,
+        shop_positions=positions["shop"],
     )
     rendering_tools.create_building_homes(
         context=context,
-        homes_positions=homes_positions,
+        homes_positions=positions["home"],
     )
     rendering_tools.create_building_blocks(
         context=context,
-        block_positions=block_positions,
+        block_positions=positions["block"],
     )
 
-    # load cars and ego vehicle car
-    car_models = loader.load_car_models(context=context)
-    ego_car = loader.load_ego_car_model(context=context)
-    ego_car.setPos(config["paths"]["lane_width"] / 2, 25, 0)
-    ego_car.setHpr(180, 90, 0)
+    # load car models and place the ego vehicle model in the scene (only for non-interactive modes)
+    if mode != "interactive":
+        car_models = loader.load_car_models(context=context)
+        ego_car = loader.load_ego_car_model(context=context)
+        ego_car.setPos(configuration["visualization"]["lane_width"] / 2, 25, 0)
+        ego_car.setHpr(180, 90, 0)
 
-    # traffic light and ramp metering
-    if config["traffic_signals"]["ramp_metering"]:
-        box_node1, box_node2, box_node3, text_node = (
-            rendering_tools.create_traffic_light(
+        # create traffic light models and auxiliary stop lines when enabled
+        if configuration["visualization"]["show_signals"]:
+            box_node1, box_node2, box_node3, text_node = (
+                rendering_tools.create_traffic_light(
+                    context=context,
+                    design=configuration["signals"]["signal_design"],
+                    x=configuration["signals"]["traffic_light_positions"]["ramp_1"][
+                        "pos_x"
+                    ],
+                    y=configuration["signals"]["traffic_light_positions"]["ramp_1"][
+                        "pos_y"
+                    ],
+                    z=0,
+                )
+            )
+            rendering_tools.create_white_signal_line(
                 context=context,
-                design=config["traffic_signals"]["design"],
-                x=config["traffic_signals"]["ramp"]["pos_x"],
-                y=config["traffic_signals"]["ramp"]["pos_y"],
-                z=0,
+                p1=configuration["signals"]["traffic_light_positions"]["ramp_1"][
+                    "stop_line_a"
+                ],
+                p2=configuration["signals"]["traffic_light_positions"]["ramp_1"][
+                    "stop_line_b"
+                ],
+                p3=configuration["signals"]["traffic_light_positions"]["ramp_1"][
+                    "stop_line_c"
+                ],
+                p4=configuration["signals"]["traffic_light_positions"]["ramp_1"][
+                    "stop_line_d"
+                ],
+                sep_line_width=configuration["visualization"]["sep_line_width"],
+            )
+        else:
+            box_node1, box_node2, box_node3, text_node = None, None, None, None
+        print(50 * "#")
+        cars = {"ego_car": ego_car, "car_models": car_models}
+        signals = {
+            "box_node1": box_node1,
+            "box_node2": box_node2,
+            "box_node3": box_node3,
+            "text_node": text_node,
+        }
+    # endregion
+
+    # ! STEP 5: Launch the simulation in the specified mode
+    # region
+    if mode == "interactive":
+        # Interactive mode: just run the context with keyboard controls
+        print(50 * "#")
+        print("  ==>  Launch Interactive Mode")
+        print(50 * "#")
+        context.run()
+    elif mode == "lagrangian":
+        # Lagrangian mode: camera follows the ego vehicle
+        # The `SimulationManager` encapsulates the update loop: at each frame it
+        # advances the ego and other vehicle poses, updates traffic light
+        # visual states, and writes frames to `video_writer` when recording is
+        # enabled. We hand the manager the pre-built scene and trajectory data
+        # and let it drive the Panda3D task manager.
+        assert (
+            trajectories is not None and cars is not None and signals is not None
+        ), "Data must be loaded for lagrangian mode"
+        simulation_manager = SimulationManager(
+            context=context,
+            configuration=configuration,
+            trajectory_data=trajectories,
+            car_instances=cars,
+            rendering_tools=rendering_tools,
+            video_writer=video_writer,
+            signal_instances=signals,
+        )
+        context.taskMgr.doMethodLater(
+            0.0, simulation_manager.update_world, "update_world"
+        )
+        context.run()
+
+        # once completed, release the video writer
+        if (
+            configuration["rendering"].get("record_video", False)
+            and video_writer is not None
+        ):
+            video_writer.release()
+    elif mode == "eulerian":
+        # Eulerian mode: camera is fixed at a specific position
+        # The `SimulationManager` encapsulates the update loop: at each frame it
+        # advances the ego and other vehicle poses, updates traffic light
+        # visual states, and writes frames to `video_writer` when recording is
+        # enabled. We hand the manager the pre-built scene and trajectory data
+        # and let it drive the Panda3D task manager.
+        assert (
+            trajectories is not None and cars is not None and signals is not None
+        ), "Data must be loaded for eulerian mode"
+        simulation_manager = SimulationManager(
+            context=context,
+            configuration=configuration,
+            trajectory_data=trajectories,
+            car_instances=cars,
+            rendering_tools=rendering_tools,
+            video_writer=video_writer,
+            signal_instances=signals,
+            camera_position=configuration["modes"]["eulerian"]["camera_position"],
+            show_other_vehicles_simple=True,
+        )
+        context.taskMgr.doMethodLater(
+            0.0, simulation_manager.update_world, "update_world"
+        )
+        context.run()
+
+        # once completed, release the video writer
+        if (
+            configuration["rendering"].get("record_video", False)
+            and video_writer is not None
+        ):
+            video_writer.release()
+    elif mode == "cinematic":
+        # Cinematic mode: camera follows a smoothened trajectory through keyframes
+        # The `SimulationManager` encapsulates the update loop: at each frame it
+        # advances the ego and other vehicle poses, updates traffic light
+        # visual states, and writes frames to `video_writer` when recording is
+        # enabled. We hand the manager the pre-built scene and trajectory data
+        # and let it drive the Panda3D task manager.
+        assert (
+            trajectories is not None and cars is not None and signals is not None
+        ), "Data must be loaded for cinematic mode"
+        # prepare cinematic camera trajectory
+        trajectory_tools = TrajectoryTools()
+        smoothened_camera_trajectory = (
+            trajectory_tools.generate_camera_cinematic_trajectory(
+                camera_position_trajectory=configuration["modes"]["cinematic"][
+                    "camera_position_trajectory"
+                ],
+                simtime_start=configuration["modes"]["cinematic"]["simtime_start"],
+                simtime_end=configuration["modes"]["cinematic"]["simtime_end"],
+                video_fps=configuration["rendering"]["video_fps"],
             )
         )
 
-        rendering_tools.create_white_signal_line(
+        simulation_manager = SimulationManager(
             context=context,
-            p1=config["traffic_signals"]["ramp"]["stop_line_a"],
-            p2=config["traffic_signals"]["ramp"]["stop_line_b"],
-            p3=config["traffic_signals"]["ramp"]["stop_line_c"],
-            p4=config["traffic_signals"]["ramp"]["stop_line_d"],
-            sep_line_width=config["paths"]["sep_line_width"],
+            configuration=configuration,
+            trajectory_data=trajectories,
+            car_instances=cars,
+            rendering_tools=rendering_tools,
+            video_writer=video_writer,
+            signal_instances=signals,
+            cinematic_camera_trajectory=smoothened_camera_trajectory,
+            show_other_vehicles_simple=True,
         )
-    else:
-        box_node1, box_node2, box_node3, text_node = None, None, None, None
+        context.taskMgr.doMethodLater(
+            0.0, simulation_manager.update_world, "update_world"
+        )
+        context.run()
 
-    # set the initial camera position
-    cast(Camera, context.camera).setPos(
-        df_ego_smoothed["pos_x"].iloc[video_start_idx],
-        df_ego_smoothed["pos_y"].iloc[video_start_idx],
-        config["visualization"]["viewer_height"],
-    )
-    cast(Camera, context.camera).setHpr(120, 0, 0)
-    # endregion
-
-    # ! RUN SIMULATION / RENDERING LOOP
-    # region
-    # convert list of tuples for easier access
-    trajectory_points = df_ego_smoothed[
-        ["veh_id", "pos_x", "pos_y", "computed_angle_deg", "time"]
-    ].values
-    signal_points = (
-        df_traffic_light[["time", "state", "timer"]].values
-        if df_traffic_light is not None
-        else None
-    )
-
-    # create the simulation manager
-    simulation_manager = SimulationManager(
-        context=context,
-        trajectory_points=trajectory_points,
-        signal_points=signal_points,
-        video_start_idx=video_start_idx,
-        video_end_idx=video_end_idx,
-        car_models=car_models,
-        ego_car=ego_car,
-        smoothened_trajectory_data=smoothened_trajectory_data,
-        trajectory_tools=trajectory_tools,
-        rendering_tools=rendering_tools,
-        viewer_height=config["visualization"]["viewer_height"],
-        show_other_vehicles=config["visualization"]["show_other_vehicles"],
-        ramp_metering=config["traffic_signals"]["ramp_metering"],
-        design=config["traffic_signals"]["design"],
-        video_width_px=config["video_parameters"]["video_width_px"],
-        video_height_px=config["video_parameters"]["video_height_px"],
-        video_writer=video_writer,
-        box_node1=box_node1,
-        box_node2=box_node2,
-        box_node3=box_node3,
-        text_node=text_node,
-    )
-
-    # assign the update function to the task manager
-    context.taskMgr.doMethodLater(0.0, simulation_manager.update_world, "update_world")
-    context.run()
-
-    # once completed, release the video writer
-    if config["video_parameters"]["record_video"] and video_writer is not None:
-        video_writer.release()
+        # once completed, release the video writer
+        if (
+            configuration["rendering"].get("record_video", False)
+            and video_writer is not None
+        ):
+            video_writer.release()
     # endregion
 
 

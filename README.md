@@ -116,7 +116,7 @@ sumo3Dviz --config config.yaml --mode cinematic --output vid_cin.avi
 4. Run sumo3Dviz in Interactive mode:
 
 ```
-sumo3Dviz --config config.yaml --mode interactive --output vid_int.avi
+sumo3Dviz --config config.yaml --mode interactive
 ```
 
 ## Case Study: Barcelona
