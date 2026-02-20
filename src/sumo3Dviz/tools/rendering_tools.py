@@ -9,6 +9,7 @@ import numpy as np
 from typing import Tuple, Union
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import (
+    Camera,
     Geom,
     GeomNode,
     GeomVertexData,
@@ -738,9 +739,10 @@ class RenderingTools:
                 color_green = dark_color
                 color_red = full_color
                 color_yellow = dark_color
-        color_green = full_color
-        color_red = full_color
-        color_yellow = full_color
+        else:
+            color_green = dark_color
+            color_red = dark_color
+            color_yellow = dark_color
 
         if THREE_HEAD:
             box_node1 = context.render.attachNewNode(
@@ -1532,7 +1534,7 @@ class RenderingTools:
 
         # update task (used in interactive mode)
         def update_camera_text_interactive(task):
-            cam = context.camera
+            cam: Camera = context.camera
             pos = cam.getPos()
             hpr = cam.getHpr()
             cam_text.setText(
@@ -1604,9 +1606,9 @@ class RenderingTools:
         self.generate_centered_box(
             context=context,
             parent=car_root,
-            width=width,
-            length=length,
-            height=height * 0.5,
+            width=int(width),
+            length=int(length),
+            height=int(height * 0.5),
             color=color,
             pos=(0, 0, y_offset + height * 0.25),
         )
@@ -1614,9 +1616,9 @@ class RenderingTools:
         self.generate_centered_box(
             context=context,
             parent=car_root,
-            width=width * 0.8,
-            length=length * 0.6,
-            height=height * 0.4,
+            width=int(width * 0.8),
+            length=int(length * 0.6),
+            height=int(height * 0.4),
             color=tuple(c * 0.9 for c in color),
             pos=(0, length * 0.1, y_offset + height * 0.7),
         )
@@ -1632,9 +1634,9 @@ class RenderingTools:
             self.generate_centered_box(
                 context=context,
                 parent=car_root,
-                width=tire_size,
-                length=tire_size * 0.6,
-                height=tire_size,
+                width=int(tire_size),
+                length=int(tire_size * 0.6),
+                height=int(tire_size),
                 color=(0, 0, 0, 1),
                 pos=(tx, ty, tire_z),
             )
