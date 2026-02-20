@@ -44,6 +44,7 @@ jobs:
               timeout-minutes: 15
 
             - name: Run CLI tests
+              if: always()
               run: |
                   python .github/scripts/test_cli.py
               timeout-minutes: 15

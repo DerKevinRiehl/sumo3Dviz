@@ -151,6 +151,9 @@ def main(config_override=None, max_frames=None):
 
     # ! STEP 3: Set up Panda3D
     # region
+    if configuration["rendering"].get("headless", False):
+        loadPrcFileData("", "window-type offscreen")
+
     loadPrcFileData(
         "",
         "win-size "

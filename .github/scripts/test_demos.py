@@ -28,10 +28,10 @@ sys.path.insert(0, str(repo_root / "examples"))
 
 # Import demo modules
 try:
-    import demo_lagrangian
-    import demo_eulerian
-    import demo_cinematic
-    import demo_interactive
+    import demo_lagrangian  # type: ignore
+    import demo_eulerian  # type: ignore
+    import demo_cinematic  # type: ignore
+    import demo_interactive  # type: ignore
 except ImportError as e:
     print(f"❌ Failed to import demo modules: {e}")
     print("Make sure sumo3Dviz is installed: pip install -e .")
@@ -50,32 +50,36 @@ CI_CONFIG_OVERRIDE = {
 }
 
 # Mode-specific overrides for short simulation times
+# Only override the time parameters, keeping all other mode settings
 LAGRANGIAN_OVERRIDE = {
-    **CI_CONFIG_OVERRIDE,
+    "rendering": CI_CONFIG_OVERRIDE["rendering"].copy(),
     "modes": {
         "lagrangian": {
             "simtime_start": 40.0,
             "simtime_end": 45.0,  # 5 seconds
+            "ego_identifier": "flow_0_car_aggr1_route_E3_AEnd_lane0.0",
         }
     },
 }
 
 EULERIAN_OVERRIDE = {
-    **CI_CONFIG_OVERRIDE,
+    "rendering": CI_CONFIG_OVERRIDE["rendering"].copy(),
     "modes": {
         "eulerian": {
             "simtime_start": 40.0,
             "simtime_end": 45.0,  # 5 seconds
+            "ego_identifier": "flow_0_car_aggr1_route_E3_AEnd_lane0.0",
         }
     },
 }
 
 CINEMATIC_OVERRIDE = {
-    **CI_CONFIG_OVERRIDE,
+    "rendering": CI_CONFIG_OVERRIDE["rendering"].copy(),
     "modes": {
         "cinematic": {
             "simtime_start": 142.0,
             "simtime_end": 145.0,  # 3 seconds
+            "ego_identifier": "flow_0_car_aggr1_route_E3_AEnd_lane0.0",
         }
     },
 }
