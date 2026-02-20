@@ -3,7 +3,6 @@ Authors: Kevin Riehl <kriehl@ethz.ch>, Julius Schlapbach <juliussc@ethz.ch>
 Organisation: ETH Zürich, Institute for Transport Planning and Systems (IVT)
 """
 
-import warnings
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
@@ -144,9 +143,6 @@ class TrajectoryTools:
         try:
             df_smoothed = df_smoothed.drop(df_smoothed.index[0])
         except Exception:
-            # warnings.warn(
-            #     "Trajectory too short to interpolate (less than 2 data points). Skipping trajectory."
-            # )
             return None
 
         # compute the movement direction (rad and deg) based on the position changes
@@ -280,6 +276,22 @@ class TrajectoryTools:
         df_simulation_log_cars: DataFrame[TrajectoryDFSchema],
         video_fps: float,
     ) -> list[DataFrame[SmoothenedTrajectoryDFSchema]]:
+        """Process and smooth trajectories for all vehicles except the ego vehicle.
+
+        Iterates through all vehicles in the simulation log, normalizes angles,
+        and applies interpolation and smoothing to each trajectory.
+
+        Args:
+            ego_identifier (str): Vehicle ID of the ego vehicle to exclude from
+                processing.
+            df_simulation_log_cars (DataFrame[TrajectoryDFSchema]): Complete simulation
+                log containing trajectories for all vehicles.
+            video_fps (float): Target video frames per second for resampling.
+
+        Returns:
+            list[DataFrame[SmoothenedTrajectoryDFSchema]]: List of smoothed trajectory
+                DataFrames for all vehicles except the ego vehicle.
+        """
 
         grouped_trajectories = df_simulation_log_cars.groupby("veh_id")
         # materialize groups to a list so we can iterate multiple times
