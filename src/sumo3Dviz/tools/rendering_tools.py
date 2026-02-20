@@ -9,6 +9,7 @@ import numpy as np
 from typing import Tuple, Union
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import (
+    Camera,
     Geom,
     GeomNode,
     GeomVertexData,
@@ -738,9 +739,10 @@ class RenderingTools:
                 color_green = dark_color
                 color_red = full_color
                 color_yellow = dark_color
-        color_green = full_color
-        color_red = full_color
-        color_yellow = full_color
+        else:
+            color_green = dark_color
+            color_red = dark_color
+            color_yellow = dark_color
 
         if THREE_HEAD:
             box_node1 = context.render.attachNewNode(
@@ -1532,7 +1534,7 @@ class RenderingTools:
 
         # update task (used in interactive mode)
         def update_camera_text_interactive(task):
-            cam = context.camera
+            cam: Camera = context.camera
             pos = cam.getPos()
             hpr = cam.getHpr()
             cam_text.setText(
@@ -1548,9 +1550,9 @@ class RenderingTools:
         self,
         context,
         parent,
-        width=1,
-        length=1,
-        height=1,
+        width: float = 1.0,
+        length: float = 1.0,
+        height: float = 1.0,
         color=(1, 1, 1, 1),
         pos=(0, 0, 0),
     ):

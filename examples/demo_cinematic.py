@@ -98,16 +98,16 @@ mode_configuration = {
         "signal_design": "three_headed",  # DESIGN TYPES: simple, three_headed, countdown_timer
         "traffic_light_positions": {
             "ramp_1": {
-                "pos_x": 20217.08 - 0.0,
-                "pos_y": 18261.92 + 0.0,
+                "pos_x": 19315.13 - 0.0,
+                "pos_y": 17822.42 + 4.5,
                 "stop_line_a": 20224.71,
                 "stop_line_b": 18264.87,
                 "stop_line_c": 20226.77,
                 "stop_line_d": 18261.15,
             },
             "ramp_2": {
-                "pos_x": 19315.13 - 0.0,
-                "pos_y": 17822.42 + 4.5,
+                "pos_x": 20217.08 - 0.0,
+                "pos_y": 18261.92 + 0.0,
                 "stop_line_a": 20224.71,
                 "stop_line_b": 18264.87,
                 "stop_line_c": 20226.77,
@@ -323,6 +323,7 @@ def main(config_override=None, output_file_override=None):
         configuration["visualization"]["viewer_height"],
     )
     cast(Camera, context.camera).setHpr(120, 0, 0)
+
     # create a light source to ensure scene objects are visible
     rendering_tools.create_light(context=context)
 
