@@ -20,6 +20,11 @@
     </center>
 </h1>
 
+[![PyPI version](https://img.shields.io/pypi/v/sumo3Dviz)](https://pypi.org/project/sumo3Dviz/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Build](https://github.com/DerKevinRiehl/sumo3Dviz/actions/workflows/build.yml/badge.svg)](https://github.com/DerKevinRiehl/sumo3Dviz/actions/workflows/build.yml)
+[![CLI](https://github.com/DerKevinRiehl/sumo3Dviz/actions/workflows/test_rendering.yml/badge.svg)](https://github.com/DerKevinRiehl/sumo3Dviz/actions/workflows/test_rendering.yml)
+
 **sumo3Dviz** is a lightweight, open-source 3D visualisation pipeline for SUMO traffic simulations.
 It converts standard SUMO simulation outputs, such as vehicle trajectories and signal states, into high-quality 3D renderings using a Python-based framework.
 
