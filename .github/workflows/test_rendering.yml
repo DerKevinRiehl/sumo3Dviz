@@ -1,4 +1,4 @@
-name: Test Rendering Pipeline
+name: CLI & Rendering Pipeline
 
 on:
     push:
