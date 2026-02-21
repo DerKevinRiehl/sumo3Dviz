@@ -158,6 +158,7 @@ class RenderingTools:
         ground_texture: Union[str, None] = None,
         ground_texture_file: Union[str, None] = None,
         INFINITY: float = 50000,
+        z_offset: float = -0.5,
     ):
         """Create a textured ground plane for the scene.
 
@@ -177,6 +178,9 @@ class RenderingTools:
                 model path adjustments may be necessary).
             INFINITY (float): Size of the ground plane in each direction.
                 Defaults to 50000.
+            z_offset (float): Z-axis position (height) of the ground plane.
+                Defaults to -0.5 to avoid z-fighting with road surface (road is at ~0.01).
+                For Eulerian/Cinematic modes, use lower values (e.g., -1.0) for better separation.
 
         Raises:
             ValueError: If context.loader is not initialized or if an unknown
@@ -221,7 +225,7 @@ class RenderingTools:
         cm_ground = CardMaker("ground")
         cm_ground.setFrame(-INFINITY, INFINITY, -INFINITY, INFINITY)
         ground = context.render.attachNewNode(cm_ground.generate())
-        ground.setPos(0, 0, -0.05)
+        ground.setPos(0, 0, z_offset)
         ground.setHpr(25, -90, 0)
 
         # load the texture

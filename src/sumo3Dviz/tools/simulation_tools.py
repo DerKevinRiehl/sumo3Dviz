@@ -89,8 +89,8 @@ class SimulationManager:
     def _update_camera(self, x, y, angle, current_time):
         if self.mode == "LAGRANGIAN":
             cast(Camera, self.context.camera).setPos(
-                x, y, self.configuration["visualization"]["viewer_height"]
-            )
+                x, y, 2.12
+            )  # adjusted camera height for car z position in Lagrangian mode
             cast(Camera, self.context.camera).setHpr(-angle, 0, 0)
         elif self.mode == "EULERIAN":
             if self.camera_position is None:
@@ -140,7 +140,9 @@ class SimulationManager:
         distance = 1.6  # how far in front you want the car to be
         car_x = x + distance * math.cos(math.radians(90 - angle))
         car_y = y + distance * math.sin(math.radians(90 - angle))
-        car_z = -0.5
+        car_z = (
+            0.12  # slightly above road surface to avoid z-fighting (road is at z=0.01)
+        )
         self.car_instances["ego_car"].setPos(car_x, car_y, car_z)
         self.car_instances["ego_car"].setHpr(
             (180 - angle) % 360 if turn_vehicle is False else -angle, 90, 0
@@ -228,7 +230,9 @@ class SimulationManager:
             # move instances
             for vehicle in neighborhood_vehicles:
                 car_instance = self.others_car_instances[vehicle[-1]]
-                car_instance.setPos(vehicle[0], vehicle[1], 0)
+                car_instance.setPos(
+                    vehicle[0], vehicle[1], 0.05
+                )  # slightly above road surface (road is at z=0.01)
                 car_instance.setHpr(180 - vehicle[2], 90, 0)
 
     def _record_video_frame(self):
