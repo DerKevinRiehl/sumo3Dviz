@@ -7,7 +7,7 @@ import cv2
 import math
 import numpy as np
 import pandas as pd
-from typing import cast, Optional, Dict, Any, Union
+from typing import cast, Optional, Dict, Any, Union, Literal
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import NodePath, Camera, GraphicsOutput
 
@@ -27,6 +27,7 @@ class SimulationManager:
         trajectory_data: Dict,
         car_instances: Dict,
         rendering_tools: Any,
+        mode: Literal["lagrangian", "eulerian", "cinematic"],
         video_writer: Optional[cv2.VideoWriter] = None,
         show_other_vehicles_simple: bool = False,
         signal_instances: Optional[list[dict]] = None,
@@ -42,6 +43,7 @@ class SimulationManager:
             trajectory_data: Trajectory Data
             car_instances: Dict
             rendering_tools: Instance of RenderingTools for traffic light updates
+            mode: The visualization mode ('lagrangian', 'eulerian', or 'cinematic')
             video_writer: OpenCV VideoWriter (optional)
             show_other_vehicles_simple: Whether to render other vehicles as box or car 3D object (optional)
             signal_instances: List of TrafficLightSchema objects (optional)
@@ -79,13 +81,9 @@ class SimulationManager:
         self.show_other_vehicles_simple = show_other_vehicles_simple
 
         # mode and position specific
+        self.mode = mode.upper()
         self.camera_position = camera_position
         self.cinematic_camera_trajectory = cinematic_camera_trajectory
-        self.mode = "LAGRANGIAN"
-        if self.camera_position is not None:
-            self.mode = "EULERIAN"
-        if self.cinematic_camera_trajectory is not None:
-            self.mode = "CINEMATIC"
         print("[sumo3Dviz mode]", self.mode)
 
     def _update_camera(self, x, y, angle, current_time):
@@ -137,13 +135,15 @@ class SimulationManager:
             signal, timer = None, 0
         return signal, timer
 
-    def _update_ego_car_position(self, x, y, angle):
+    def _update_ego_car_position(self, x, y, angle, turn_vehicle=False):
         distance = 1.6  # how far in front you want the car to be
         car_x = x + distance * math.cos(math.radians(90 - angle))
         car_y = y + distance * math.sin(math.radians(90 - angle))
         car_z = -0.5
         self.car_instances["ego_car"].setPos(car_x, car_y, car_z)
-        self.car_instances["ego_car"].setHpr(-angle, 90, 0)
+        self.car_instances["ego_car"].setHpr(
+            (180 - angle) % 360 if turn_vehicle is False else -angle, 90, 0
+        )
 
     def _update_traffic_lights(self):
         if self.signal_instances is None:
@@ -275,7 +275,9 @@ class SimulationManager:
 
             # update world scene
             self._update_camera(x, y, angle, current_time)
-            self._update_ego_car_position(x, y, angle)
+            self._update_ego_car_position(
+                x, y, angle, turn_vehicle=(self.mode == "LAGRANGIAN")
+            )
             self._update_traffic_lights()
             self._update_car_positions(x, y, current_time)
             self.current_point += 2

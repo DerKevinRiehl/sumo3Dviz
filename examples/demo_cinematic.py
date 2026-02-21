@@ -383,7 +383,7 @@ def main(config_override=None, output_file_override=None):
     car_models = loader.load_car_models(context=context)
     ego_car = loader.load_ego_car_model(context=context)
     ego_car.setPos(configuration["visualization"]["lane_width"] / 2, 25, 0)
-    ego_car.setHpr(180, 90, 0)
+    ego_car.setHpr(0, 90, 0)
 
     # create traffic light models and auxiliary stop lines when enabled
     signals = []
@@ -448,6 +448,7 @@ def main(config_override=None, output_file_override=None):
         trajectory_data=trajectories,
         car_instances=cars,
         rendering_tools=rendering_tools,
+        mode="cinematic",
         video_writer=video_writer,
         signal_instances=signals,
         cinematic_camera_trajectory=smoothened_camera_trajectory,
