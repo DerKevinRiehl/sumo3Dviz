@@ -152,7 +152,12 @@ class TrajectoryTools:
         df_smoothed["computed_angle_deg"] = np.degrees(
             df_smoothed["computed_angle_rad"]
         )
-        df_smoothed["computed_angle_deg"] = 90 - df_smoothed["computed_angle_deg"]
+
+        # convert from mathematical coordinates (0° = east) to navigation (0° = north)
+        # and normalize to [0, 360) to prevent negative angles
+        df_smoothed["computed_angle_deg"] = (
+            90 - df_smoothed["computed_angle_deg"]
+        ) % 360
 
         # if some values could not be computed, fill them with the original angle values
         df_smoothed["computed_angle_deg"] = df_smoothed["computed_angle_deg"].fillna(
@@ -172,17 +177,31 @@ class TrajectoryTools:
                 np.nan,
                 df_smoothed["computed_angle_deg"],
             )
-            df_smoothed["computed_angle_deg"] = df_smoothed[
-                "computed_angle_deg"
-            ].ffill()
+
+            # fill NaNs: first forward-fill, then backward-fill for any leading NaNs
+            df_smoothed["computed_angle_deg"] = (
+                df_smoothed["computed_angle_deg"].ffill().bfill()
+            )
+
+        # fill any remaining NaNs with the original smoothed angle values as a safety net
+        df_smoothed["computed_angle_deg"] = df_smoothed["computed_angle_deg"].fillna(
+            df_smoothed["angle"]
+        )
 
         # smoothen the computed angles again to reduce jitter with a window size of 41
+        # use unwrap to handle 0/360 boundary correctly during smoothing
         window_size_angle = 41
-        df_smoothed["computed_angle_deg"] = (
-            df_smoothed["computed_angle_deg"]
+        angle_smoothed_unwrapped = (
+            pd.Series(
+                np.unwrap(df_smoothed["computed_angle_deg"], period=360),
+                index=df_smoothed.index,
+            )
             .rolling(window=window_size_angle, center=True, min_periods=1)
             .mean()
         )
+
+        # re-wrap to [0, 360) after smoothing
+        df_smoothed["computed_angle_deg"] = angle_smoothed_unwrapped % 360
 
         # select the relevant columns and validate the final DataFrame schema
         df_smoothed = SmoothenedTrajectoryDFSchema.validate(
