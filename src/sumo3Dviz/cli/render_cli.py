@@ -479,6 +479,21 @@ def main():
             cinematic_camera_trajectory=smoothened_camera_trajectory,
             show_other_vehicles_simple=True,
         )
+
+        # Set camera to correct initial position before rendering starts
+        first_camera_frame = smoothened_camera_trajectory.iloc[0]
+        cast(Camera, context.camera).setPos(
+            first_camera_frame["pos_x"],
+            first_camera_frame["pos_y"],
+            first_camera_frame["pos_z"],
+        )
+        # Normalize angles to [0, 360) range for Panda3D
+        cast(Camera, context.camera).setHpr(
+            first_camera_frame["ori_h"] % 360,
+            first_camera_frame["ori_p"] % 360,
+            first_camera_frame["ori_r"] % 360,
+        )
+
         context.taskMgr.doMethodLater(
             0.0, simulation_manager.update_world, "update_world"
         )
