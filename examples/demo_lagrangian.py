@@ -384,6 +384,7 @@ def main(config_override=None, output_file_override=None):
         trajectory_data=trajectories,
         car_instances=cars,
         rendering_tools=rendering_tools,
+        mode="lagrangian",
         video_writer=video_writer,
         signal_instances=signals,
     )
