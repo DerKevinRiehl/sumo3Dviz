@@ -119,8 +119,9 @@ class SimulationManager:
             cast(Camera, self.context.camera).setPos(
                 row["pos_x"], row["pos_y"], row["pos_z"]
             )
+            # normalize angles to [0, 360) range for Panda3D
             cast(Camera, self.context.camera).setHpr(
-                row["ori_h"], row["ori_p"], row["ori_r"]
+                row["ori_h"] % 360, row["ori_p"] % 360, row["ori_r"] % 360
             )
 
     def _get_signal_state(self, traffic_light_id: str):

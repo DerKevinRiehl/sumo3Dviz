@@ -11,6 +11,7 @@ from typing import cast, Union
 from pandera.typing import DataFrame, Series
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Optional, Tuple
+from scipy.interpolate import CubicSpline
 
 
 class TrajectoryDFSchema(pa.DataFrameModel):
@@ -222,7 +223,7 @@ class TrajectoryTools:
         video_fps: float,
     ):
         """
-        Generate a smooth camera trajectory from keyframes.
+        Generate a smooth camera trajectory from keyframes using cubic spline interpolation.
 
         Args:
             camera_position_trajectory (dict): keyframes as {"time": {"pos_x":..,"ori_h":..,...}}
@@ -254,43 +255,35 @@ class TrajectoryTools:
                 dtype=float,
             )
 
-            if k.startswith("ori_"):  # handle angular wrapping
-                # Convert to radians and unwrap
+            if k.startswith("ori_"):  # handle angular wrapping with proper unwrapping
+                # Convert to radians and unwrap to ensure smooth interpolation
                 values_rad = np.deg2rad(values)
-                values_rad = np.unwrap(
-                    values_rad
-                )  # unwrap ensures smooth interpolation
-                # Interpolate
-                interp_values_rad = np.interp(times, keyframe_times, values_rad)
-                # Convert back to degrees
-                interp_data[k] = np.rad2deg(interp_values_rad) % 360
+                values_rad = np.unwrap(values_rad)
+
+                # Use cubic spline interpolation for smooth curves
+                if len(keyframe_times) > 1:
+                    cs = CubicSpline(keyframe_times, values_rad, bc_type="natural")
+                    interp_values_rad = cs(times)
+                else:
+                    # Single keyframe - constant value
+                    interp_values_rad = np.full_like(times, values_rad[0])
+
+                # Convert back to degrees WITHOUT modulo to preserve continuity
+                # Only normalize at the very end when setting camera
+                interp_data[k] = np.rad2deg(interp_values_rad)
             else:
-                # Linear interpolation with out-of-bounds clamping
-                interp_values = np.interp(
-                    times,
-                    keyframe_times,
-                    values,
-                    left=values[0],  # stable before first keyframe
-                    right=values[-1],  # stable after last keyframe
-                )
+                # Use cubic spline for position coordinates
+                if len(keyframe_times) > 1:
+                    cs = CubicSpline(keyframe_times, values, bc_type="natural")
+                    interp_values = cs(times)
+                else:
+                    # Single keyframe - constant value
+                    interp_values = np.full_like(times, values[0])
+
                 interp_data[k] = interp_values
 
-        # 4. Apply centered moving average smoothing (window=41, or smaller for short sequences)
-        # Ensure window size is odd and doesn't exceed data length
-        window_size = min(41, len(times))
-        if window_size % 2 == 0:
-            window_size -= 1  # Make it odd for centered smoothing
-        window_size = max(1, window_size)  # At least 1
-
-        def moving_average(arr, window):
-            if window == 1:
-                return arr  # No smoothing for very short sequences
-            return np.convolve(arr, np.ones(window) / window, mode="same")
-
-        smoothed_data = {k: moving_average(interp_data[k], window_size) for k in keys}
-
-        # 5. Build the DataFrame
-        df_camera_trajectory_smoothed = pd.DataFrame({"time": times, **smoothed_data})
+        # 4. Build the DataFrame (no additional smoothing needed with cubic splines)
+        df_camera_trajectory_smoothed = pd.DataFrame({"time": times, **interp_data})
 
         return df_camera_trajectory_smoothed
 
