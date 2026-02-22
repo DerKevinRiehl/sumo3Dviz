@@ -198,9 +198,13 @@ def main(config_override=None, max_frames=None):
         context=context,
         sky_texture=configuration["visualization"]["sky_texture"],
     )
+
+    # in interactive mode, ground uses default z_offset=-0.5 which provides
+    # sufficient separation from road (z=0.01) to avoid z-fighting artifacts.
     rendering_tools.create_ground(
         context=context,
         ground_texture=configuration["visualization"]["ground_texture"],
+        z_offset=-0.5,
     )
 
     # create the road network from the SUMO network file (lanes and markings)

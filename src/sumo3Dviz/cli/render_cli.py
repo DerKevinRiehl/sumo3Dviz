@@ -243,7 +243,11 @@ def main():
             trajectories["ego_trajectory"]["pos_y"].iloc[
                 trajectories["video_start_idx"]
             ],
-            configuration["visualization"]["viewer_height"],
+            (
+                2.12  # adjusted camera height of the car position in Lagrangian mode
+                if mode == "lagrangian"
+                else configuration["visualization"]["viewer_height"]
+            ),
         )
         cast(Camera, context.camera).setHpr(120, 0, 0)
 
@@ -264,9 +268,15 @@ def main():
         context=context,
         sky_texture=configuration["visualization"]["sky_texture"],
     )
+
+    # lower z_offset prevents z-fighting between ground and road (road is at z=0.01).
+    # for eulerian/cinematic modes, larger vertical separation is used as it's not visible from camera.
+    # and further away camera positions increase likelihood of z-fighting artifacts
+    ground_z_offset = -1.0 if mode in ["eulerian", "cinematic"] else -0.5
     rendering_tools.create_ground(
         context=context,
         ground_texture=configuration["visualization"]["ground_texture"],
+        z_offset=ground_z_offset,
     )
 
     # create the road network from the SUMO network file (lanes and markings)

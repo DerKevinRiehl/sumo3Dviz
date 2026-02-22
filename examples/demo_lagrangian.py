@@ -56,7 +56,7 @@ mode_configuration = {
         "sky_texture": "sky_cloudy",
         "ground_texture": "ground_grass",
         "show_other_vehicles": True,
-        "viewer_height": 1.5,
+        "viewer_height": 2.12,  # fixed to 2.12 for lagrangian mode to match car z position
         "show_signals": True,
     },
     "paths": {
@@ -273,7 +273,7 @@ def main(config_override=None, output_file_override=None):
     cast(Camera, context.camera).setPos(
         trajectories["ego_trajectory"]["pos_x"].iloc[trajectories["video_start_idx"]],
         trajectories["ego_trajectory"]["pos_y"].iloc[trajectories["video_start_idx"]],
-        configuration["visualization"]["viewer_height"],
+        2.12,  # adjusted camera height for car z position in Lagrangian mode
     )
     cast(Camera, context.camera).setHpr(120, 0, 0)
 
@@ -285,9 +285,14 @@ def main(config_override=None, output_file_override=None):
         context=context,
         sky_texture=configuration["visualization"]["sky_texture"],
     )
+
+    # in lagrangian mode (driver perspective), ground uses default z_offset=-0.5
+    # which provides sufficient separation from road (z=0.01) to avoid z-fighting
+    # while maintaining realistic appearance from driver's viewpoint.
     rendering_tools.create_ground(
         context=context,
         ground_texture=configuration["visualization"]["ground_texture"],
+        z_offset=-0.5,
     )
 
     # create the road network from the SUMO network file (lanes and markings)

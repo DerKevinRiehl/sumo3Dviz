@@ -293,9 +293,13 @@ def main(config_override=None, output_file_override=None):
         context=context,
         sky_texture=configuration["visualization"]["sky_texture"],
     )
+
+    # lower z_offset prevents z-fighting between ground and road (road is at z=0.01).
+    # in eulerian mode, this vertical distance is not noticeable from camera perspective.
     rendering_tools.create_ground(
         context=context,
         ground_texture=configuration["visualization"]["ground_texture"],
+        z_offset=-1.0,  # significantly below road to avoid z-fighting artifacts
     )
 
     # create the road network from the SUMO network file (lanes and markings)

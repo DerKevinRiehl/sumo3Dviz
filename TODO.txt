@@ -11,4 +11,3 @@ Nice to Have:
 - Unify Docstrings according to Sphinx notation (so we can auto-render pydocs)
 - Implement pydocs sphinx rendering in github workflow to create website
 - dashed line in mac issue?
-- rendering issue road and grass
