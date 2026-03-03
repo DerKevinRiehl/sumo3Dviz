@@ -141,12 +141,11 @@ paths:
 # ================================================================================
 # Configuration for traffic light and ramp metering visualization
 signals:
-  # Traffic light design type
-  # Available options:
-  #   - simple: Basic two-light ramp metering (red/green)
-  #   - three_headed: Standard three-light traffic signal (red/yellow/green)
-  #   - countdown_timer: Ramp metering with countdown display
-  signal_design: "three_headed"
+  # Number of heads per signal (2 or 3)
+  num_heads: 3
+
+  # Whether to show a countdown timer display next to signals
+  countdown_timer: true
 
   # Physical positions of traffic lights
   # Define an array of traffic light positions, each with a unique identifier

@@ -333,10 +333,19 @@ def main():
         if configuration["visualization"]["show_signals"]:
             for signal in configuration["signals"]["traffic_light_positions"]:
                 print(f"Creating traffic light for signal ID: {signal['id']}")
+                # allow per-signal overrides; fall back to global settings
+                local_num_heads = signal.get(
+                    "num_heads", configuration["signals"].get("num_heads", 3)
+                )
+                local_countdown = signal.get(
+                    "countdown_timer",
+                    configuration["signals"].get("countdown_timer", True),
+                )
                 box_node1, box_node2, box_node3, text_node = (
                     rendering_tools.create_traffic_light(
                         context=context,
-                        design=configuration["signals"]["signal_design"],
+                        num_heads=local_num_heads,
+                        countdown_timer=local_countdown,
                         x=signal["pos_x"],
                         y=signal["pos_y"],
                         z=0,
@@ -351,6 +360,7 @@ def main():
                     sep_line_width=configuration["visualization"]["sep_line_width"],
                 )
 
+                # store per-instance settings so the simulation loop can update correctly
                 signals.append(
                     {
                         "id": signal["id"],
@@ -358,6 +368,8 @@ def main():
                         "box_node2": box_node2,
                         "box_node3": box_node3,
                         "text_node": text_node,
+                        "num_heads": local_num_heads,
+                        "countdown_timer": local_countdown,
                     }
                 )
         print(50 * "#")

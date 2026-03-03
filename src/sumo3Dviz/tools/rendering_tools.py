@@ -643,9 +643,10 @@ class RenderingTools:
     def create_traffic_light(
         self,
         context: ShowBase,
-        design: str,
-        x: float,
-        y: float,
+        num_heads: int = 3,
+        countdown_timer: bool = False,
+        x: float = 0,
+        y: float = 0,
         z: float = 0,
         pole_height: float = 2.0,
         signal: str = "yellow",
@@ -659,10 +660,8 @@ class RenderingTools:
 
         Args:
             context (ShowBase): The Panda3D ShowBase context.
-            design (str): Traffic light design type:
-                - "simple": Simple ramp metering (red/green only)
-                - "three_headed": Three-headed traffic light (red/yellow/green)
-                - "countdown_timer": Ramp metering with countdown timer
+            num_heads (int): Number of heads for the traffic light (default: 3).
+            countdown_timer (bool): Whether to include a countdown timer display (default: False).
             x (float): X coordinate for traffic light position.
             y (float): Y coordinate for traffic light position.
             z (float): Z coordinate (ground level). Defaults to 0.
@@ -680,18 +679,9 @@ class RenderingTools:
         """
 
         print("\tDrawing traffic light...")
-        if design == "simple":  # RAMP METERING SIMPLE
-            THREE_HEAD = False
-            COUNTDOWN_TIMER = False
-        elif design == "three_headed":  # THREE HEADED
-            THREE_HEAD = True
-            COUNTDOWN_TIMER = False
-        elif design == "countdown_timer":  # COUNTDOWN TIMER
-            THREE_HEAD = False
-            COUNTDOWN_TIMER = True
-        else:
-            THREE_HEAD = False
-            COUNTDOWN_TIMER = False
+        # determine layout from new parameters (supports per-signal overrides)
+        THREE_HEAD = True if num_heads == 3 else False
+        COUNTDOWN_TIMER = True if countdown_timer else False
 
         # 1. Draw a vertical line as a pole
         pole_thickness = 10
@@ -942,7 +932,11 @@ class RenderingTools:
         text_node = TextNode("billboarded_text")
         text_node.setText(text)
         text_node.setTextColor(*color)
-        consolas_font = FontPool.load_font("consola.ttf")
+        font_path_bytes = pkg_resources.resource_filename(
+            "sumo3Dviz", "data/fonts/consola.ttf"
+        )
+        font_p3d_path = Filename.fromOsSpecific(font_path_bytes)
+        consolas_font = FontPool.loadFont(font_p3d_path.getFullpath())
         text_node.setFont(consolas_font)
 
         # attach to a node
@@ -1007,7 +1001,8 @@ class RenderingTools:
     def update_traffic_light(
         self,
         signal_state: str,
-        design: str,
+        num_heads: int,
+        countdown_timer: bool,
         timer: float,
         box_node1: NodePath,
         box_node2: NodePath,
@@ -1026,19 +1021,9 @@ class RenderingTools:
             box_node3: Third light box node (green in 3-head, None otherwise)
             text_node: Text node for countdown timer (None if no timer)
         """
-        # determine Design
-        if design == "simple":  # RAMP METERING SIMPLE
-            THREE_HEAD = False
-            COUNTDOWN_TIMER = False
-        elif design == "three_headed":  # THREE HEADED
-            THREE_HEAD = True
-            COUNTDOWN_TIMER = False
-        elif design == "countdown_timer":  # COUNTDOWN TIMER
-            THREE_HEAD = False
-            COUNTDOWN_TIMER = True
-        else:
-            THREE_HEAD = False
-            COUNTDOWN_TIMER = False
+        # determine layout from new parameters (supports per-signal overrides)
+        THREE_HEAD = True if num_heads == 3 else False
+        COUNTDOWN_TIMER = True if countdown_timer else False
 
         # set Traffic Light colors
         full_color = 1.0

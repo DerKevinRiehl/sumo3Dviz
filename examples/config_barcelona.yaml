@@ -59,7 +59,8 @@ paths:
 # SIGNAL PARAMETERS (OPTIONAL)
 # ================================================================================
 signals:
-  signal_design: "three_headed" # DESIGN TYPES: simple, three_headed, countdown_timer
+  num_heads: 3 # 2 or 3
+  countdown_timer: true
   traffic_light_positions:
     [
       {
@@ -70,6 +71,8 @@ signals:
         "stop_line_b": 18264.87,
         "stop_line_c": 20226.77,
         "stop_line_d": 18261.15,
+        "num_heads": 2,
+        "countdown_timer": true,
       },
       {
         "id": "JE2",
@@ -79,6 +82,8 @@ signals:
         "stop_line_b": 18264.87,
         "stop_line_c": 20226.77,
         "stop_line_d": 18261.15,
+        "num_heads": 3,
+        "countdown_timer": false,
       },
     ]
 

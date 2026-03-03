@@ -1,10 +1,5 @@
 
 Definitive:
-- trajectory_tools.py "# TODO: improve the efficiency of the code by including this filtering condition"
-- Enable Traffic Light with 3 heads and countdown timer as well (no signal_style, but head_style and countdown_timer yes no)
-- Render Lagrangian View Again
-- Upload videos on youtube 
-- Finalize Readme 
 - Let it check by another student independently (e.g. Thomas, Krishna, Linghang)
 
 Nice to Have:

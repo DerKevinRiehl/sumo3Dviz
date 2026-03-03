@@ -81,9 +81,10 @@ It converts standard SUMO simulation outputs, such as vehicle trajectories and s
 
 Video Demos on YouTube:
 
-- https://www.youtube.com/watch?v=wEUbjlqigyg
-- https://www.youtube.com/watch?v=dq9pH1Cj7gA
-- https://www.youtube.com/watch?v=XvpG5cbv7Ig
+- Eulerian: https://www.youtube.com/watch?v=XvpG5cbv7Ig
+- Lagrangian: https://www.youtube.com/watch?v=DesOELXIWxc
+- Cinematic: https://www.youtube.com/watch?v=wEUbjlqigyg
+- Interactive: https://www.youtube.com/watch?v=dq9pH1Cj7gA
 
 ## Installation
 
@@ -103,25 +104,25 @@ You can use sumo3Dviz as command line tool (CLI), configure a variety of paramet
 1. Run sumo3Dviz in Eulerian mode:
 
 ```
-sumo3Dviz --config config.yaml --mode eulerian --output results/vid_eul.avi
+sumo3Dviz --config examples/config_barcelona.yaml --mode eulerian --output examples/barcelona_simulation_eulerian.avi
 ```
 
 2. Run sumo3Dviz in Lagrangian mode:
 
 ```
-sumo3Dviz --config config.yaml --mode lagrangian --output results/vid_lag.avi
+sumo3Dviz --config examples/config_barcelona.yaml --mode lagrangian --output examples/barcelona_simulation_lagrangian.avi
 ```
 
 3. Run sumo3Dviz in Cinematic mode:
 
 ```
-sumo3Dviz --config config.yaml --mode cinematic --output results/vid_cin.avi
+sumo3Dviz --config examples/config_barcelona.yaml --mode cinematic --output examples/barcelona_simulation_cinematic.avi
 ```
 
 4. Run sumo3Dviz in Interactive mode:
 
 ```
-sumo3Dviz --config config.yaml --mode interactive
+sumo3Dviz --config examples/config_barcelona.yaml --mode interactive
 ```
 
 ## Case Study: Barcelona
@@ -205,17 +206,22 @@ The simulation's input files (network, POIs), and the generated output log files
 
 ### Step 2: Prepare Visualisation Configuration
 
+You can configure various aspects, such as textures, position of buildings, fences, trees, etc. in the configuration YAML file.
+Furthermore, the configuration contains possible settings for all modes, related to camera configurations.
+An exemplary structure for such a configuration can be found in `examples/config_barcelona.yaml`.
+
 ### Step 3: Render Video Visualisation with sumo3Dviz
 
 #### Command Line Interface (CLI)
 
+This is one example how you can run sumo3Dviz with a CLI one line in your terminal:
 ```bash
-sumo3Dviz --config path/to/your/configuration.yaml
+sumo3Dviz --config examples/config_barcelona.yaml --mode eulerian --output examples/barcelona_simulation_eulerian.avi
 ```
 
 #### Python Code
 
-In this repository we provide four example codes to run sumo3Dviz in the four different modes, that can be found in `.examples/`. These examples visualize the aforementioned case study of Barcelona.
+In this repository we provide four example codes to run sumo3Dviz in the four different modes as a Python script, that can be found in `.examples/`. These examples visualize the aforementioned case study of Barcelona.
 
 1. Run sumo3Dviz in Eulerian mode:
 
@@ -241,29 +247,6 @@ python examples/demo_cinematic.py
 python examples/demo_interactive.py
 ```
 
-# USAGE
-
-## Option 1: CLI usage (after installation through pip)
-
-```bash
-pip install sumo3Dviz
-sumo3Dviz --config path/to/your/configuration.yaml
-```
-
-To run the example provided in the repository, you can run
-
-```bash
-sumo3Dviz --config examples/config_barcelona.yaml
-```
-
-## Option 2: Module-based usage (after installation through pip)
-
-Import the relevant modules and run the rendering mechanism as demonstrated in the `render_barcelona.py` script:
-
-```bash
-pip install sumo3Dviz
-python examples/render_barcelona.py
-```
 
 ## Citations
 

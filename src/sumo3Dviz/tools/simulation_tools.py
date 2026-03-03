@@ -165,7 +165,14 @@ class SimulationManager:
 
                 self.rendering_tools.update_traffic_light(
                     signal_state=signal_state,
-                    design=self.configuration["signals"]["signal_design"],
+                    # prefer per-signal override stored in the signal instance
+                    num_heads=signal.get(
+                        "num_heads", self.configuration["signals"].get("num_heads", 3)
+                    ),
+                    countdown_timer=signal.get(
+                        "countdown_timer",
+                        self.configuration["signals"].get("countdown_timer", False),
+                    ),
                     timer=timer,
                     box_node1=signal["box_node1"],
                     box_node2=signal["box_node2"],

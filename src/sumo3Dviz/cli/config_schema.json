@@ -141,16 +141,31 @@
       "type": "object",
       "description": "Required for non-interactive modes when 'show_signals' is enabled",
       "properties": {
-        "signal_design": {
-          "type": "string",
-          "enum": ["simple", "three_headed", "countdown_timer"],
-          "default": "three_headed"
+        "num_heads": {
+          "type": "integer",
+          "enum": [2, 3],
+          "default": 3,
+          "description": "Number of heads for traffic light (2 for ramp metering, 3 for standard lights)"
+        },
+        "countdown_timer": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to show a countdown timer display next to the signal"
         },
         "traffic_light_positions": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
+              "num_heads": {
+                "type": "integer",
+                "enum": [2, 3],
+                "description": "Per-signal override for number of heads (2 or 3)"
+              },
+              "countdown_timer": {
+                "type": "boolean",
+                "description": "Per-signal override to enable/disable countdown timer"
+              },
               "id": { "type": "string" },
               "pos_x": { "type": "number" },
               "pos_y": { "type": "number" },

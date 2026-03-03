@@ -95,7 +95,8 @@ mode_configuration = {
         ),
     },
     "signals": {
-        "signal_design": "three_headed",  # DESIGN TYPES: simple, three_headed, countdown_timer
+        "num_heads": 3,  # 2 or 3
+        "countdown_timer": True,
         "traffic_light_positions": [
             {
                 "id": "JE3",
