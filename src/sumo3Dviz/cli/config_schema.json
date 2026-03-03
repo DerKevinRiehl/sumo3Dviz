@@ -101,6 +101,11 @@
           "type": "number",
           "default": 1.5,
           "description": "Required for non-interactive modes (eulerian, lagrangian, cinematic)"
+        },
+        "show_dashed_lane_seperator_line": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, dashed lane separator lines will be rendered (may impact performance)."
         }
       },
       "additionalProperties": false

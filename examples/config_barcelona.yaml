@@ -28,6 +28,7 @@ visualization:
   # Settings
   show_other_vehicles: True
   show_signals: True
+  show_dashed_lane_seperator_line: False
   # Lane related
   lane_width: 3.2
   sep_line_width: 0.2

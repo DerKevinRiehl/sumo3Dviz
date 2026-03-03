@@ -1086,6 +1086,7 @@ class RenderingTools:
         sep_line_width: float,
         concrete_color: Tuple[float, float, float, float] = (0.2, 0.2, 0.2, 1),
         separator_color: Tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1),
+        show_dashed_lane_seperator_line: bool = False,
     ):
         """Create a 3D representation of a SUMO road network.
 
@@ -1127,6 +1128,7 @@ class RenderingTools:
                     lane_id=lane_l,
                     concrete_color=concrete_color,
                     separator_color=separator_color,
+                    show_dashed=show_dashed_lane_seperator_line,
                 )
 
         # draw junctions
@@ -1150,6 +1152,7 @@ class RenderingTools:
         lane_id: str,
         concrete_color: Tuple[float, float, float, float],
         separator_color: Tuple[float, float, float, float],
+        show_dashed: bool = False,
     ):
         """Create a single lane with appropriate road markings.
 
@@ -1197,16 +1200,17 @@ class RenderingTools:
                 sep_line_width=sep_line_width,
                 color=separator_color,
             )
-            self._create_white_separator_line_right_dashed(
-                context=context,
-                lane_shape=lane_shape,
-                lane_width=lane_width,
-                sep_line_width=sep_line_width,
-                color=separator_color,
-                z=0.03,
-                dash_length=1.0,
-                gap_length=1.0,
-            )
+            if show_dashed:
+                self._create_white_separator_line_right_dashed(
+                    context=context,
+                    lane_shape=lane_shape,
+                    lane_width=lane_width,
+                    sep_line_width=sep_line_width,
+                    color=separator_color,
+                    z=0.03,
+                    dash_length=1.0,
+                    gap_length=1.0,
+                )
         elif lane_id == "e":
             self._create_white_seperator_line_left(
                 context=context,
@@ -1216,16 +1220,17 @@ class RenderingTools:
                 color=separator_color,
             )
         elif lane_id == "i":
-            self._create_white_separator_line_right_dashed(
-                context=context,
-                lane_shape=lane_shape,
-                lane_width=lane_width,
-                sep_line_width=sep_line_width,
-                color=separator_color,
-                z=0.03,
-                dash_length=1.0,
-                gap_length=1.0,
-            )
+            if show_dashed:
+                self._create_white_separator_line_right_dashed(
+                    context=context,
+                    lane_shape=lane_shape,
+                    lane_width=lane_width,
+                    sep_line_width=sep_line_width,
+                    color=separator_color,
+                    z=0.03,
+                    dash_length=1.0,
+                    gap_length=1.0,
+                )
 
     def _create_concrete(
         self,
@@ -1372,7 +1377,6 @@ class RenderingTools:
             road.setColor(LColor(*color))
             road.setBin("ground", 12)
 
-    # TODO - figure out why this function causes issues with rendering speed
     def _create_white_separator_line_right_dashed(
         self,
         context: ShowBase,
@@ -1396,8 +1400,6 @@ class RenderingTools:
             z (float): Z coordinate (height) of the line. Defaults to 0.03.
             dash_length (float): Length of each dash. Defaults to 1.0.
             gap_length (float): Length of gap between dashes. Defaults to 1.0.
-        """
-        pass
         """
         for i in range(len(lane_shape) - 1):
             pA = np.asarray(lane_shape[i])
@@ -1426,7 +1428,6 @@ class RenderingTools:
                 dash.setHpr(angle_deg, -90, 0)
                 dash.setColor(LColor(*color))
                 dash.setBin("ground", 12)
-        """
 
     def _create_polygon_fan(
         self,

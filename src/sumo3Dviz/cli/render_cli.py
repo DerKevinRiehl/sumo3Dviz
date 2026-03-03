@@ -285,6 +285,9 @@ def main():
         sumo_network_file=configuration["paths"]["sumo_network_file"],
         lane_width=configuration["visualization"]["lane_width"],
         sep_line_width=configuration["visualization"]["sep_line_width"],
+        show_dashed_lane_seperator_line=configuration["visualization"].get(
+            "show_dashed_lane_seperator_line", False
+        ),
     )
 
     # instantiate tree models at the loaded tree positions

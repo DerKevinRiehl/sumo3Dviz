@@ -49,6 +49,7 @@ mode_configuration = {
     "visualization": {
         "lane_width": 3.2,
         "sep_line_width": 0.2,
+        "show_dashed_lane_seperator_line": False,
         "tree_scale_1": 0.2,
         "tree_scale_2": 0.5,
         "tree_size_variability": 1,
@@ -352,10 +353,18 @@ def main(config_override=None, output_file_override=None):
     if configuration["visualization"]["show_signals"]:
         for signal in configuration["signals"]["traffic_light_positions"]:
             print(f"Creating traffic light for signal ID: {signal['id']}")
+            # allow per-signal overrides; fall back to global settings
+            local_num_heads = signal.get(
+                "num_heads", configuration["signals"].get("num_heads", 3)
+            )
+            local_countdown = signal.get(
+                "countdown_timer", configuration["signals"].get("countdown_timer", True)
+            )
             box_node1, box_node2, box_node3, text_node = (
                 rendering_tools.create_traffic_light(
                     context=context,
-                    design=configuration["signals"]["signal_design"],
+                    num_heads=local_num_heads,
+                    countdown_timer=local_countdown,
                     x=signal["pos_x"],
                     y=signal["pos_y"],
                     z=0,
@@ -377,6 +386,8 @@ def main(config_override=None, output_file_override=None):
                     "box_node2": box_node2,
                     "box_node3": box_node3,
                     "text_node": text_node,
+                    "num_heads": local_num_heads,
+                    "countdown_timer": local_countdown,
                 }
             )
 

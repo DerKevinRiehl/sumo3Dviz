@@ -99,6 +99,9 @@ visualization:
   # Typical values: 1.5m (sitting in car), 2.0m (standing), 10.0m (aerial view)
   viewer_height: 1.5
 
+  # Whether dashed lane separator lines should be shown (may impact performance)
+  show_dashed_lane_seperator_line: false
+
 # ================================================================================
 # PATH PARAMETERS (REQUIRED)
 # ================================================================================

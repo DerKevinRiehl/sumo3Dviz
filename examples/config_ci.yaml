@@ -32,6 +32,7 @@ visualization:
   # Lane related
   lane_width: 3.2
   sep_line_width: 0.2
+  show_dashed_lane_seperator_line: False
   # Tree related
   tree_scale_1: 0.2
   tree_scale_2: 0.5
