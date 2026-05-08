@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Riehl
+    given-names: Kevin
+  - family-names: Schlapbach
+    given-names: Julius
+  - family-names: Kouvelas
+    given-names: Anastasios
+  - family-names: Makridis
+    given-names: Michail A.
+title: "sumo3Dviz: A three dimensional traffic visualisation"
+doi: 10.48550/arXiv.2604.19194
+url: https://arxiv.org/abs/2604.19194
+date-released: 2026-04-21
+preferred-citation:
+  authors:
+    - family-names: Riehl
+      given-names: Kevin
+    - family-names: Schlapbach
+      given-names: Julius
+    - family-names: Kouvelas
+      given-names: Anastasios
+    - family-names: Makridis
+      given-names: Michail A.
+  title: "sumo3Dviz: A three dimensional traffic visualisation"
+  doi: 10.48550/arXiv.2604.19194
+  url: https://arxiv.org/abs/2604.19194
+  type: generic
+  year: "2026"
+  conference: {}
+  publisher: {}
