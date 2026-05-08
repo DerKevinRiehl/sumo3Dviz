@@ -215,6 +215,7 @@ An exemplary structure for such a configuration can be found in `examples/config
 #### Command Line Interface (CLI)
 
 This is one example how you can run sumo3Dviz with a CLI one line in your terminal:
+
 ```bash
 sumo3Dviz --config examples/config_barcelona.yaml --mode eulerian --output examples/barcelona_simulation_eulerian.avi
 ```
@@ -247,16 +248,19 @@ python examples/demo_cinematic.py
 python examples/demo_interactive.py
 ```
 
-
 ## Citations
 
 Please cite our paper if you find sumo3Dviz useful:
 
 ```
-@inproceedings{riehl2026sumo3Dviz,
-  title={sumo3Dviz: A three dimensional traffic visualisation},
-  author={Riehl, Kevin and Schlapbach, Julius and Kouvelas, Anastasios and Makridis, Michail A.},
-  booktitle={SUMO Conference Proceedings},
-  year={2026}
+@misc{riehl2026sumo3dviz,
+      title={sumo3Dviz: A three dimensional traffic visualisation},
+      author={Kevin Riehl and Julius Schlapbach and Anastasios Kouvelas and Michail A. Makridis},
+      year={2026},
+      eprint={2604.19194},
+      archivePrefix={arXiv},
+      primaryClass={cs.GR},
+      doi={10.48550/arXiv.2604.19194},
+      url={https://arxiv.org/abs/2604.19194},
 }
 ```
